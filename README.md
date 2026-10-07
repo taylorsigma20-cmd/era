@@ -1,38 +1,44 @@
 # ERA for Windows
 
-ERA is an English-language ER:LC server staff tool, a fixed iPhone-style overlay and a non-invasive **game-over-player overlay**. The Windows NSIS installer is `ERA-Setup-0.8.0.exe`.
+ERA is an English-language ER:LC staff companion with a fixed iPhone-style phone, a staff dashboard and a transparent live player overlay. The current development version is **0.9.0**; its Windows NSIS installer is built as `ERA-Setup-0.9.0.exe`.
 
-## Open the player overlay over Roblox
+## Phone and Roblox-only overlay
 
-1. Run ERA and add your ER:LC private-server API key under **Add Server**.
-2. Select the server you are playing on.
-3. Focus Roblox and press **F3**. ERA opens an always-on-top, translucent window over the game without taking away game focus.
-4. Choose a player from the live roster. Their API-provided profile appears in the card beside the roster.
-5. Press **F3** again or click **×** to hide the overlay. Use **↻** to refresh the current roster. **Open Staff Tools** switches to the full ERA dashboard.
+The phone starts hidden and **F1** toggles it while Roblox is the active foreground app. The phone and the F3 player overlay hide when focus leaves Roblox/ERA. The foreground check uses the Windows active-window process path; the app does not inject into the game, read game memory, or bypass anti-cheat.
 
-The phone **starts hidden** when ERA opens. Press **F1** to show or hide it. The phone shell includes an iPhone-style Dynamic Island and bottom home indicator. **F2** opens the full server dashboard. The F1 behavior is independent of the F3 game-player overlay. If F3 does not appear in your particular full-screen configuration, switch Roblox to windowed/borderless mode and try again.
+On first use, create a local phone profile with a display name and your Roblox user ID. The profile, theme choice, notes, contacts and local drafts stay on this computer. The Roblox ID is used to compare your live account with the PRC `Permission` field. F2 opens the staff dashboard. **Server Administrators and the Server Owner** can open F3 and view the live CAD roster and player cards. Other roles are denied by the main process.
 
-**Important limitation:** This is a companion desktop window placed above the game. It cannot detect that you clicked an avatar inside Roblox and does not alter or inject code into Roblox/ER:LC. To view a profile, select the player from ERA's live roster. Only ER:LC's developers can add a genuine click-the-character profile to the game itself. The overlay intentionally uses no process injection, game-memory reading, packet interception, or anti-cheat bypass.
+## Working local apps
 
-## Live data, notes and commands
+- **Notes** and contacts are stored locally.
+- **Clock** shows local time and includes a stopwatch with split laps and a countdown timer.
+- **Postimees** loads live headlines from its public RSS feed; selecting a headline opens the article on the Postimees website.
+- **Threads** saves local drafts only. No posts are sent to other players or published.
+- **Wallpapers** include built-in themes and an optional local image (under 3 MB).
 
-Add the server API key for your own private server. The key is encrypted for the current Windows user, used locally and never sent to an ERA-hosted service. Keep it private—PRC warns that a server key grants access to server data and commands. PRC's Remote Server Management permissions and server configuration decide whether a command can run.
+The phone no longer includes an ERA server-management app or FOX News. F2 remains a separate staff dashboard.
 
-Select **View Players** to retrieve the current live roster from PRC. The profile displays API-provided username/ID, team, permission, callsign, wanted stars and location when present. No automatic polling is done. The API does not provide lifetime playtime, a reliable warning count or complete moderation history. Logged kicks/bans are only matching commands in the logs returned for that request, not lifetime totals. Session time is shown only when the newest matching join-log event indicates a join. Staff notes are stored only on this computer.
+## Features requiring a shared service
 
-PM, kick, ban, wanted and unwanted are real server actions. ERA verifies that the selected player still appears in a current server snapshot, limits command frequency, presents an in-app message/reason entry where needed, and then requests native confirmation. Verify the action before confirming; a confirmed action may take effect immediately. PRC permits occasional PMs but prohibits using PM to replace Roblox chat, the in-game phone or radio.
+The official [PRC API](https://apidocs.erlc.gg/) provides ER:LC player/server data and moderation commands. Its documented player endpoint does **not** assign personal phone numbers or expose a phone/SMS service or bank balance. Calls, inter-player SMS, globally unique numbers and real ERABank balances therefore stay disconnected instead of showing fabricated accounts/data. ERABank explicitly reports that no balance is available until a legitimate economy source is connected.
 
-This is a personal/local client, not a registered public PRC application. Do not distribute a server key you are not authorized to share. Public distribution across multiple servers would require PRC public-app review/registration and its additional requirements.
+PRC documents **Emergency Calls** as an event-webhook type. Delivering those alerts to the right in-game team requires a reachable HTTPS receiver that verifies PRC Ed25519 signatures plus team-routing rules. A desktop-only app cannot receive those webhooks while it is closed, and no receiver/hosting account is configured. There is no paid hosting enabled.
 
-## Windows identity, updates and antivirus
+## Server roles and data
 
-ERA keeps the historic Electron app ID and user-data location so updates preserve existing encrypted server profiles and notes. Starting with **0.8.0**, ERA checks public GitHub Releases when it opens. When an update is available, choose **Update now** to download it inside the app, then restart ERA to install it; choose **Skip this version** to hide that version's prompt, or **Not now** to defer it until the next launch. The updater uses GitHub Releases and does not require a separate paid host or an account/token on users' computers.
+Add your own private-server API key in the F2 dashboard. It is encrypted for the current Windows user, used locally and never sent to an ERA-hosted service. Do not share keys you are not authorized to use.
 
-Users already on **0.7.0 or earlier must install 0.8.0 once manually**. Older versions do not contain the updater. After that first upgrade, later releases can be downloaded and installed from ERA. Close the old app before running the first installer; do not uninstall it, so existing user data is preserved.
+Player permission checks compare the Roblox ID entered in the phone profile with live PRC player data. PRC returns permissions such as `Server Administrator` and `Server Owner`; **Server Administrator and Server Owner** are allowed. A user must be present in the selected live server for the check to succeed. This is a local convenience gate, not independently verified Roblox identity or strong authentication; it does not protect a distributed API key from a computer owner. PRC rate limits are respected and the app does not poll aggressively.
 
-To publish a later release, update the version in `package.json` and `package-lock.json`, commit the change, then push a version tag such as `v0.8.1`. GitHub Actions builds the unsigned Windows NSIS installer and publishes its update metadata and installer to the public Releases page. The automated build needs no paid hosting. Keep the repository under the same owner/name because installed apps read update information from `taylorsigma20-cmd/era`.
+The API provides username/ID, team, permission, callsign, wanted stars and location when present. No lifetime playtime, complete warning count, complete moderation history, phone service or bank balance is fabricated. Logged kicks/bans are only matching commands visible in the returned logs. Staff notes and profile data stay on this computer.
 
-The Windows app is unsigned because no publisher signing certificate was provided. Avast may warn about the new installer. Code cannot safely hide that warning or guarantee that an antivirus engine removes it. Do not disable protection to run a file. If Avast flags this build incorrectly, submit the file to [Avast for false-positive review](https://www.avast.com/en-us/submit-a-sample). Signing with a trusted publisher certificate can help establish publisher reputation, but cannot guarantee that warnings disappear.
+## Windows updates and antivirus
+
+ERA 0.8.0 was the first in-app-updater release. Users on 0.7.0 or earlier must install 0.8.0 once manually. After the updater is in place, later versions can be downloaded and installed inside ERA, with **Update now** or **Skip this version** choices.
+
+To publish a future release, update the version in `package.json` and `package-lock.json`, commit the change, and push a version tag such as `v0.9.0`. GitHub Actions builds the unsigned Windows NSIS installer and publishes its update metadata. The updater feed is on the public [ERA GitHub repository](https://github.com/taylorsigma20-cmd/era); no paid hosting is required.
+
+The installer is unsigned because no publisher signing certificate was provided. Avast may warn about it; do not disable antivirus protection to run a file. A false-positive report can be sent to [Avast sample submission](https://www.avast.com/en-us/submit-a-sample). Signing with a trusted publisher certificate may help publisher reputation but cannot guarantee that warnings disappear.
 
 ## Development
 
@@ -44,5 +50,3 @@ npm.cmd start
 npm.cmd test
 npm.cmd run build:win
 ```
-
-Installer filename: `ERA-Setup-<version>.exe`.

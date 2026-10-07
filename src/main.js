@@ -4,7 +4,10 @@ const path = require('path');
 const { randomUUID } = require('crypto');
 const { pathToFileURL } = require('url');
 const { autoUpdater } = require('electron-updater');
+const { ActiveWindow } = require('@paymoapp/active-window');
 const { createPlayerSnapshot } = require('./player-data');
+const { updateRobloxSession } = require('./focus-guard');
+const { parsePostimeesFeed } = require('./postimees-feed');
 
 app.setName('ERA');
 // Preserve the pre-ERA default user-data folder so existing installs keep their server profiles and phone data.
@@ -21,6 +24,54 @@ let phoneWindow;
 let dashboardWindow;
 let playerOverlayWindow;
 let updateState = { status: 'idle' };
+let robloxSessionActive = false;
+let activeWindowWatch = null;
+const staffSnapshotCache = new Map();
+
+function phoneProfileFile() {
+  return path.join(app.getPath('userData'), 'phone-profile.json');
+}
+
+async function readPhoneProfile() {
+  try {
+    const profile = JSON.parse(await fs.readFile(phoneProfileFile(), 'utf8'));
+    return {
+      name: typeof profile.name === 'string' ? profile.name : '',
+      robloxUserId: /^\d{1,20}$/.test(String(profile.robloxUserId || '')) ? String(profile.robloxUserId) : '',
+      phoneNumber: typeof profile.phoneNumber === 'string' ? profile.phoneNumber : '',
+      wallpaper: typeof profile.wallpaper === 'string' ? profile.wallpaper : 'midnight'
+    };
+  } catch (error) {
+    if (error.code === 'ENOENT') return { name: '', robloxUserId: '', phoneNumber: '', wallpaper: 'midnight' };
+    throw new Error('Could not read the local phone profile.');
+  }
+}
+
+async function writePhoneProfile(profile) {
+  const file = phoneProfileFile();
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  const tempFile = `${file}.${process.pid}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(profile, null, 2), { mode: 0o600 });
+  await fs.rename(tempFile, file);
+}
+
+async function getPhoneProfileWithWallpaper() {
+  const profile = await readPhoneProfile();
+  if (profile.wallpaper === 'custom') {
+    try {
+      const directory = path.join(app.getPath('userData'), 'wallpapers');
+      const names = await fs.readdir(directory);
+      const file = names.find(name => /^custom\.(png|jpe?g|webp)$/i.test(name));
+      if (file) {
+        const extension = path.extname(file).toLowerCase();
+        const mime = extension === '.png' ? 'image/png' : extension === '.webp' ? 'image/webp' : 'image/jpeg';
+        const bytes = await fs.readFile(path.join(directory, file));
+        profile.customWallpaperDataUrl = `data:${mime};base64,${bytes.toString('base64')}`;
+      }
+    } catch { /* A missing custom file falls back to the selected preset. */ }
+  }
+  return profile;
+}
 
 function updateSkipFile() {
   return path.join(app.getPath('userData'), 'skipped-update.json');
@@ -112,6 +163,7 @@ function placePhoneBottomRight() {
 
 function togglePhoneWindow() {
   if (!phoneWindow || phoneWindow.isDestroyed()) return;
+  if (!robloxSessionActive) { phoneWindow.hide(); return; }
   if (phoneWindow.isVisible()) {
     phoneWindow.hide();
   } else {
@@ -231,7 +283,21 @@ function createPlayerOverlayWindow() {
   return playerOverlayWindow;
 }
 
-function showPlayerOverlay() {
+async function showPlayerOverlay() {
+  if (!robloxSessionActive) return false;
+  try {
+    const profileId = await readSelectedServerId();
+    if (!profileId) throw new Error('Select a live ER:LC server first.');
+    await requireConfiguredServerRole(profileId, 'admin');
+  } catch (error) {
+    const deniedWindow = createPlayerOverlayWindow();
+    placePlayerOverlay();
+    deniedWindow.showInactive();
+    const message = String(error?.message || 'F3 requires a live Server Administrator account.');
+    const notify = () => { if (!deniedWindow.isDestroyed()) deniedWindow.webContents.send('player-overlay:access-denied', message); };
+    if (deniedWindow.webContents.isLoading()) deniedWindow.webContents.once('did-finish-load', notify); else notify();
+    return false;
+  }
   const win = createPlayerOverlayWindow();
   placePlayerOverlay();
   win.showInactive();
@@ -241,11 +307,38 @@ function showPlayerOverlay() {
   };
   if (win.webContents.isLoading()) win.webContents.once('did-finish-load', notify);
   else notify();
+  return true;
 }
 
-function togglePlayerOverlay() {
+async function togglePlayerOverlay() {
+  if (!robloxSessionActive) {
+    phoneWindow?.hide();
+    playerOverlayWindow?.hide();
+    return false;
+  }
   if (playerOverlayWindow && !playerOverlayWindow.isDestroyed() && playerOverlayWindow.isVisible()) playerOverlayWindow.hide();
-  else showPlayerOverlay();
+  else await showPlayerOverlay();
+}
+
+function startRobloxFocusGuard() {
+  if (process.platform !== 'win32') {
+    robloxSessionActive = true;
+    return;
+  }
+  try {
+    ActiveWindow.initialize();
+    try { robloxSessionActive = updateRobloxSession(false, ActiveWindow.getActiveWindow(), process.execPath); }
+    catch { robloxSessionActive = false; }
+    activeWindowWatch = ActiveWindow.subscribe(info => {
+      robloxSessionActive = updateRobloxSession(robloxSessionActive, info, process.execPath);
+      if (!robloxSessionActive) {
+        phoneWindow?.hide();
+        playerOverlayWindow?.hide();
+      }
+    });
+  } catch {
+    robloxSessionActive = false;
+  }
 }
 
 async function readProfiles() {
@@ -418,6 +511,39 @@ async function fetchPlayerSnapshot(profileId) {
   return createPlayerSnapshot(profile.id, data);
 }
 
+async function requireConfiguredServerRole(profileId, requiredRole) {
+  const profile = await readPhoneProfile();
+  if (!profile.robloxUserId) throw new Error('Open Phone Settings and enter your Roblox user ID first.');
+  const cached = staffSnapshotCache.get(profileId);
+  const snapshot = cached && Date.now() - cached.timestamp < 15000
+    ? cached.snapshot
+    : await fetchPlayerSnapshot(profileId);
+  staffSnapshotCache.set(profileId, { timestamp: Date.now(), snapshot });
+  const player = snapshot.players.find(item => item.id === profile.robloxUserId);
+  if (!player) throw new Error('Your configured Roblox account is not in the selected server right now.');
+  const permission = String(player.permission || '').toLowerCase();
+  const isOwner = permission === 'server owner';
+  const isAdministrator = isOwner || permission === 'server administrator';
+  if (requiredRole === 'owner' && !isOwner) throw new Error('The CAD player roster is restricted to the configured Server Owner.');
+  if (requiredRole === 'admin' && !isAdministrator) throw new Error('F3 is available only to a Server Administrator or Server Owner in the selected live server.');
+  return { player, snapshot };
+}
+
+async function fetchPostimeesHeadlines() {
+  const now = Date.now();
+  if (postimeesCache.items && now - postimeesCache.fetchedAt < 60_000) return postimeesCache;
+  let response;
+  try {
+    response = await fetch('https://www.postimees.ee/rss', { headers: { accept: 'application/rss+xml, application/xml, text/xml' }, signal: AbortSignal.timeout(12000) });
+  } catch { throw new Error('Could not reach the Postimees news feed. Check your internet connection.'); }
+  if (!response.ok) throw new Error(`Postimees RSS returned HTTP ${response.status}.`);
+  const xml = await response.text();
+  postimeesCache = parsePostimeesFeed(xml, now);
+  return postimeesCache;
+}
+
+let postimeesCache = { items: null, fetchedAt: 0 };
+
 const commandCooldowns = new Map();
 async function executePlayerAction(profileId, playerId, action, argument) {
   const allowedActions = new Set(['pm', 'kick', 'ban', 'wanted', 'unwanted']);
@@ -426,7 +552,7 @@ async function executePlayerAction(profileId, playerId, action, argument) {
   const nextAllowed = commandCooldowns.get(profileId) || 0;
   if (now < nextAllowed) throw new Error(`Please wait ${Math.ceil((nextAllowed - now) / 1000)} seconds before sending another server command.`);
   if (await readSelectedServerId() !== profileId) throw new Error('Select this server in ERA before sending a player command.');
-  const snapshot = await fetchPlayerSnapshot(profileId);
+  const { snapshot } = await requireConfiguredServerRole(profileId, 'admin');
   const player = snapshot.players.find(item => item.id === String(playerId));
   if (!player) throw new Error('This player is no longer in the live player list. Refresh the list and try again.');
   const clean = String(argument || '').trim();
@@ -545,7 +671,8 @@ ipcMain.handle('servers:play', async (event, id) => {
 ipcMain.handle('players:refresh', async (event, profileId) => {
   assertTrustedSender(event);
   if (await readSelectedServerId() !== profileId) throw new Error('Select this server in ERA before refreshing its players.');
-  return fetchPlayerSnapshot(profileId);
+  const { snapshot } = await requireConfiguredServerRole(profileId, 'admin');
+  return snapshot;
 });
 
 ipcMain.handle('players:action', async (event, input = {}) => {
@@ -576,12 +703,14 @@ ipcMain.handle('players:confirm-action', async (event, input = {}) => {
 
 ipcMain.on('phone:hide', () => phoneWindow?.hide());
 ipcMain.on('phone:show', () => {
+  if (!robloxSessionActive) return;
   if (!phoneWindow) return;
   placePhoneBottomRight();
   phoneWindow.showInactive();
 });
 ipcMain.on('phone:toggle', () => {
   if (!phoneWindow) return;
+  if (!robloxSessionActive) { phoneWindow.hide(); return; }
   if (phoneWindow.isVisible()) phoneWindow.hide();
   else { placePhoneBottomRight(); phoneWindow.showInactive(); }
 });
@@ -610,6 +739,67 @@ ipcMain.on('player-overlay:hide', (event) => {
 ipcMain.on('player-overlay:toggle', (event) => {
   assertTrustedSender(event);
   togglePlayerOverlay();
+});
+
+ipcMain.handle('phone-profile:get', async (event) => {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('Phone profile is available only in the phone window.');
+  return getPhoneProfileWithWallpaper();
+});
+ipcMain.handle('phone-profile:save', async (event, input = {}) => {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('Phone profile is available only in the phone window.');
+  const current = await readPhoneProfile();
+  const name = typeof input.name === 'string' ? input.name.trim().slice(0, 40) : current.name;
+  const requestedId = typeof input.robloxUserId === 'string' ? input.robloxUserId.trim() : current.robloxUserId;
+  if (requestedId && !/^\d{1,20}$/.test(requestedId)) throw new Error('Roblox user ID must contain digits only.');
+  const robloxUserId = requestedId;
+  const allowedWallpapers = new Set(['midnight', 'aurora', 'ocean', 'sunset', 'custom']);
+  const wallpaper = allowedWallpapers.has(input.wallpaper) ? input.wallpaper : current.wallpaper;
+  const profile = { name, robloxUserId, phoneNumber: '', wallpaper };
+  await writePhoneProfile(profile);
+  staffSnapshotCache.clear();
+  const response = await getPhoneProfileWithWallpaper();
+  phoneWindow?.webContents.send('phone-profile:updated', response);
+  return response;
+});
+ipcMain.handle('phone-profile:choose-wallpaper', async (event) => {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('Wallpaper selection is available only in the phone window.');
+  const result = await dialog.showOpenDialog(BrowserWindow.fromWebContents(event.sender), {
+    title: 'Choose an ERA phone wallpaper',
+    properties: ['openFile'],
+    filters: [{ name: 'Wallpaper image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
+  });
+  if (result.canceled || !result.filePaths[0]) return false;
+  const source = result.filePaths[0];
+  const stat = await fs.stat(source);
+  if (stat.size > 3 * 1024 * 1024) throw new Error('Choose an image under 3 MB.');
+  const extension = path.extname(source).toLowerCase();
+  const outputExtension = extension === '.jpeg' ? '.jpg' : extension;
+  const directory = path.join(app.getPath('userData'), 'wallpapers');
+  await fs.mkdir(directory, { recursive: true });
+  for (const name of await fs.readdir(directory)) if (/^custom\.(png|jpe?g|webp)$/i.test(name)) await fs.unlink(path.join(directory, name)).catch(() => {});
+  await fs.copyFile(source, path.join(directory, `custom${outputExtension}`));
+  const profile = await readPhoneProfile();
+  profile.wallpaper = 'custom';
+  await writePhoneProfile(profile);
+  phoneWindow?.webContents.send('phone-profile:updated', await getPhoneProfileWithWallpaper());
+  return true;
+});
+ipcMain.handle('news:headlines', async (event) => {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('News is available only in the phone window.');
+  return fetchPostimeesHeadlines();
+});
+ipcMain.handle('news:open', async (event, rawUrl) => {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('News is available only in the phone window.');
+  let url;
+  try { url = new URL(String(rawUrl || '')); } catch { throw new Error('Invalid article link.'); }
+  if (!['postimees.ee', 'www.postimees.ee', 'pmo.ee'].includes(url.hostname) || url.protocol !== 'https:') throw new Error('Only HTTPS Postimees article links are allowed.');
+  await shell.openExternal(url.toString());
+  return true;
 });
 ipcMain.on('dashboard:close', (event) => {
   assertTrustedSender(event);
@@ -686,6 +876,7 @@ ipcMain.handle('update:install', (event) => {
 app.whenReady().then(() => {
   createDashboardWindow();
   createPhoneWindow();
+  startRobloxFocusGuard();
   configureAutoUpdates();
   globalShortcut.register('F1', togglePhoneWindow);
   globalShortcut.register('F2', () => createDashboardWindow());
@@ -693,7 +884,10 @@ app.whenReady().then(() => {
 });
 
 app.on('activate', () => createDashboardWindow());
-app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+  if (activeWindowWatch !== null) ActiveWindow.unsubscribe(activeWindowWatch);
+});
 app.on('window-all-closed', () => {
   // The phone overlay remains alive; quit only when it too has been closed by the OS.
   if (process.platform !== 'darwin' && !phoneWindow) app.quit();

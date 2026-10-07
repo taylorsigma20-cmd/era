@@ -132,6 +132,19 @@ window.primecad.on('player-overlay:show', async () => {
   if (!hasAttempted) await refreshPlayers();
   else renderRoster();
 });
+window.primecad.on('player-overlay:access-denied', message => {
+  snapshot = null;
+  chosenPlayerId = null;
+  serverId = null;
+  hasAttempted = false;
+  $('playerSearch').value = '';
+  $('playerCount').textContent = '—';
+  $('serverName').textContent = 'Access restricted';
+  $('updateTime').textContent = '';
+  $('playerList').innerHTML = '<div class="roster-empty">Player records are not displayed.</div>';
+  renderProfile();
+  status(message || 'You are not authorized to view this server.', true);
+});
 window.primecad.on('server-profile-updated', async () => {
   snapshot = null;
   chosenPlayerId = null;

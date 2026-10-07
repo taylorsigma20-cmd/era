@@ -189,27 +189,6 @@ function updateClock() {
 }
 updateClock();
 setInterval(updateClock, 1000);
-
-async function refreshPhoneServer() {
-  try {
-    const servers = await window.primecad.servers.list();
-    const chosenId = await window.primecad.servers.selected();
-    const chosen = servers.find(server => server.id === chosenId) || servers[0];
-    const title = document.getElementById('phoneServerName');
-    const info = document.getElementById('phoneServerInfo');
-    if (!chosen) {
-      title.textContent = 'No server selected';
-      info.textContent = 'Add your private server API key in the server manager to view its live status.';
-      return;
-    }
-    title.textContent = chosen.name;
-    info.textContent = chosen.currentPlayers == null
-      ? 'ER:LC server added. Open Manage Servers to refresh its status.'
-      : `${chosen.currentPlayers}/${chosen.maxPlayers} players · ER:LC status connected`;
-  } catch { /* The phone remains usable if local profiles cannot be read. */ }
-}
-refreshPhoneServer();
-window.primecad.on('server-profile-updated', refreshPhoneServer);
 window.primecad.on('toggle-phone', () => window.primecad.toggle());
 window.primecad.on('hide-phone', () => window.primecad.hide());
 window.primecad.on('open-overlays', () => openView('home'));
@@ -221,3 +200,230 @@ document.addEventListener('keydown', event => {
     else window.primecad.hide();
   }
 });
+
+
+// The profile belongs to this Windows installation and is stored by the main process.
+let phoneProfile = { name: '', robloxUserId: '', wallpaper: 'midnight' };
+const profileModal = document.getElementById('profileSetupModal');
+const profileForm = document.getElementById('profileSetupForm');
+const wallpaperPresets = new Set(['midnight', 'aurora', 'ocean', 'sunset', 'custom']);
+function renderPhoneProfile() {
+  const initial = (phoneProfile.name || '?').trim().slice(0, 1).toUpperCase();
+  document.getElementById('profileInitial').textContent = initial;
+  document.getElementById('threadsAvatar').textContent = initial;
+  document.getElementById('profileNameSummary').textContent = phoneProfile.name || 'Set up your phone';
+  document.getElementById('threadsProfileName').textContent = phoneProfile.name || 'Set up your phone';
+  document.getElementById('profileRobloxSummary').textContent = phoneProfile.robloxUserId
+    ? `Roblox ID ${phoneProfile.robloxUserId} · saved on this computer`
+    : 'Roblox ID not set · staff access unavailable';
+  document.getElementById('myPhoneNumber').textContent = 'Unavailable offline';
+  document.getElementById('phoneNumberDisplay').textContent = 'Unavailable offline';
+  const theme = wallpaperPresets.has(phoneProfile.wallpaper) ? phoneProfile.wallpaper : 'midnight';
+  document.querySelector('.home-view').dataset.wallpaper = theme;
+  document.getElementById('wallpaperSelect').value = theme;
+  if (theme === 'custom' && phoneProfile.customWallpaperDataUrl) {
+    document.querySelector('.home-view').style.backgroundImage = `linear-gradient(rgba(3,3,4,.42),rgba(3,3,4,.72)),url("${phoneProfile.customWallpaperDataUrl}")`;
+  } else {
+    document.querySelector('.home-view').style.backgroundImage = '';
+  }
+}
+async function loadPhoneProfile() {
+  try {
+    phoneProfile = await window.primecad.phoneProfile.get();
+    renderPhoneProfile();
+    if (!phoneProfile.name && !localStorage.getItem('era-profile-setup-later')) openPhoneProfile(true);
+  } catch { toast('Phone profile could not be loaded.'); }
+}
+function openPhoneProfile(firstRun = false) {
+  profileForm.dataset.firstRun = String(firstRun);
+  document.getElementById('profileNameInput').value = phoneProfile.name || '';
+  document.getElementById('profileRobloxIdInput').value = phoneProfile.robloxUserId || '';
+  document.getElementById('profileFormError').textContent = '';
+  profileModal.hidden = false;
+  setTimeout(() => document.getElementById('profileNameInput').focus(), 0);
+}
+document.getElementById('editPhoneProfile').addEventListener('click', () => openPhoneProfile(false));
+document.getElementById('skipProfileSetup').addEventListener('click', () => {
+  if (profileForm.dataset.firstRun === 'true') localStorage.setItem('era-profile-setup-later', '1');
+  profileModal.hidden = true;
+});
+profileForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const name = document.getElementById('profileNameInput').value.trim();
+  const robloxUserId = document.getElementById('profileRobloxIdInput').value.trim();
+  if (!name) return;
+  if (robloxUserId && !/^\d{1,20}$/.test(robloxUserId)) {
+    document.getElementById('profileFormError').textContent = 'Roblox user ID must contain digits only.';
+    return;
+  }
+  try {
+    phoneProfile = await window.primecad.phoneProfile.save({ name, robloxUserId, wallpaper: phoneProfile.wallpaper });
+    localStorage.removeItem('era-profile-setup-later');
+    renderPhoneProfile();
+    profileModal.hidden = true;
+    toast('Profile saved on this computer.');
+  } catch (error) { document.getElementById('profileFormError').textContent = error.message || 'Profile could not be saved.'; }
+});
+window.primecad.on('phone-profile:updated', profile => { phoneProfile = profile; renderPhoneProfile(); });
+document.getElementById('wallpaperSelect').addEventListener('change', async event => {
+  const wallpaper = event.currentTarget.value;
+  if (wallpaper === 'custom') {
+    try {
+      const selected = await window.primecad.phoneProfile.chooseWallpaper();
+      if (!selected) { event.currentTarget.value = phoneProfile.wallpaper || 'midnight'; return; }
+      phoneProfile = await window.primecad.phoneProfile.get();
+      renderPhoneProfile();
+    } catch (error) { toast(error.message || 'Wallpaper could not be loaded.'); event.currentTarget.value = phoneProfile.wallpaper || 'midnight'; }
+    return;
+  }
+  try {
+    phoneProfile = await window.primecad.phoneProfile.save({ name: phoneProfile.name, robloxUserId: phoneProfile.robloxUserId, wallpaper });
+    renderPhoneProfile();
+  } catch (error) { toast(error.message || 'Wallpaper setting could not be saved.'); }
+});
+document.getElementById('chooseWallpaper').addEventListener('click', () => {
+  document.getElementById('wallpaperSelect').value = 'custom';
+  document.getElementById('wallpaperSelect').dispatchEvent(new Event('change'));
+});
+loadPhoneProfile();
+
+// Postimees headlines are fetched from its real public RSS feed in the main process.
+const newsList = document.getElementById('newsList');
+const newsStatus = document.getElementById('newsStatus');
+async function loadPostimees() {
+  newsStatus.textContent = 'Loading Postimees RSS…';
+  newsList.replaceChildren();
+  try {
+    const feed = await window.primecad.news.headlines();
+    if (!feed.items.length) { newsStatus.textContent = 'No headlines are available right now.'; return; }
+    newsStatus.textContent = `Updated ${new Date(feed.fetchedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} · Postimees`;
+    for (const item of feed.items) {
+      const button = document.createElement('button');
+      button.className = 'news-item';
+      button.type = 'button';
+      const title = document.createElement('strong');
+      title.textContent = item.title;
+      const date = document.createElement('small');
+      const parsedDate = new Date(item.pubDate);
+      date.textContent = Number.isNaN(parsedDate.valueOf()) ? 'Postimees' : parsedDate.toLocaleString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      button.append(title, date);
+      button.addEventListener('click', () => window.primecad.news.open(item.link).catch(error => toast(error.message || 'Could not open article.')));
+      newsList.append(button);
+    }
+  } catch (error) { newsStatus.textContent = error.message || 'Postimees headlines could not be loaded.'; }
+}
+document.getElementById('refreshNews').addEventListener('click', loadPostimees);
+document.querySelector('[data-open="postimees"]').addEventListener('click', loadPostimees);
+document.getElementById('openNewsSource').addEventListener('click', () => window.primecad.news.open('https://www.postimees.ee/'));
+
+// Clock app: live local time, stopwatch with laps, and a countdown timer.
+let clockPanelName = 'clock';
+function selectClockPanel(name) {
+  clockPanelName = name;
+  document.querySelectorAll('[data-clock-tab]').forEach(button => button.classList.toggle('selected', button.dataset.clockTab === name));
+  document.querySelectorAll('[data-clock-panel]').forEach(panel => {
+    const active = panel.dataset.clockPanel === name;
+    panel.hidden = !active;
+    panel.classList.toggle('active', active);
+  });
+}
+document.querySelectorAll('[data-clock-tab]').forEach(button => button.addEventListener('click', () => selectClockPanel(button.dataset.clockTab)));
+let stopwatchStartedAt = 0, stopwatchElapsed = 0, stopwatchRunning = false, stopwatchTimer = null, lapCount = 0, lastLapElapsed = 0;
+function currentStopwatchMs() { return stopwatchElapsed + (stopwatchRunning ? performance.now() - stopwatchStartedAt : 0); }
+function formatStopwatch(milliseconds) {
+  const centiseconds = Math.floor(milliseconds / 10) % 100;
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+}
+function renderStopwatch() { document.getElementById('stopwatchDisplay').textContent = formatStopwatch(currentStopwatchMs()); }
+document.getElementById('stopwatchStart').addEventListener('click', event => {
+  if (stopwatchRunning) { stopwatchElapsed = currentStopwatchMs(); stopwatchRunning = false; clearInterval(stopwatchTimer); event.currentTarget.textContent = 'Resume'; }
+  else { stopwatchStartedAt = performance.now(); stopwatchRunning = true; clearInterval(stopwatchTimer); stopwatchTimer = setInterval(renderStopwatch, 30); event.currentTarget.textContent = 'Pause'; }
+  document.getElementById('stopwatchLap').disabled = !stopwatchRunning;
+  document.getElementById('stopwatchReset').disabled = stopwatchRunning || currentStopwatchMs() === 0;
+});
+document.getElementById('stopwatchLap').addEventListener('click', () => {
+  if (!stopwatchRunning) return;
+  lapCount += 1;
+  const row = document.createElement('div'); row.className = 'lap-row';
+  const elapsed = currentStopwatchMs();
+  row.innerHTML = `<span>Lap ${lapCount} <small>${safe(formatStopwatch(elapsed - lastLapElapsed))}</small></span><time>${safe(formatStopwatch(elapsed))}</time>`;
+  lastLapElapsed = elapsed;
+  document.getElementById('stopwatchLaps').prepend(row);
+});
+document.getElementById('stopwatchReset').addEventListener('click', () => {
+  if (stopwatchRunning) return;
+  stopwatchElapsed = 0; lapCount = 0; lastLapElapsed = 0;
+  document.getElementById('stopwatchLaps').replaceChildren();
+  document.getElementById('stopwatchStart').textContent = 'Start';
+  document.getElementById('stopwatchLap').disabled = true;
+  document.getElementById('stopwatchReset').disabled = true;
+  renderStopwatch();
+});
+setInterval(() => { document.getElementById('stopwatchReset').disabled = stopwatchRunning || currentStopwatchMs() === 0; }, 100);
+
+let timerDeadline = 0, timerRemainingMs = 0, timerRunning = false, timerInterval = null;
+function readTimerInputMs() {
+  const minutes = Math.min(999, Math.max(0, Number(document.getElementById('timerMinutes').value) || 0));
+  const seconds = Math.min(59, Math.max(0, Number(document.getElementById('timerSeconds').value) || 0));
+  return (minutes * 60 + seconds) * 1000;
+}
+function renderTimer(milliseconds) {
+  const totalSeconds = Math.ceil(Math.max(0, milliseconds) / 1000);
+  document.getElementById('timerDisplay').textContent = `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
+}
+function tickTimer() {
+  timerRemainingMs = Math.max(0, timerDeadline - Date.now());
+  renderTimer(timerRemainingMs);
+  if (!timerRemainingMs) {
+    timerRunning = false; clearInterval(timerInterval); timerInterval = null;
+    document.getElementById('timerStart').textContent = 'Start';
+    document.getElementById('timerStatus').textContent = 'Timer finished';
+  }
+}
+document.getElementById('timerStart').addEventListener('click', event => {
+  if (timerRunning) {
+    timerRemainingMs = Math.max(0, timerDeadline - Date.now()); timerRunning = false; clearInterval(timerInterval); timerInterval = null; event.currentTarget.textContent = 'Resume';
+  } else {
+    if (!timerRemainingMs) timerRemainingMs = readTimerInputMs();
+    if (!timerRemainingMs) { document.getElementById('timerStatus').textContent = 'Set a time greater than zero.'; return; }
+    timerDeadline = Date.now() + timerRemainingMs; timerRunning = true; event.currentTarget.textContent = 'Pause';
+    document.getElementById('timerStatus').textContent = 'Timer is running';
+    clearInterval(timerInterval); timerInterval = setInterval(tickTimer, 200); tickTimer();
+  }
+});
+document.getElementById('timerReset').addEventListener('click', () => {
+  timerRunning = false; clearInterval(timerInterval); timerInterval = null; timerRemainingMs = 0;
+  document.getElementById('timerStart').textContent = 'Start'; document.getElementById('timerStatus').textContent = '';
+  renderTimer(readTimerInputMs());
+});
+for (const input of [document.getElementById('timerMinutes'), document.getElementById('timerSeconds')]) input.addEventListener('input', () => {
+  if (timerRunning) return;
+  timerRemainingMs = 0; renderTimer(readTimerInputMs());
+});
+renderTimer(readTimerInputMs());
+
+// Threads-style local drafts only. No fake posts or cross-player publishing.
+const threadDraftInput = document.getElementById('threadDraft');
+const threadsList = document.getElementById('threadsList');
+let threadDrafts = readLocal('era-threads-drafts-v1', []);
+function renderThreadDrafts() {
+  threadsList.replaceChildren();
+  for (const draft of threadDrafts) {
+    const article = document.createElement('article'); article.className = 'thread-draft-card';
+    const author = document.createElement('strong'); author.textContent = phoneProfile.name || 'Local profile';
+    const status = document.createElement('small'); status.textContent = 'Saved here · not published';
+    const body = document.createElement('p'); body.textContent = draft.body;
+    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'text-button'; remove.textContent = 'Delete draft';
+    remove.addEventListener('click', () => { threadDrafts = threadDrafts.filter(item => item.id !== draft.id); writeLocal('era-threads-drafts-v1', threadDrafts); renderThreadDrafts(); });
+    article.append(author, status, body, remove); threadsList.append(article);
+  }
+}
+document.getElementById('saveThreadDraft').addEventListener('click', () => {
+  const body = threadDraftInput.value.trim();
+  if (!body) { toast('Write something first.'); return; }
+  threadDrafts.unshift({ id: crypto.randomUUID(), body, createdAt: Date.now() });
+  if (!writeLocal('era-threads-drafts-v1', threadDrafts)) { threadDrafts.shift(); toast('Could not save the draft.'); return; }
+  threadDraftInput.value = ''; renderThreadDrafts(); toast('Draft saved on this device · not published.');
+});
+renderThreadDrafts();

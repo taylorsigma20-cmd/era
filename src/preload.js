@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'player-overlay:show', 'open-player-list', 'update:state']);
+const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'phone-profile:updated', 'player-overlay:show', 'player-overlay:access-denied', 'open-player-list', 'update:state']);
 
 contextBridge.exposeInMainWorld('primecad', {
   hide: () => ipcRenderer.send('phone:hide'),
@@ -16,6 +16,15 @@ contextBridge.exposeInMainWorld('primecad', {
   togglePlayerOverlay: () => ipcRenderer.send('player-overlay:toggle'),
   openStaffTools: () => ipcRenderer.send('player-overlay:open-tools'),
   notifyServerProfileUpdated: () => ipcRenderer.send('server-profile:updated'),
+  phoneProfile: {
+    get: () => ipcRenderer.invoke('phone-profile:get'),
+    save: payload => ipcRenderer.invoke('phone-profile:save', payload),
+    chooseWallpaper: () => ipcRenderer.invoke('phone-profile:choose-wallpaper')
+  },
+  news: {
+    headlines: () => ipcRenderer.invoke('news:headlines'),
+    open: url => ipcRenderer.invoke('news:open', String(url || '').slice(0, 2048))
+  },
   confirmRemove: name => ipcRenderer.invoke('server:confirm-remove', String(name || '').slice(0, 100)),
   servers: {
     list: () => ipcRenderer.invoke('servers:list'),
