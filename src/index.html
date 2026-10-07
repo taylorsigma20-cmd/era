@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'" />
+  <title>ERA Phone</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="phone-shell" id="phone">
+    <div class="device-screen">
+      <div class="dynamic-island" aria-hidden="true"><span></span></div>
+      <div class="status-row"><span id="statusTime">--:--</span><span class="status-icons"><i class="signal-icon"></i><i class="wifi-icon"></i><i class="battery-icon"></i></span></div>
+
+      <section class="view home-view active" data-view="home" aria-label="Home screen">
+        <div class="home-toolbar"><button class="mini-brand" data-open="prime" aria-label="ERA"><img class="mini-era-logo" src="assets/era-logo.png" alt="ERA" /></button><button class="gear-button" data-open="settings" aria-label="Settings">⚙</button></div>
+        <div class="home-grid">
+          <button class="app-launch clock-widget" data-open="clock" aria-label="Clock"><div class="analog-clock"><span class="clock-hand hour"></span><span class="clock-hand minute"></span><span class="clock-hand second"></span><span class="clock-pin"></span></div></button>
+          <button class="app-launch" data-open="prime"><span class="app-icon prime-icon"><img src="assets/era-logo.png" alt="" /></span><span class="app-label">ERA</span></button>
+          <button class="app-launch" data-open="settings"><span class="app-icon settings-icon">⚙</span><span class="app-label">Settings</span></button>
+          <button class="app-launch" data-open="notes"><span class="app-icon notes-icon">▤</span><span class="app-label">Notes</span></button>
+          <button class="app-launch" data-open="clock"><span class="app-icon clock-icon">◷</span><span class="app-label">Clock</span></button>
+          <button class="app-launch" data-open="lyft"><span class="app-icon lyft-icon">lyft</span><span class="app-label">Lyft</span></button>
+          <button class="app-launch" data-open="fox"><span class="app-icon fox-icon">FOX<br>NEWS</span><span class="app-label">FOX News</span></button>
+          <button class="app-launch" data-open="emergency"><span class="app-icon emergency-icon">◆</span><span class="app-label">911</span></button>
+          <button class="app-launch" data-open="primegram"><span class="app-icon primegram-icon">◎</span><span class="app-label">Primegram</span></button>
+          <button class="app-launch" data-open="socials"><span class="app-icon socials-icon">◉</span><span class="app-label">Socials</span></button>
+        </div>
+        <div class="home-watermark" aria-hidden="true"><img src="assets/era-logo.png" alt="" /></div>
+        <nav class="dock" aria-label="Dock">
+          <button class="dock-app" data-open="phone" aria-label="Phone"><span class="dock-icon phone-dock">☎</span></button>
+          <button class="dock-app" data-open="messages" aria-label="Messages"><span class="dock-icon messages-dock">●</span></button>
+          <button class="dock-app" data-open="wallet" aria-label="Wallet"><span class="dock-icon wallet-dock">▱</span></button>
+          <button class="dock-app" data-open="dpd" aria-label="DPD Wallet"><span class="dock-icon dpd-dock">DPD</span><span class="dock-caption">Wallet</span></button>
+        </nav>
+      </section>
+
+      <section class="view app-view" data-view="prime">
+        <header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>ERA</strong><button class="more" data-open-dashboard title="Manage server">↗</button></header>
+        <div class="app-content prime-page"><div class="prime-large"><img src="assets/era-logo.png" alt="ERA" /></div><p class="eyebrow">YOUR ER:LC SERVERS</p><h1 id="phoneServerName">No server selected</h1><p class="app-copy" id="phoneServerInfo">Add your private server API key in the server manager to view its live status.</p><button class="primary-action" data-open-dashboard>Manage Servers <span>↗</span></button><p class="secure-note"><span>●</span> Your API key is encrypted on this computer</p></div>
+      </section>
+
+      <section class="view app-view" data-view="notes">
+        <header class="app-top notes-top"><button class="back" data-back aria-label="Back">‹</button><strong>Notes</strong><button id="newNote" class="more" title="New note">＋</button></header>
+        <div class="app-content notes-page" id="notesListPage"><div class="notes-title-row"><div><p class="eyebrow">ON MY IPHONE</p><h1>Notes</h1></div><span class="notes-count" id="notesCount">0</span></div><div id="notesList" class="notes-list"></div><div id="notesEmpty" class="empty-native"><div class="empty-native-icon note-empty-icon">▤</div><strong>No Notes</strong><span>Tap the compose button to create your first note.</span></div><button id="newNoteBottom" class="notes-compose" aria-label="New note">✎</button></div>
+        <div class="app-content note-editor" id="noteEditor" hidden><div class="note-editor-meta"><button id="backToNotes" class="text-button">‹ Notes</button><button id="saveNote" class="text-button">Done</button></div><p class="note-date" id="noteDate"></p><input id="noteTitle" class="note-title-input" maxlength="100" placeholder="Title" /><textarea id="notesText" maxlength="8000" placeholder="Start writing…"></textarea><span id="noteSaved" class="inline-status" aria-live="polite">Saved on this device</span></div>
+      </section>
+
+      <section class="view app-view" data-view="clock">
+        <header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Clock</strong><span class="more muted-mark">◷</span></header>
+        <div class="app-content clock-page"><p class="eyebrow">LOCAL TIME</p><div id="bigClock" class="digital-clock">--:--</div><p id="fullDate" class="app-copy"></p><div class="clock-face"><span class="clock-hand hour"></span><span class="clock-hand minute"></span><span class="clock-hand second"></span><span class="clock-pin"></span></div></div>
+      </section>
+
+      <section class="view app-view" data-view="settings">
+        <header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Settings</strong><span class="more">⚙</span></header>
+        <div class="app-content settings-page"><p class="eyebrow">IPHONE</p><h1>Settings</h1><div class="setting-row"><div><strong>Screen position</strong><small>Fixed to the bottom-right corner</small></div><span class="fixed-tag">FIXED</span></div><div class="setting-row"><div><strong>Always on top</strong><small>Visible above the game window</small></div><span class="setting-check">✓</span></div><div class="setting-row phone-number-row"><div><strong>My phone number</strong><small id="myPhoneNumber">Not assigned</small></div><span class="number-status">—</span></div><p class="settings-hint">A unique in-game number is assigned only after a community phone server is connected. No shared server is configured.</p><div class="setting-row"><div><strong>Notes and contacts</strong><small>Stored locally on this computer</small></div><span class="setting-check">✓</span></div><button class="secondary-action" data-open-dashboard>Manage ER:LC Servers</button><div class="shortcut-card"><strong>Keyboard Shortcuts</strong><p><kbd>F1</kbd> Show / hide phone</p><p><kbd>F2</kbd> Server manager</p><p><kbd>F3</kbd> Live player overlay</p><p><kbd>Esc</kbd> Hide phone</p></div></div>
+      </section>
+
+      <section class="view app-view" data-view="messages">
+        <header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Messages</strong><button id="composeMessage" class="more" title="New message">✎</button></header>
+        <div class="app-content messages-page" id="messagesListPage"><div class="messages-heading"><div><p class="eyebrow">INBOX</p><h1>Messages</h1></div></div><div id="messagesList" class="messages-list"></div><div class="empty-native" id="messagesEmpty"><div class="empty-native-icon message-empty-icon">●</div><strong>No Messages</strong><span>Messages from connected players will appear here.</span><small>Connect a community phone server to send or receive messages.</small></div><section id="localDraftSection" class="local-drafts" hidden><div class="call-section-label">LOCAL DRAFTS</div><div id="localDraftList"></div></section></div>
+        <div class="app-content message-composer" id="messageComposer" hidden><div class="note-editor-meta"><button id="cancelMessage" class="text-button">‹ Inbox</button><button id="saveDraft" class="text-button">Save Draft</button></div><div class="composer-recipient"><label for="messageRecipient">To:</label><input id="messageRecipient" type="text" maxlength="64" placeholder="Name or in-game number" /></div><textarea id="messageBody" maxlength="2000" placeholder="iMessage"></textarea><div class="composer-footer"><span id="messageStatus">No phone server connected · messages cannot be sent</span><button id="sendMessage" class="send-button" disabled aria-label="Send message">↑</button></div></div>
+      </section>
+
+      <section class="view app-view" data-view="phone">
+        <header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Phone</strong><button id="addContact" class="more" title="Add contact">＋</button></header>
+        <div class="app-content phone-page"><div class="phone-number-card"><div><small>MY NUMBER</small><strong id="phoneNumberDisplay">Not assigned</strong></div><span class="unavailable-pill">Not connected</span></div><div class="phone-panel" data-phone-panel="recents"><div class="call-section-label">CALL HISTORY</div><div class="empty-native phone-empty"><div class="empty-native-icon phone-empty-icon">☎</div><strong>No Recent Calls</strong><span>Call history appears here when a phone server is connected.</span><small>Calls are not available offline.</small></div></div><div class="phone-panel" data-phone-panel="contacts" hidden><div class="call-section-label">CONTACTS <span id="contactCount">0</span></div><div id="contactList" class="contact-list"></div><div id="contactsEmpty" class="empty-native contacts-empty"><div class="empty-native-icon contacts-empty-icon">♙</div><strong>No Contacts</strong><span>Add a contact by name and in-game number.</span></div></div><div id="contactModal" class="contact-modal" hidden><form id="contactForm" class="contact-dialog"><div class="contact-modal-top"><button type="button" id="cancelContact" class="text-button">Cancel</button><strong>New Contact</strong><button type="submit" id="saveContact" class="text-button">Done</button></div><label for="contactName">Name</label><input id="contactName" maxlength="64" placeholder="First and last name" required /><label for="contactNumber">In-game number</label><input id="contactNumber" maxlength="32" placeholder="Phone number" required /><small>Contacts are saved only on this computer.</small></form></div><div class="phone-panel keypad-panel" data-phone-panel="keypad" hidden><div id="dialNumber" class="dial-number">Enter Number</div><div class="dial-pad"><button data-dial="1">1<small></small></button><button data-dial="2">2<small>ABC</small></button><button data-dial="3">3<small>DEF</small></button><button data-dial="4">4<small>GHI</small></button><button data-dial="5">5<small>JKL</small></button><button data-dial="6">6<small>MNO</small></button><button data-dial="7">7<small>PQRS</small></button><button data-dial="8">8<small>TUV</small></button><button data-dial="9">9<small>WXYZ</small></button><button data-dial="*">*</button><button data-dial="0">0<small>+</small></button><button data-dial="#">#</button></div><button id="placeCall" class="call-button" aria-label="Call" title="Calls are unavailable until a community phone server is connected" disabled>☎</button><p class="connection-note">Calls require a connected community phone server.</p></div></div>
+        <div class="phone-bottom-tabs"><button class="active"><span>◷</span>Recents</button><button data-phone-tab-switch="contacts"><span>♙</span>Contacts</button><button data-phone-tab-switch="keypad"><span>▦</span>Keypad</button></div>
+      </section>
+
+      <section class="view app-view" data-view="wallet"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Wallet</strong></header><div class="app-content notice-page"><div class="empty-native-icon wallet-empty-icon">▱</div><p class="eyebrow">WALLET</p><h1>No Cards</h1><p class="app-copy">Payment cards are not connected to this app. No balance or card information is stored here.</p></div></section>
+
+      <section class="view app-view" data-view="emergency"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Emergency</strong></header><div class="app-content notice-page emergency-empty"><div class="emergency-symbol">911</div><p class="eyebrow">EMERGENCY SERVICES</p><h1>Not Connected</h1><p class="app-copy">This app cannot contact dispatch or emergency services. For a real emergency, call your local emergency number directly.</p><span class="not-connected">No call or alert will be sent from this app.</span></div></section>
+
+      <section class="view app-view" data-view="dpd"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>DPD Wallet</strong></header><div class="app-content notice-page"><div class="empty-native-icon dpd-empty-icon">DPD</div><p class="eyebrow">DPD WALLET</p><h1>Not Connected</h1><p class="app-copy">No transit account or pass is connected.</p></div></section>
+
+      <section class="view app-view" data-view="lyft"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Lyft</strong></header><div class="app-content ride-page"><div class="ride-map-placeholder"><span class="map-grid-mark">⌖</span><small>MAP UNAVAILABLE</small></div><p class="eyebrow">RIDES</p><h1>Service Not Connected</h1><p class="app-copy">Ride booking is not connected to this app. No trip can be requested.</p></div></section>
+
+      <section class="view app-view" data-view="fox"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>FOX News</strong></header><div class="app-content notice-page"><div class="fox-empty-mark">FOX<br><b>NEWS</b></div><p class="eyebrow">NEWS</p><h1>No Feed Connected</h1><p class="app-copy">A live news provider has not been connected.</p></div></section>
+
+      <section class="view app-view" data-view="primegram"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Primegram</strong></header><div class="app-content notice-page"><div class="empty-native-icon primegram-empty-icon">◎</div><p class="eyebrow">PRIMEGRAM</p><h1>Connect to Continue</h1><p class="app-copy">Sign in to a community service to see posts and profiles.</p></div></section>
+
+      <section class="view app-view" data-view="socials"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Socials</strong></header><div class="social-tabs"><button class="social-tab selected">For you</button><button class="social-tab">Following</button></div><div class="app-content socials-empty"><div class="empty-native-icon socials-empty-icon">◉</div><h1>Your feed is empty</h1><p>Connect to a community social service to see posts.</p></div><nav class="social-nav" aria-label="Socials navigation"><button class="nav-active" aria-label="Home">◆</button><button aria-label="Search">⌕</button><button aria-label="Notifications">♧</button><button aria-label="Profile">♙</button></nav></section>
+
+      <section class="view app-view" data-view="socials-search"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Search</strong></header><div class="app-content"><div class="message-search">⌕ <span>Search</span></div><div class="empty-native search-empty"><strong>Search is unavailable</strong><span>Connect to a community service to find players.</span></div></div></section>
+      <section class="view app-view" data-view="socials-notifications"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Notifications</strong></header><div class="app-content notice-page"><div class="empty-native-icon">♧</div><h1>No Notifications</h1><p class="app-copy">Notifications will appear when a community service is connected.</p></div></section>
+      <section class="view app-view" data-view="socials-profile"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Profile</strong></header><div class="app-content notice-page"><div class="empty-native-icon">♙</div><h1>Not Signed In</h1><p class="app-copy">A player profile is not connected.</p></div></section>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

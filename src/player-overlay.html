@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'" />
+  <title>ERA Live Players</title>
+  <link rel="stylesheet" href="player-overlay.css" />
+</head>
+<body>
+  <main class="overlay-card" aria-label="ERA live player overlay">
+    <header class="overlay-header">
+      <div class="brand-mark"><img src="assets/era-logo.png" alt="ERA"/><div><strong>ERA <span>LIVE PLAYER</span></strong><small id="serverName">Loading server…</small></div></div>
+      <div class="header-actions"><span id="updateTime" class="update-time">Not refreshed</span><button id="refreshPlayers" type="button" title="Refresh players" aria-label="Refresh players">↻</button><button id="hideOverlay" type="button" title="Hide overlay (F3)" aria-label="Hide overlay">×</button></div>
+    </header>
+    <section class="roster-section">
+      <div class="roster-heading"><span>PLAYERS</span><span id="playerCount" class="player-count">0</span><span class="live-indicator"><i></i> ER:LC</span></div>
+      <div class="search-wrap"><span class="search-icon">⌕</span><input id="playerSearch" type="search" placeholder="Search player name or ID…" autocomplete="off" /><button id="clearSearch" type="button" aria-label="Clear search" hidden>×</button></div>
+      <div id="playerList" class="player-list" aria-label="Live server player list"></div>
+      <div id="overlayStatus" class="overlay-status" role="status" aria-live="polite"></div>
+    </section>
+    <section id="profilePanel" class="profile-panel" hidden>
+      <div class="profile-header">
+        <div id="playerAvatar" class="player-avatar">--</div>
+        <div class="identity"><strong id="playerUsername">Player</strong><span id="playerId">ID —</span></div>
+        <div class="player-presence"><i></i><span>In server</span></div>
+      </div>
+      <div class="profile-tags"><span id="playerTeam" class="tag team-tag">Team</span><span id="playerPermission" class="tag">Permission</span><span id="playerCallsign" class="tag" hidden></span></div>
+      <div id="sessionTime" class="session-time">Session duration unavailable</div>
+      <div class="stats-grid"><div><strong id="kickCount">—</strong><span>Logged Kicks</span></div><div><strong id="banCount">—</strong><span>Logged Bans</span></div><div><strong id="wantedStatus">—</strong><span>Wanted</span></div></div>
+      <p id="playerLocation" class="player-location" hidden></p>
+      <footer class="profile-footer"><span>Counts reflect available PRC log entries only</span><button id="openStaffTools" type="button">Open Staff Tools <span>↗</span></button></footer>
+    </section>
+    <div id="emptyProfile" class="empty-profile"><span class="empty-person">◎</span><strong>Select a player</strong><span>Choose someone from this live server list.</span></div>
+    <div class="overlay-bottom"><span>F3 hide/show</span><span id="refreshHint">Select players here · Roblox avatar clicks are not detected</span></div>
+  </main>
+  <script src="player-overlay.js"></script>
+</body>
+</html>

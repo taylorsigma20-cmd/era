@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'" />
+  <title>ERA</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div class="app-frame">
+    <header class="titlebar">
+      <div class="brand"><img class="brand-logo" src="assets/era-logo.png" alt="ERA" /><span>ERA</span></div>
+      <div class="window-actions" aria-label="Window controls"><button id="minimizeBtn" title="Minimize">—</button><button id="maximizeBtn" title="Maximize">□</button><button id="closeDashboard" title="Close">×</button></div>
+    </header>
+    <main class="dashboard">
+      <section class="welcome-row">
+        <div class="welcome-copy"><img class="profile-logo" src="assets/era-logo.png" alt="" /><div><p class="eyebrow">ER:LC PRIVATE SERVER MANAGEMENT</p><h1>Your Servers</h1><p class="muted">Choose your private server to view live players and server tools.</p></div></div>
+        <div class="top-actions"><button id="openGameOverlay" class="button ghost">▱ &nbsp; Game Overlay · F3</button><button id="openAdd" class="button light"><span>＋</span> Add Server</button><button class="settings-button" id="settingsInfo" title="API key security">⚙</button></div>
+      </section>
+
+      <section id="addPanel" class="add-panel" hidden>
+        <div class="form-heading"><div><p class="eyebrow">CONNECT ER:LC SERVER</p><h2>Add Server with API Key</h2></div><button id="closeAdd" class="icon-close" aria-label="Close">×</button></div>
+        <p class="form-hint">The key is used to read this ER:LC server's status and player information. Keep this key private; it grants access to server data and actions. It is encrypted for your Windows user account.</p>
+        <form id="serverForm">
+          <label for="serverLabel">Your Label <span>optional</span></label>
+          <input id="serverLabel" type="text" maxlength="48" placeholder="e.g. My roleplay server" autocomplete="off" />
+          <label for="serverKey">ER:LC Server API Key</label>
+          <div class="key-row"><input id="serverKey" type="password" maxlength="256" placeholder="Paste the server API key" autocomplete="new-password" required /><button type="button" id="toggleKey" class="show-key">Show</button></div>
+          <div class="form-actions"><button type="button" id="cancelAdd" class="button ghost">Cancel</button><button type="submit" id="saveServer" class="button primary">Verify &amp; Add</button></div>
+        </form>
+        <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+        <div class="key-security"><span class="lock">▣</span><span>Never share your private server API key. ERA stores it encrypted on this computer and does not send it to a separate ERA server.</span></div>
+      </section>
+
+      <section class="server-section" id="serverSection">
+        <div class="section-head"><div class="section-name"><h2>Servers</h2><span id="serverCount" class="count">0</span></div><div class="search-box"><span>⌕</span><input id="searchServers" type="search" placeholder="Search servers" autocomplete="off" /></div></div>
+        <div id="serverList" class="server-grid" aria-live="polite"></div>
+        <div id="emptyState" class="empty-state"><img class="empty-logo" src="assets/era-logo.png" alt="" /><h3>Add Your First Server</h3><p>Add your ER:LC private-server API key to see its live status and player list.</p><button id="emptyAdd" class="button light">＋ Add Server</button></div>
+        <div id="noResults" class="empty-state compact" hidden><h3>No Server Found</h3><p>Try another search term.</p></div>
+      </section>
+
+      <section id="playersPanel" class="players-panel" hidden>
+        <div class="players-top"><div class="players-heading"><button type="button" id="backToServers" class="back-button">‹ Servers</button><div><p class="eyebrow">LIVE PLAYER LIST</p><h2 id="playersServerName">Select a server</h2></div></div><div class="players-head-actions"><span id="playerRefreshTime" class="refresh-time">Not refreshed</span><button id="refreshPlayers" class="button ghost">↻ Refresh</button></div></div>
+        <div id="playersError" class="players-error" role="status" aria-live="polite"></div>
+        <div class="player-toolbar"><div class="search-box player-search"><span>⌕</span><input id="searchPlayers" type="search" placeholder="Search username or player ID" autocomplete="off" /></div><span id="playerCount" class="player-total">0 players</span><span class="live-badge"><i></i> API snapshot · manual refresh</span></div>
+        <div class="players-layout">
+          <aside id="playerList" class="player-list" aria-label="Current ER:LC players"></aside>
+          <div id="playerDetailEmpty" class="player-detail-empty"><img src="assets/era-logo.png" alt="" /><h3>Select a player</h3><p>Choose someone in the list to view their live ER:LC information.</p></div>
+          <article id="playerDetail" class="player-detail" hidden>
+            <header class="detail-header"><div id="playerAvatar" class="player-avatar">--</div><div class="detail-name"><h2 id="detailUsername">Player</h2><p id="detailId">ID —</p></div><span id="detailOnline" class="online-pill"><i></i> Online</span></header>
+            <div class="player-tags"><span id="detailTeam" class="player-tag">Team</span><span id="detailCallsign" class="player-tag" hidden></span><span id="detailPermission" class="player-tag">Permission</span></div>
+            <div class="player-session" id="detailSession">Session time unavailable</div>
+            <div class="player-stats"><div class="stat-cell"><strong id="detailKicks">—</strong><span>Logged Kicks</span></div><div class="stat-cell"><strong id="detailBans">—</strong><span>Logged Bans</span></div><div class="stat-cell wanted-stat"><strong id="detailWanted">—</strong><span>Wanted</span></div></div>
+            <div id="detailLocation" class="detail-location" hidden></div>
+            <section class="staff-note"><div class="note-heading"><div><h3>Staff Note</h3><p>Private to this Windows computer</p></div><span id="noteSavedState" class="note-saved-state">Not saved</span></div><textarea id="staffNote" maxlength="1500" placeholder="Add a note for your staff team on this computer…"></textarea><div class="note-actions"><button type="button" id="deleteStaffNote" class="text-button danger" hidden>Delete Note</button><button type="button" id="saveStaffNote" class="button ghost">Save Note</button></div></section>
+            <div class="detail-actions"><button type="button" data-player-action="pm" class="action-button pm-action">▤ &nbsp; PM</button><button type="button" data-player-action="kick" class="action-button kick-action">↪ &nbsp; Kick</button><button type="button" data-player-action="ban" class="action-button ban-action">⊘ &nbsp; Ban</button><button type="button" data-player-action="wanted" class="action-button">★ &nbsp; Set Wanted</button><button type="button" data-player-action="unwanted" class="action-button">☆ &nbsp; Clear Wanted</button></div>
+            <details class="history-details"><summary>Available ER:LC command log history</summary><div id="playerHistory" class="history-list"></div><p>Counts only include kick/ban commands found in the API's returned logs; these are not lifetime totals.</p></details>
+            <p class="pm-policy">PRC permits occasional PMs, but prohibits using them as a replacement for Roblox chat, phone, or radio.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer"><span><i class="status-dot"></i> API keys stay on this computer</span><span>Destructive/player commands always require a separate confirmation</span><button id="quitApp" class="quit-button">Quit ERA</button></footer>
+    </main>
+  </div>
+  <div id="updateNotice" class="update-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+    <section class="update-dialog">
+      <img src="assets/era-logo.png" alt="" />
+      <p class="eyebrow">ERA SOFTWARE UPDATE</p>
+      <h2 id="updateTitle">A new version is available</h2>
+      <p id="updateMessage" class="update-message"></p>
+      <progress id="updateProgress" max="100" value="0" hidden></progress>
+      <p id="updateError" class="update-error" role="status" aria-live="polite"></p>
+      <div class="update-actions">
+        <button id="updateSkip" type="button" class="button ghost">Skip this version</button>
+        <button id="updateLater" type="button" class="button ghost" hidden>Not now</button>
+        <button id="updatePrimary" type="button" class="button primary">Update now</button>
+      </div>
+    </section>
+  </div>
+  <div id="actionComposer" class="action-modal" hidden>
+    <form id="actionComposerForm" class="action-dialog">
+      <div class="action-modal-header"><img src="assets/era-logo.png" alt="" /><div><p class="eyebrow">ER:LC SERVER COMMAND</p><h2 id="actionComposerTitle">Player action</h2></div></div>
+      <p id="actionComposerHint" class="action-modal-hint"></p>
+      <label id="actionArgumentLabel" for="actionArgument">Message</label>
+      <textarea id="actionArgument" maxlength="180" rows="3" autocomplete="off"></textarea>
+      <div id="actionArgumentCount" class="argument-count"></div>
+      <div class="confirm-actions"><button type="button" id="cancelActionComposer" class="button ghost">Cancel</button><button type="submit" class="button primary" id="continueAction">Continue</button></div>
+    </form>
+  </div>
+  <script src="dashboard.js"></script>
+</body>
+</html>
