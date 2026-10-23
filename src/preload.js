@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'phone-profile:updated', 'player-overlay:show', 'player-overlay:access-denied', 'open-player-list', 'update:state']);
+const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'phone-profile:updated', 'player-overlay:show', 'player-overlay:access-denied', 'open-player-list', 'update:state', 'phone-shown', 'phone-hidden']);
 
 contextBridge.exposeInMainWorld('primecad', {
   hide: () => ipcRenderer.send('phone:hide'),

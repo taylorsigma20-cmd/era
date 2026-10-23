@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen, safeStorage, shell, dialog } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, safeStorage, shell, dialog, desktopCapturer, session } = require('electron');
 const fs = require('fs/promises');
 const path = require('path');
 const { randomUUID } = require('crypto');
@@ -161,15 +161,31 @@ function placePhoneBottomRight() {
   phoneWindow.setPosition(x, y, false);
 }
 
+function hidePhoneWindow() {
+  if (!phoneWindow || phoneWindow.isDestroyed()) return;
+  if (!phoneWindow.webContents.isDestroyed()) phoneWindow.webContents.send('phone-hidden');
+  phoneWindow.hide();
+}
+
 function togglePhoneWindow() {
   if (!phoneWindow || phoneWindow.isDestroyed()) return;
-  if (!robloxSessionActive) { phoneWindow.hide(); return; }
+  if (!robloxSessionActive) { hidePhoneWindow(); return; }
   if (phoneWindow.isVisible()) {
-    phoneWindow.hide();
+    hidePhoneWindow();
   } else {
     placePhoneBottomRight();
     phoneWindow.showInactive();
+    notifyPhoneShown();
   }
+}
+
+function notifyPhoneShown() {
+  if (!phoneWindow || phoneWindow.isDestroyed()) return;
+  const send = () => {
+    if (phoneWindow && !phoneWindow.isDestroyed() && phoneWindow.isVisible()) phoneWindow.webContents.send('phone-shown');
+  };
+  if (phoneWindow.webContents.isLoading()) phoneWindow.webContents.once('did-finish-load', send);
+  else send();
 }
 
 function createPhoneWindow() {
@@ -208,6 +224,38 @@ function createPhoneWindow() {
     // Keep the phone out of the way until the user explicitly presses F1.
   });
   phoneWindow.on('closed', () => { phoneWindow = null; });
+}
+
+function configureRobloxScreenCapture() {
+  session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
+    try {
+      const trustedPhoneUrl = pathToFileURL(path.join(__dirname, 'index.html')).href;
+      if (!request.userGesture || request.frame?.top?.url !== trustedPhoneUrl || request.frame?.url !== trustedPhoneUrl || !phoneWindow || phoneWindow.isDestroyed()) {
+        callback(null);
+        return;
+      }
+      const sources = await desktopCapturer.getSources({ types: ['window'], thumbnailSize: { width: 0, height: 0 } });
+      const robloxSources = sources.filter(source => /roblox/i.test(source.name));
+      if (!robloxSources.length) {
+        await dialog.showMessageBox(phoneWindow, { type: 'info', buttons: ['OK'], title: 'Roblox window not found', message: 'Open Roblox first, then try the Camera again.' });
+        callback(null);
+        return;
+      }
+      const result = await dialog.showMessageBox(phoneWindow, {
+        type: 'question',
+        buttons: ['Cancel', ...robloxSources.map(source => source.name.slice(0, 70))],
+        defaultId: 0,
+        cancelId: 0,
+        title: 'Choose Roblox window',
+        message: 'Select the Roblox window you want ERA Camera to capture.',
+        detail: 'ERA captures only after you choose a window and press the shutter. Captures stay on this computer.'
+      });
+      const selected = result.response > 0 ? robloxSources[result.response - 1] : null;
+      callback(selected ? { video: selected } : null);
+    } catch {
+      callback(null);
+    }
+  });
 }
 
 function createDashboardWindow() {
@@ -701,18 +749,19 @@ ipcMain.handle('players:confirm-action', async (event, input = {}) => {
   return result.response === 1;
 });
 
-ipcMain.on('phone:hide', () => phoneWindow?.hide());
+ipcMain.on('phone:hide', () => hidePhoneWindow());
 ipcMain.on('phone:show', () => {
   if (!robloxSessionActive) return;
   if (!phoneWindow) return;
   placePhoneBottomRight();
   phoneWindow.showInactive();
+  notifyPhoneShown();
 });
 ipcMain.on('phone:toggle', () => {
   if (!phoneWindow) return;
-  if (!robloxSessionActive) { phoneWindow.hide(); return; }
-  if (phoneWindow.isVisible()) phoneWindow.hide();
-  else { placePhoneBottomRight(); phoneWindow.showInactive(); }
+  if (!robloxSessionActive) { hidePhoneWindow(); return; }
+  if (phoneWindow.isVisible()) hidePhoneWindow();
+  else { placePhoneBottomRight(); phoneWindow.showInactive(); notifyPhoneShown(); }
 });
 ipcMain.on('dashboard:open', (event) => {
   assertTrustedSender(event);
@@ -874,6 +923,7 @@ ipcMain.handle('update:install', (event) => {
 });
 
 app.whenReady().then(() => {
+  configureRobloxScreenCapture();
   createDashboardWindow();
   createPhoneWindow();
   startRobloxFocusGuard();

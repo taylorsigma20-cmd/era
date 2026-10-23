@@ -1,6 +1,6 @@
 # ERA for Windows
 
-ERA is an English-language ER:LC staff companion with a fixed iPhone-style phone, a staff dashboard and a transparent live player overlay. The current development version is **0.9.0**; its Windows NSIS installer is built as `ERA-Setup-0.9.0.exe`.
+ERA is an English-language ER:LC staff companion with a fixed iPhone-style phone, a staff dashboard and a transparent live player overlay. The current development version is **0.10.0**; its Windows NSIS installer is built as `ERA-Setup-0.10.0.exe`.
 
 ## Phone and Roblox-only overlay
 
@@ -11,12 +11,16 @@ On first use, create a local phone profile with a display name and your Roblox u
 ## Working local apps
 
 - **Notes** and contacts are stored locally.
-- **Clock** shows local time and includes a stopwatch with split laps and a countdown timer.
+- **Clock** shows local time and includes alarms, a stopwatch with split laps and a countdown timer. Alarms run while ERA is open.
 - **Postimees** loads live headlines from its public RSS feed; selecting a headline opens the article on the Postimees website.
+- **Photos** and **Camera** capture Roblox windows only after the user chooses the window and presses the shutter. Images and favorites are stored locally.
+- **Chirper** has a familiar social feed, discovery, notifications and profile layout, but local posts are not sent to other players; community sections honestly show disconnected states.
+- **Marketplace** and **Dark Web** provide fictional roleplay listing screens. Listings are local drafts only and are not published to a community service.
 - **Threads** saves local drafts only. No posts are sent to other players or published.
 - **Wallpapers** include built-in themes and an optional local image (under 3 MB).
+- **Settings** add theme, overlay opacity, keyboard shortcut information and a saved choice for whether F1 opens Home or the last app.
 
-The phone no longer includes an ERA server-management app or FOX News. F2 remains a separate staff dashboard.
+The phone no longer includes an ERA server-management app or FOX News. F2 remains a separate staff dashboard. The new Camera/Photos, Chirper and Marketplace layouts are inspired by the apps and structure shown in the user's video reference; user-generated media/listings remain local and community feeds require a shared service.
 
 ## Features requiring a shared service
 

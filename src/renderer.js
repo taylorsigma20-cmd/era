@@ -1,5 +1,7 @@
-const views = [...document.querySelectorAll('.view')];
-const openView = name => views.forEach(view => view.classList.toggle('active', view.dataset.view === name));
+const openView = name => {
+  document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.dataset.view === name));
+  window.dispatchEvent(new CustomEvent('era:phone-view-changed', { detail: name }));
+};
 const toast = message => {
   let node = document.getElementById('nativeToast');
   if (!node) { node = document.createElement('div'); node.id = 'nativeToast'; node.className = 'native-toast'; node.setAttribute('role', 'status'); document.querySelector('.device-screen').append(node); }
@@ -10,8 +12,12 @@ const toast = message => {
 };
 
 document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => openView(button.dataset.open)));
-document.querySelectorAll('[data-back]').forEach(button => button.addEventListener('click', () => openView('home')));
+document.addEventListener('click', event => { if (event.target.closest('[data-back]')) openView('home'); });
 document.querySelectorAll('[data-open-dashboard]').forEach(button => button.addEventListener('click', () => window.primecad.openDashboard()));
+document.getElementById('homeIndicator').addEventListener('click', () => {
+  if (document.querySelector('.view.active')?.dataset.view === 'notes' && noteEditor && !noteEditor.hidden) closeNoteEditor(true);
+  openView('home');
+});
 
 const readLocal = (key, fallback) => { try { const data = JSON.parse(localStorage.getItem(key) || 'null'); return data ?? fallback; } catch { return fallback; } };
 const writeLocal = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; } };
@@ -328,6 +334,61 @@ function selectClockPanel(name) {
   });
 }
 document.querySelectorAll('[data-clock-tab]').forEach(button => button.addEventListener('click', () => selectClockPanel(button.dataset.clockTab)));
+let phoneAlarms = readLocal('era-phone-alarms-v1', []);
+const alarmForm = document.getElementById('alarmForm');
+const alarmList = document.getElementById('alarmList');
+function renderPhoneAlarms() {
+  alarmList.replaceChildren();
+  if (!phoneAlarms.length) {
+    const empty = document.createElement('p'); empty.className = 'app-copy alarm-empty'; empty.textContent = 'No alarms'; alarmList.append(empty); return;
+  }
+  for (const alarm of phoneAlarms) {
+    const row = document.createElement('div'); row.className = 'alarm-row';
+    const info = document.createElement('span'); info.className = 'alarm-info';
+    const time = document.createElement('strong'); time.textContent = alarm.time;
+    const label = document.createElement('small'); label.textContent = alarm.label || 'Alarm';
+    info.append(time, label);
+    const actions = document.createElement('span'); actions.className = 'alarm-actions';
+    const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'alarm-toggle'; toggle.setAttribute('aria-pressed', String(Boolean(alarm.enabled))); toggle.textContent = alarm.enabled ? 'On' : 'Off'; toggle.addEventListener('click', () => { alarm.enabled = !alarm.enabled; alarm.lastFiredDate = ''; writeLocal('era-phone-alarms-v1', phoneAlarms); renderPhoneAlarms(); });
+    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'alarm-delete'; remove.setAttribute('aria-label', `Delete ${alarm.label || 'alarm'}`); remove.textContent = '×'; remove.addEventListener('click', () => { phoneAlarms = phoneAlarms.filter(item => item.id !== alarm.id); writeLocal('era-phone-alarms-v1', phoneAlarms); renderPhoneAlarms(); });
+    actions.append(toggle, remove); row.append(info, actions); alarmList.append(row);
+  }
+}
+alarmForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const time = document.getElementById('alarmTime').value;
+  if (!/^\d{2}:\d{2}$/.test(time)) return;
+  phoneAlarms.push({ id: crypto.randomUUID(), time, label: document.getElementById('alarmLabel').value.trim().slice(0, 32), enabled: true, lastFiredDate: '' });
+  if (!writeLocal('era-phone-alarms-v1', phoneAlarms)) { phoneAlarms.pop(); toast('Could not save this alarm on this device.'); return; }
+  document.getElementById('alarmLabel').value = '';
+  document.getElementById('alarmStatus').textContent = 'Alarm saved on this device · works while ERA is open';
+  renderPhoneAlarms();
+});
+function playAlarmTone() {
+  try {
+    const context = new AudioContext();
+    [0, 0.45, 0.9].forEach(delay => {
+      const oscillator = context.createOscillator(); const gain = context.createGain();
+      oscillator.frequency.value = 880; gain.gain.setValueAtTime(0.0001, context.currentTime + delay); gain.gain.exponentialRampToValueAtTime(0.12, context.currentTime + delay + 0.02); gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + delay + 0.32);
+      oscillator.connect(gain); gain.connect(context.destination); oscillator.start(context.currentTime + delay); oscillator.stop(context.currentTime + delay + 0.34);
+    });
+    setTimeout(() => context.close().catch(() => {}), 1800);
+  } catch { /* Browser audio may be unavailable; the visible alert still appears. */ }
+}
+function checkPhoneAlarms() {
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const day = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const due = phoneAlarms.filter(alarm => alarm.enabled && alarm.time === time && alarm.lastFiredDate !== day);
+  if (!due.length) return;
+  for (const alarm of due) alarm.lastFiredDate = day;
+  writeLocal('era-phone-alarms-v1', phoneAlarms);
+  const labels = due.map(alarm => alarm.label || 'Alarm').join(', ');
+  document.getElementById('alarmStatus').textContent = `Alarm: ${labels}`;
+  toast(`Alarm · ${labels}`); playAlarmTone();
+}
+renderPhoneAlarms();
+setInterval(checkPhoneAlarms, 12000);
 let stopwatchStartedAt = 0, stopwatchElapsed = 0, stopwatchRunning = false, stopwatchTimer = null, lapCount = 0, lastLapElapsed = 0;
 function currentStopwatchMs() { return stopwatchElapsed + (stopwatchRunning ? performance.now() - stopwatchStartedAt : 0); }
 function formatStopwatch(milliseconds) {
