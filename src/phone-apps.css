@@ -57,6 +57,13 @@
 .device-screen .view[data-view="camera"] .pa-gallery-shortcut>span:first-child { color:#e5c962; font-size:17px; }
 .device-screen .view[data-view="camera"] .pa-arrow { margin-left:auto; color:#8e9097; font-size:19px; }
 
+/* The reference camera uses a centered Roblox source pill above a square viewfinder. */
+.device-screen .view[data-view="camera"] .app-top { position:relative; justify-content:center; border-bottom:0; }
+.device-screen .view[data-view="camera"] .app-top strong { padding:5px 11px; border:1px solid rgba(255,255,255,.07); border-radius:14px; background:#111216; font-size:9px; }
+.device-screen .view[data-view="camera"] .app-top .back { position:absolute; left:13px; }
+.device-screen .view[data-view="camera"] .app-top .more { position:absolute; right:13px; }
+.device-screen .view[data-view="camera"] .pa-camera-brand { display:none; }
+
 .device-screen .view[data-view="photos"] .pa-photo-page { flex:1; padding:13px 13px 25px; }
 .device-screen .view[data-view="photos"] .pa-photo-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .device-screen .view[data-view="photos"] .pa-photo-heading .eyebrow,

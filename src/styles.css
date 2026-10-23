@@ -76,3 +76,16 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-ser
 .alarms-panel{text-align:left;padding:31px 8px 12px}.alarms-panel h2{margin:0 0 5px;font-size:16px}.alarms-panel>.app-copy{font-size:8px}.alarm-form{display:grid;gap:8px;margin-top:12px}.alarm-form label{display:grid;gap:4px;color:#9fa2aa;font-size:8px;text-align:left}.alarm-form input{width:100%;height:31px;padding:0 8px;border:1px solid #34363e;border-radius:8px;background:#111216;color:#f6f6f8;font:10px inherit;user-select:text}.alarm-form .primary-clock-action{justify-self:end;height:29px;padding:0 11px;border:0;border-radius:15px;background:#168bdc;color:#fff;font:700 8px inherit;cursor:pointer}.alarm-list{margin-top:9px}.alarm-row{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:8px 0;border-bottom:1px solid #292b31}.alarm-info strong,.alarm-info small{display:block}.alarm-info strong{font-size:14px;font-weight:400;font-variant-numeric:tabular-nums}.alarm-info small{margin-top:2px;color:#92949b;font-size:8px}.alarm-actions{display:flex;align-items:center;gap:5px}.alarm-toggle{min-width:34px;padding:4px 7px;border:0;border-radius:12px;background:#2263a2;color:#fff;font:700 8px inherit}.alarm-toggle[aria-pressed="false"]{background:#34363d;color:#aaa}.alarm-delete{width:22px;height:22px;border:0;border-radius:50%;background:#29191d;color:#ff8291;font-size:16px}.alarm-empty{text-align:center!important;padding:12px 0}
 
 .alarm-form input,.alarm-form .primary-clock-action,.alarm-toggle{font-family:inherit}.alarm-form input{font-size:10px}.alarm-form .primary-clock-action,.alarm-toggle{font-size:8px;font-weight:700}
+
+/* Compact glass iPhone frame inspired by the reference video. */
+.phone-shell{padding:4px;border:2px solid #24262c;border-radius:40px;background:linear-gradient(145deg,#17191f 0%,#050506 19%,#090a0d 80%,#1b1c21 100%);box-shadow:0 0 0 1px #000,0 13px 42px rgba(0,0,0,.72),inset 0 0 0 1px rgba(255,255,255,.035)}
+.device-screen{border-radius:33px;background:#050506}
+.dynamic-island{top:10px;width:44px;height:12px;border-radius:8px;border-color:#090a0d;background:#010102;box-shadow:inset 0 1px 2px rgba(255,255,255,.035),0 1px 2px rgba(0,0,0,.8);padding-right:5px}
+.dynamic-island span{width:4px;height:4px;background:#11141a;box-shadow:inset 0 0 2px #273447,0 0 3px rgba(42,68,96,.3)}
+.status-row{top:10px;left:19px;right:18px;height:18px;font-size:9px;letter-spacing:0}
+.home-watermark{display:none}
+.dock{background:rgba(35,37,43,.82);border-color:rgba(255,255,255,.1);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.app-view{background:linear-gradient(180deg,#08090b,#050506 75%)}
+.app-top{border-bottom-color:rgba(255,255,255,.075)}
+.back,.more{background:#15161a;border:1px solid rgba(255,255,255,.045)}
+.home-indicator::after{width:76px;height:3px;background:rgba(255,255,255,.94);box-shadow:0 1px 3px rgba(0,0,0,.6)}

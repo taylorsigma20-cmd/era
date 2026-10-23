@@ -111,7 +111,7 @@ function setUpdateState(state) {
 function configureAutoUpdates() {
   if (!app.isPackaged || process.platform !== 'win32') return;
   autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.allowPrerelease = false;
   autoUpdater.on('update-available', async info => {
     if (await skippedUpdateVersion() === info.version) {
@@ -897,7 +897,7 @@ ipcMain.handle('update:get-state', (event) => {
 });
 ipcMain.handle('update:download', async (event) => {
   assertTrustedSender(event);
-  if (event.sender !== dashboardWindow?.webContents || !app.isPackaged || process.platform !== 'win32' || updateState.status !== 'available') return false;
+  if (event.sender !== dashboardWindow?.webContents || !app.isPackaged || process.platform !== 'win32' || !(updateState.status === 'available' || (updateState.status === 'error' && updateState.version))) return false;
   const version = updateState.version;
   setUpdateState({ status: 'downloading', version, percent: 0, bytesPerSecond: 0 });
   try {

@@ -38,7 +38,7 @@ The API provides username/ID, team, permission, callsign, wanted stars and locat
 
 ## Windows updates and antivirus
 
-ERA 0.8.0 was the first in-app-updater release. Users on 0.7.0 or earlier must install 0.8.0 once manually. After the updater is in place, later versions can be downloaded and installed inside ERA, with **Update now** or **Skip this version** choices.
+ERA 0.8.0 was the first in-app-updater release. Users on 0.7.0 or earlier must install 0.8.0 once manually. After the updater is in place, ERA checks for stable Windows releases at startup and offers **Update now** or **Later**. Downloads start only after choosing **Update now**; a downloaded update installs the next time ERA closes, or users can choose **Restart and update** in the dashboard.
 
 To publish a future release, update the version in `package.json` and `package-lock.json`, commit the change, and push a version tag such as `v0.9.0`. GitHub Actions builds the unsigned Windows NSIS installer and publishes its update metadata. The updater feed is on the public [ERA GitHub repository](https://github.com/taylorsigma20-cmd/era); no paid hosting is required.
 

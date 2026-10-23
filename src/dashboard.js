@@ -74,14 +74,14 @@ function renderUpdateState(state) {
 
   if (state.status === 'available') {
     updateTitle.textContent = 'A new ERA update is available';
-    updateMessage.textContent = `Version ${state.version} is ready. ERA will download it here and ask you to restart to install it.`;
+    updateMessage.textContent = `Version ${state.version} is ready. Choose Update now to download it, or Later to keep using ERA.`;
     updateSkip.hidden = false;
     updateLater.hidden = false;
     updatePrimary.textContent = 'Update now';
     updateNotice.hidden = false;
   } else if (state.status === 'downloading') {
     updateTitle.textContent = 'Downloading ERA update';
-    updateMessage.textContent = `Downloading version ${state.version || ''}… ${Math.floor(state.percent || 0)}%`;
+    updateMessage.textContent = `Downloading version ${state.version || ''}… ${Math.floor(state.percent || 0)}%. It will install automatically when you close ERA.`;
     updateProgress.hidden = false;
     updateProgress.value = Math.max(0, Math.min(100, Number(state.percent) || 0));
     updateLater.hidden = false;
@@ -92,7 +92,7 @@ function renderUpdateState(state) {
   } else if (state.status === 'downloaded') {
     hideDownloadNotice = false;
     updateTitle.textContent = 'Update ready to install';
-    updateMessage.textContent = `Version ${state.version} has downloaded. Restart ERA now to finish installing it.`;
+    updateMessage.textContent = `Version ${state.version} has downloaded and will install automatically the next time you close ERA. You can also restart now.`;
     updateLater.hidden = false;
     updateLater.textContent = 'Later';
     updatePrimary.textContent = 'Restart and update';
