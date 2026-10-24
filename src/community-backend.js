@@ -176,6 +176,37 @@ function createCommunityBackend(app) {
       const { data, error } = await supabase.from('comments').insert({ post_id: postId, author_id: user.id, body }).select('id').single();
       throwIfError(error); return data;
     },
+    async listConversations() {
+      const supabase = getClient(app), user = await signedInUser(app);
+      const selection = 'id,user_a,user_b,last_message,updated_at,profiles_a:profiles!conversations_user_a_fkey(id,username,display_name),profiles_b:profiles!conversations_user_b_fkey(id,username,display_name)';
+      const { data, error } = await supabase.from('conversations').select(selection).or(`user_a.eq.${user.id},user_b.eq.${user.id}`).order('updated_at', { ascending: false }).limit(100);
+      throwIfError(error);
+      return (data || []).map(row => ({ ...row, other_profile: row.user_a === user.id ? row.profiles_b : row.profiles_a }));
+    },
+    async getOrCreateConversation(otherUserId) {
+      const supabase = getClient(app), user = await signedInUser(app), otherId = assertUuid(otherUserId, 'recipient ID');
+      if (otherId === user.id) throw new Error('Choose another ERA user to message.');
+      const recipient = await supabase.from('profiles').select('id').eq('id', otherId).maybeSingle();
+      throwIfError(recipient.error);
+      if (!recipient.data) throw new Error('That ERA account no longer exists.');
+      const [userA, userB] = user.id < otherId ? [user.id, otherId] : [otherId, user.id];
+      const created = await supabase.from('conversations').upsert({ user_a: userA, user_b: userB }, { onConflict: 'user_a,user_b', ignoreDuplicates: true });
+      throwIfError(created.error);
+      const found = await supabase.from('conversations').select('id').eq('user_a', userA).eq('user_b', userB).single();
+      throwIfError(found.error); return found.data;
+    },
+    async listDirectMessages(conversationId) {
+      const supabase = getClient(app); await signedInUser(app); const id = assertUuid(conversationId, 'conversation ID');
+      const { data, error } = await supabase.from('direct_messages').select('id,conversation_id,sender_id,body,created_at,profiles!direct_messages_sender_id_fkey(display_name,username)').eq('conversation_id', id).order('created_at', { ascending: true }).limit(300);
+      throwIfError(error); return data || [];
+    },
+    async sendDirectMessage(input = {}) {
+      const supabase = getClient(app), user = await signedInUser(app), conversationId = assertUuid(input.conversationId, 'conversation ID');
+      const body = String(input.body || '').trim().slice(0, 2000);
+      if (!body) throw new Error('Write a message first.');
+      const { data, error } = await supabase.from('direct_messages').insert({ conversation_id: conversationId, sender_id: user.id, body }).select('id,conversation_id,sender_id,body,created_at').single();
+      throwIfError(error); return data;
+    },
     startRealtime(onChange) {
       notify = typeof onChange === 'function' ? onChange : () => {};
       if (realtimeChannel) return;
@@ -184,6 +215,7 @@ function createCommunityBackend(app) {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, payload => notify({ table: 'posts', event: payload.eventType }))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, payload => notify({ table: 'comments', event: payload.eventType, postId: payload.new?.post_id || payload.old?.post_id }))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'post_reactions' }, payload => notify({ table: 'post_reactions', event: payload.eventType }))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'direct_messages' }, payload => notify({ table: 'direct_messages', event: payload.eventType, conversationId: payload.new?.conversation_id || payload.old?.conversation_id }))
         .subscribe(status => { if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') notify({ table: 'connection', event: status }); });
     },
     stopRealtime() { if (realtimeChannel && client) client.removeChannel(realtimeChannel); realtimeChannel = null; }

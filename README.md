@@ -1,12 +1,12 @@
 # ERA for Windows
 
-ERA is an English-language ER:LC staff companion with a fixed iPhone-style phone, a staff dashboard and a transparent live player overlay. The current development version is **0.10.0**; its Windows NSIS installer is built as `ERA-Setup-0.10.0.exe`.
+ERA is an English-language ER:LC staff companion with an iPhone-inspired phone, a staff dashboard and a transparent live player overlay. The phone has an iPhone-style home screen, app dock, first-use profile setup and grouped Settings pages. The current local development version is **0.10.8**; its Windows NSIS installer is built as `ERA-Setup-0.10.8.exe`.
 
 ## Phone and Roblox-only overlay
 
 The phone starts hidden and **F1** toggles it while Roblox is the active foreground app. The phone and the F3 player overlay hide when focus leaves Roblox/ERA. The foreground check uses the Windows active-window process path; the app does not inject into the game, read game memory, or bypass anti-cheat.
 
-On first use, create a local phone profile with a display name and your Roblox user ID. The profile, theme choice, notes, contacts and local drafts stay on this computer. The Roblox ID is used to compare your live account with the PRC `Permission` field. F2 opens the staff dashboard. **Server Administrators and the Server Owner** can open F3 and view the live CAD roster and player cards. Other roles are denied by the main process.
+On first use, choose English or Estonian and create a local phone profile. ERA then opens Twitter so you can create your community username before using ERA-to-ERA messages. Your display name, theme choice, notes, contacts and local drafts stay on this computer. The Roblox ID is used to compare your live account with the PRC `Permission` field. F2 opens the staff dashboard. **Server Administrators and the Server Owner** can open F3 and view the live CAD roster and player cards. Other roles are denied by the main process.
 
 ## Working local apps
 
@@ -14,17 +14,23 @@ On first use, create a local phone profile with a display name and your Roblox u
 - **Clock** shows local time and includes alarms, a stopwatch with split laps and a countdown timer. Alarms run while ERA is open.
 - **Postimees** loads live headlines from its public RSS feed; selecting a headline opens the article on the Postimees website.
 - **Photos** and **Camera** capture Roblox windows only after the user chooses the window and presses the shutter. Images and favorites are stored locally.
-- **Chirper** has a familiar social feed, discovery, notifications and profile layout, but local posts are not sent to other players; community sections honestly show disconnected states.
+- **Twitter** has a shared Supabase-backed feed with profiles, posts, photos, comments, likes, reposts and live updates.
+- **Messages** supports private one-to-one conversations between ERA community users. Each conversation is visible only to its two participants.
+- **Gmail** opens Gmail in the default browser. ERA can prepare a recipient, subject and body, then opens the draft for the user to review and send; ERA never reads or stores inbox messages.
 - **Marketplace** and **Dark Web** provide fictional roleplay listing screens. Listings are local drafts only and are not published to a community service.
 - **Threads** saves local drafts only. No posts are sent to other players or published.
 - **Wallpapers** include built-in themes and an optional local image (under 3 MB).
-- **Settings** add theme, overlay opacity, keyboard shortcut information and a saved choice for whether F1 opens Home or the last app.
+- **Settings** use grouped iPhone-style pages for General, Display & Brightness, ERA Overlay, Privacy & Security and Keyboard Shortcuts. Language, theme, wallpaper, opacity and the F1 start screen are configurable.
 
-The phone no longer includes an ERA server-management app or FOX News. F2 remains a separate staff dashboard. The new Camera/Photos, Chirper and Marketplace layouts are inspired by the apps and structure shown in the user's video reference; user-generated media/listings remain local and community feeds require a shared service.
+The phone no longer includes an ERA server-management app or FOX News. F2 remains a separate staff dashboard. The phone frame and app navigation follow the custom phone shown in the video reference; community features require the shared service below.
+
+## ERA community setup
+
+Enable **Anonymous Sign-Ins** in Supabase, then run `supabase/schema.sql` in the project's SQL Editor. This enables shared Twitter posts and private ERA messages with row-level security. See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for setup details. Anonymous community profiles are tied to one ERA installation and cannot be recovered on another computer. Gmail is handled by the user's browser and Google account; ERA does not need Gmail credentials.
 
 ## Features requiring a shared service
 
-The official [PRC API](https://apidocs.erlc.gg/) provides ER:LC player/server data and moderation commands. Its documented player endpoint does **not** assign personal phone numbers or expose a phone/SMS service or bank balance. Calls, inter-player SMS, globally unique numbers and real ERABank balances therefore stay disconnected instead of showing fabricated accounts/data. ERABank explicitly reports that no balance is available until a legitimate economy source is connected.
+The official [PRC API](https://apidocs.erlc.gg/) provides ER:LC player/server data and moderation commands. Its documented player endpoint does **not** assign personal phone numbers or expose a phone-call/SMS carrier service or bank balance. Calls, carrier SMS, globally unique numbers and real ERABank balances therefore stay disconnected instead of showing fabricated accounts/data. ERA Messages is an internet chat between ERA profiles, not carrier SMS. ERABank explicitly reports that no balance is available until a legitimate economy source is connected.
 
 PRC documents **Emergency Calls** as an event-webhook type. Delivering those alerts to the right in-game team requires a reachable HTTPS receiver that verifies PRC Ed25519 signatures plus team-routing rules. A desktop-only app cannot receive those webhooks while it is closed, and no receiver/hosting account is configured. There is no paid hosting enabled.
 

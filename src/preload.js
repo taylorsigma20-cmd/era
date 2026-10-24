@@ -31,7 +31,15 @@ contextBridge.exposeInMainWorld('primecad', {
     toggleReaction: payload => ipcRenderer.invoke('community:posts:toggle-reaction', payload),
     listComments: postId => ipcRenderer.invoke('community:comments:list', String(postId || '').slice(0, 40)),
     createComment: payload => ipcRenderer.invoke('community:comments:create', payload),
+    listConversations: () => ipcRenderer.invoke('community:messages:conversations'),
+    getOrCreateConversation: userId => ipcRenderer.invoke('community:messages:conversation', String(userId || '').slice(0, 40)),
+    listDirectMessages: conversationId => ipcRenderer.invoke('community:messages:list', String(conversationId || '').slice(0, 40)),
+    sendDirectMessage: payload => ipcRenderer.invoke('community:messages:send', payload),
     startRealtime: () => ipcRenderer.invoke('community:realtime:start')
+  },
+  gmail: {
+    openInbox: () => ipcRenderer.invoke('gmail:open-inbox'),
+    compose: payload => ipcRenderer.invoke('gmail:compose', payload)
   },
   news: {
     headlines: () => ipcRenderer.invoke('news:headlines'),

@@ -839,12 +839,47 @@ ipcMain.handle('community:comments:create', async (event, input = {}) => {
   assertPhoneWindowSender(event);
   return communityService().createComment(input);
 });
+ipcMain.handle('community:messages:conversations', async (event) => {
+  assertPhoneWindowSender(event);
+  return communityService().listConversations();
+});
+ipcMain.handle('community:messages:conversation', async (event, userId) => {
+  assertPhoneWindowSender(event);
+  return communityService().getOrCreateConversation(userId);
+});
+ipcMain.handle('community:messages:list', async (event, conversationId) => {
+  assertPhoneWindowSender(event);
+  return communityService().listDirectMessages(conversationId);
+});
+ipcMain.handle('community:messages:send', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  return communityService().sendDirectMessage(input);
+});
 ipcMain.handle('community:realtime:start', async (event) => {
   assertPhoneWindowSender(event);
   await communityService().ensure();
   communityService().startRealtime(payload => {
     if (phoneWindow && !phoneWindow.isDestroyed()) phoneWindow.webContents.send('community:changed', payload);
   });
+  return true;
+});
+
+ipcMain.handle('gmail:open-inbox', async (event) => {
+  assertPhoneWindowSender(event);
+  await shell.openExternal('https://mail.google.com/mail/u/0/#inbox');
+  return true;
+});
+ipcMain.handle('gmail:compose', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  const to = String(input.to || '').trim().slice(0, 254);
+  if (to && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) throw new Error('Enter a valid email address.');
+  const url = new URL('https://mail.google.com/mail/u/0/');
+  url.searchParams.set('view', 'cm'); url.searchParams.set('fs', '1');
+  if (to) url.searchParams.set('to', to);
+  const subject = String(input.subject || '').slice(0, 180), body = String(input.body || '').slice(0, 5000);
+  if (subject) url.searchParams.set('su', subject);
+  if (body) url.searchParams.set('body', body);
+  await shell.openExternal(url.toString());
   return true;
 });
 

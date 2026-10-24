@@ -135,7 +135,7 @@ document.querySelectorAll('[data-dial]').forEach(button => button.addEventListen
 }));
 document.getElementById('placeCall').addEventListener('click', () => toast('Calls are unavailable: no community phone server is connected.'));
 
-// Keep messages as local drafts only. There is deliberately no pretend send action.
+// ERA Messages uses the community profile and a private, two-person Supabase conversation.
 let drafts = readLocal('primecad-message-drafts-v1', []);
 const localDraftSection = document.getElementById('localDraftSection');
 const localDraftList = document.getElementById('localDraftList');
@@ -144,8 +144,152 @@ const messageComposer = document.getElementById('messageComposer');
 const messageRecipient = document.getElementById('messageRecipient');
 const messageBody = document.getElementById('messageBody');
 const messageStatus = document.getElementById('messageStatus');
-function openComposer() { messagesListPage.hidden = true; messageComposer.hidden = false; messageRecipient.focus(); }
-function closeComposer() { messageComposer.hidden = true; messagesListPage.hidden = false; }
+const messageUserResults = document.getElementById('messageUserResults');
+const messageThreadPage = document.getElementById('messageThreadPage');
+const messageThreadList = document.getElementById('messageThreadList');
+const messageReplyBody = document.getElementById('messageReplyBody');
+const messageReplySend = document.getElementById('messageReplySend');
+let messageSession = null, messageConversations = [], activeConversation = null, activeRecipient = null, dmSearchRevision = 0;
+let dmConversationBusy = false, dmSendBusy = false;
+async function ensureMessageProfile() {
+  const session = await window.primecad.community.ensure();
+  messageSession = session;
+  if (!session.profile) {
+    document.getElementById('messagesAccountNotice').hidden = false;
+    document.getElementById('messageConnectionBadge').textContent = 'ACCOUNT NEEDED';
+    document.getElementById('messagesEmpty').hidden = false;
+    document.getElementById('messagesEmpty').querySelector('strong').textContent = 'Create your ERA account first';
+    document.getElementById('messagesEmpty').querySelector('span').textContent = 'Open Twitter and create your community profile to message other ERA users.';
+    return false;
+  }
+  document.getElementById('messagesAccountNotice').hidden = true;
+  document.getElementById('messageConnectionBadge').textContent = 'ONLINE';
+  await window.primecad.community.startRealtime();
+  return true;
+}
+function openComposer() {
+  messagesListPage.hidden = true; messageThreadPage.hidden = true; messageComposer.hidden = false;
+  document.getElementById('messageRecipientSelected').hidden = true;
+  document.getElementById('messageRecipientSelected').textContent = '';
+  messageUserResults.hidden = true; messageRecipient.value = ''; messageBody.value = '';
+  activeRecipient = null; messageStatus.textContent = 'Search for an ERA username to start a private conversation.';
+  document.getElementById('sendMessage').disabled = true;
+  void ensureMessageProfile().catch(error => { messageStatus.textContent = error.message || 'ERA community is offline.'; document.getElementById('messageConnectionBadge').textContent = 'OFFLINE'; });
+  messageRecipient.focus();
+}
+function closeComposer() { messageComposer.hidden = true; messagesListPage.hidden = false; messageUserResults.hidden = true; }
+function formatMessageTime(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? '' : date.toLocaleString(window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function renderConversations() {
+  const list = document.getElementById('messagesList'); list.replaceChildren();
+  for (const conversation of messageConversations) {
+    const profile = conversation.other_profile || {}, name = profile.display_name || 'ERA user', username = `@${profile.username || 'user'}`;
+    const row = document.createElement('button'); row.type = 'button'; row.className = 'dm-conversation-row';
+    const avatar = document.createElement('span'); avatar.className = 'dm-avatar'; avatar.textContent = name.slice(0, 1).toUpperCase();
+    const content = document.createElement('span'); content.className = 'dm-conversation-copy';
+    const title = document.createElement('strong'); title.textContent = name;
+    const handle = document.createElement('small'); handle.textContent = username;
+    const preview = document.createElement('span'); preview.textContent = conversation.last_message || 'Start your conversation';
+    content.append(title, handle, preview);
+    const date = document.createElement('time'); date.textContent = formatMessageTime(conversation.updated_at);
+    row.append(avatar, content, date); row.addEventListener('click', () => { void openDirectConversation(conversation); }); list.append(row);
+  }
+  document.getElementById('messagesEmpty').hidden = messageConversations.length > 0 || !messageSession?.profile;
+}
+async function refreshConversations() {
+  if (!window.primecad?.community) return;
+  try {
+    const ready = await ensureMessageProfile();
+    if (!ready) { messageConversations = []; renderConversations(); return; }
+    messageConversations = await window.primecad.community.listConversations();
+    renderConversations();
+  } catch (error) {
+    document.getElementById('messageConnectionBadge').textContent = 'OFFLINE';
+    document.getElementById('messagesAccountNotice').hidden = false;
+    document.getElementById('messagesAccountNotice').querySelector('strong').textContent = 'Community service unavailable';
+    document.getElementById('messagesAccountNotice').querySelector('span').textContent = error.message || 'Enable the ERA community service to sync conversations.';
+    document.getElementById('messagesEmpty').hidden = false;
+  }
+}
+function renderDirectMessages(rows) {
+  messageThreadList.replaceChildren();
+  if (!rows.length) { const empty = document.createElement('p'); empty.className = 'dm-thread-empty'; empty.textContent = 'This is the start of your conversation.'; messageThreadList.append(empty); return; }
+  for (const item of rows) {
+    const own = item.sender_id === messageSession?.id, bubble = document.createElement('article');
+    bubble.className = `dm-message ${own ? 'is-own' : 'is-other'}`;
+    const text = document.createElement('p'); text.textContent = item.body;
+    const meta = document.createElement('time'); meta.textContent = formatMessageTime(item.created_at);
+    bubble.append(text, meta); messageThreadList.append(bubble);
+  }
+  messageThreadList.scrollTop = messageThreadList.scrollHeight;
+}
+async function openDirectConversation(conversation) {
+  if (dmConversationBusy) return;
+  dmConversationBusy = true;
+  activeConversation = conversation; messagesListPage.hidden = true; messageComposer.hidden = true; messageThreadPage.hidden = false;
+  const profile = conversation.other_profile || {};
+  document.getElementById('messageThreadName').textContent = profile.display_name || 'ERA user';
+  document.getElementById('messageThreadHandle').textContent = `@${profile.username || 'user'}`;
+  messageThreadList.replaceChildren(); const loading = document.createElement('p'); loading.className = 'dm-thread-empty'; loading.textContent = 'Loading messages…'; messageThreadList.append(loading);
+  try { await ensureMessageProfile(); const rows = await window.primecad.community.listDirectMessages(conversation.id); renderDirectMessages(rows); }
+  catch (error) { messageThreadList.replaceChildren(); const issue = document.createElement('p'); issue.className = 'dm-thread-empty'; issue.textContent = error.message || 'Messages could not be loaded.'; messageThreadList.append(issue); }
+  finally { dmConversationBusy = false; messageReplyBody.focus(); }
+}
+async function searchMessageUsers() {
+  const revision = ++dmSearchRevision, query = messageRecipient.value.trim().replace(/^@/, '');
+  activeRecipient = null; document.getElementById('messageRecipientSelected').hidden = true; document.getElementById('sendMessage').disabled = true;
+  messageUserResults.replaceChildren();
+  if (query.length < 2) { messageUserResults.hidden = true; return; }
+  try {
+    const ready = await ensureMessageProfile(); if (!ready) return;
+    const profiles = await window.primecad.community.searchProfiles(query);
+    if (revision !== dmSearchRevision) return;
+    const matches = profiles.filter(profile => profile.id !== messageSession.id);
+    if (!matches.length) { const empty = document.createElement('p'); empty.className = 'dm-search-empty'; empty.textContent = 'No ERA account matches this search.'; messageUserResults.append(empty); }
+    for (const profile of matches) {
+      const option = document.createElement('button'); option.type = 'button'; option.className = 'dm-user-option';
+      const avatar = document.createElement('span'); avatar.className = 'dm-avatar'; avatar.textContent = profile.display_name.slice(0, 1).toUpperCase();
+      const name = document.createElement('span'); name.innerHTML = `<strong>${safe(profile.display_name)}</strong><small>@${safe(profile.username)}</small>`;
+      option.append(avatar, name); option.addEventListener('click', () => {
+        activeRecipient = profile; messageRecipient.value = `@${profile.username}`; messageUserResults.hidden = true;
+        const selected = document.getElementById('messageRecipientSelected'); selected.textContent = `To ${profile.display_name} · @${profile.username}`; selected.hidden = false;
+        document.getElementById('sendMessage').disabled = !messageBody.value.trim(); messageStatus.textContent = 'Private ERA message · only you and this user can read it.'; messageBody.focus();
+      }); messageUserResults.append(option);
+    }
+    messageUserResults.hidden = false;
+  } catch (error) { messageStatus.textContent = error.message || 'Could not search ERA users.'; }
+}
+async function sendDirectMessage(toProfile, body, existingConversation = null) {
+  const conversation = existingConversation || await window.primecad.community.getOrCreateConversation(toProfile.id);
+  await window.primecad.community.sendDirectMessage({ conversationId: conversation.id, body });
+  return conversation;
+}
+document.getElementById('messagesCreateAccount').addEventListener('click', () => openView('chirper'));
+document.getElementById('composeMessage').addEventListener('click', openComposer);
+document.getElementById('cancelMessage').addEventListener('click', closeComposer);
+document.getElementById('messageThreadBack').addEventListener('click', () => { messageThreadPage.hidden = true; messagesListPage.hidden = false; void refreshConversations(); });
+messageRecipient.addEventListener('input', () => { messageStatus.textContent = 'Search ERA users by display name or username.'; void searchMessageUsers(); });
+messageBody.addEventListener('input', () => { document.getElementById('sendMessage').disabled = !activeRecipient || !messageBody.value.trim(); });
+document.getElementById('sendMessage').addEventListener('click', async () => {
+  const body = messageBody.value.trim(); if (!activeRecipient || !body) return;
+  document.getElementById('sendMessage').disabled = true; messageStatus.textContent = 'Sending…';
+  try { const conversation = await sendDirectMessage(activeRecipient, body); messageBody.value = ''; closeComposer(); await refreshConversations(); await openDirectConversation({ ...conversation, other_profile: activeRecipient }); }
+  catch (error) { messageStatus.textContent = error.message || 'Message could not be sent.'; document.getElementById('sendMessage').disabled = false; }
+});
+document.getElementById('messageReplyForm').addEventListener('submit', async event => {
+  event.preventDefault(); const body = messageReplyBody.value.trim(); if (!activeConversation || !body || dmSendBusy) return;
+  dmSendBusy = true; messageReplySend.disabled = true;
+  try { await sendDirectMessage(null, body, activeConversation); messageReplyBody.value = ''; const rows = await window.primecad.community.listDirectMessages(activeConversation.id); renderDirectMessages(rows); await refreshConversations(); }
+  catch (error) { toast(error.message || 'Message could not be sent.'); }
+  finally { dmSendBusy = false; messageReplySend.disabled = !messageReplyBody.value.trim(); messageReplyBody.focus(); }
+});
+messageReplyBody.addEventListener('input', () => { messageReplySend.disabled = !messageReplyBody.value.trim(); });
+window.addEventListener('era:phone-view-changed', event => { if (event.detail === 'messages') void refreshConversations(); });
+window.addEventListener('era:community-profile-ready', () => { void refreshConversations(); });
+window.primecad.on('community:changed', payload => {
+  if (payload?.table !== 'direct_messages') return;
+  if (activeConversation && payload.conversationId === activeConversation.id) void window.primecad.community.listDirectMessages(activeConversation.id).then(renderDirectMessages).catch(() => {});
+  void refreshConversations();
+});
 function renderDrafts() {
   localDraftSection.hidden = drafts.length === 0;
   localDraftList.innerHTML = '';
@@ -166,8 +310,6 @@ function renderDrafts() {
     localDraftList.append(row);
   }
 }
-document.getElementById('composeMessage').addEventListener('click', openComposer);
-document.getElementById('cancelMessage').addEventListener('click', closeComposer);
 document.getElementById('sendMessage').disabled = true;
 document.getElementById('saveDraft').addEventListener('click', () => {
   const recipient = messageRecipient.value.trim(), body = messageBody.value.trim();
@@ -246,7 +388,7 @@ async function loadPhoneProfile() {
     window.__eraPhoneProfileReady = true;
     renderPhoneProfile();
     window.dispatchEvent(new CustomEvent('era:phone-profile-loaded', { detail: phoneProfile }));
-    if (!phoneProfile.name && !localStorage.getItem('era-profile-setup-later')) openPhoneProfile(true);
+    if (!phoneProfile.name) openPhoneProfile(true);
   } catch { toast('Phone profile could not be loaded.'); }
 }
 function openPhoneProfile(firstRun = false) {
@@ -267,7 +409,7 @@ document.getElementById('phoneLanguageSelect').addEventListener('change', async 
     renderPhoneProfile();
   } catch (error) { toast(error.message || 'Language preference could not be saved.'); }
 });
-document.getElementById('skipProfileSetup').addEventListener('click', () => {
+document.getElementById('skipProfileSetup')?.addEventListener('click', () => {
   if (profileForm.dataset.firstRun === 'true') localStorage.setItem('era-profile-setup-later', '1');
   profileModal.hidden = true;
 });
@@ -282,11 +424,14 @@ profileForm.addEventListener('submit', async event => {
   }
   try {
     const language = document.getElementById('phoneLanguageSelect').value === 'et' ? 'et' : 'en';
+    const firstRun = profileForm.dataset.firstRun === 'true';
     phoneProfile = await window.primecad.phoneProfile.save({ name, robloxUserId, wallpaper: phoneProfile.wallpaper, language });
     localStorage.removeItem('era-profile-setup-later');
     renderPhoneProfile();
     profileModal.hidden = true;
-    toast('Profile saved on this computer.');
+    window.dispatchEvent(new CustomEvent('era:phone-profile-loaded', { detail: phoneProfile }));
+    if (firstRun) { toast('Now create your ERA community username.'); openView('chirper'); }
+    else toast('Profile saved on this computer.');
   } catch (error) { document.getElementById('profileFormError').textContent = error.message || 'Profile could not be saved.'; }
 });
 window.primecad.on('phone-profile:updated', profile => { phoneProfile = profile; renderPhoneProfile(); window.dispatchEvent(new CustomEvent('era:phone-profile-loaded', { detail: phoneProfile })); });

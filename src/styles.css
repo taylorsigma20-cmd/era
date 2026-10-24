@@ -109,3 +109,34 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-ser
 .chirper-dock .twitter-bird{width:21px;height:21px}
 @keyframes home-icon-in{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.home-grid .app-launch{animation:none;transition:none}}
+.messages-icon,.messages-dock .dock-icon{position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#52dd77,#12a840);color:transparent;border-radius:12px;box-shadow:inset 0 1px 1px #ffffff45}
+.messages-icon::before,.messages-dock .dock-icon::before{content:"";width:21px;height:16px;border-radius:9px;background:#fff;position:absolute;top:10px;left:9px}
+.messages-icon::after,.messages-dock .dock-icon::after{content:"";position:absolute;top:22px;left:10px;width:0;height:0;border-top:6px solid #fff;border-right:6px solid transparent}
+.gmail-icon,.gmail-dock .dock-icon{display:grid;place-items:center;border:1px solid #e8e8e8;background:#fff;color:#df493a;font:bold 26px Arial,sans-serif;box-shadow:inset 0 0 0 1px #df493a20}
+.gmail-dock .dock-icon{font-size:23px}
+.settings-page .ios-settings-search{display:flex;align-items:center;gap:7px;margin:0 0 15px;padding:8px 10px;border-radius:10px;background:#24262d;color:#9ca0aa}
+.settings-page .ios-settings-search>span{font-size:15px;line-height:1}
+.settings-page .ios-settings-search input{width:100%;border:0;outline:0;background:transparent;color:#f3f3f5;font:10px inherit}
+.settings-page .ios-settings-search input::placeholder{color:#9ca0aa}
+.settings-page .profile-settings-card{padding:12px;border-radius:14px;background:#1b1c22;border:1px solid #ffffff0d;box-shadow:0 2px 8px #0003}
+.settings-page .setting-row,.settings-page .wallpaper-setting,.settings-page .pa-settings-category,.settings-page .shortcut-card{border-color:#ffffff10}
+.settings-page .setting-row{padding:12px 10px;background:#16171c}
+.settings-page .setting-row strong,.settings-page .pa-settings-category strong{font-size:10px}
+.settings-page .setting-row small,.settings-page .pa-settings-category small{font-size:8px}
+.settings-page .pa-settings-category{margin-top:14px;padding:11px 10px;border:1px solid #ffffff0c;border-radius:13px;background:#16171c}
+.settings-page .pa-settings-category .eyebrow{margin-bottom:9px;color:#8fa0bf}
+.settings-page .shortcut-card{padding:12px;border:1px solid #ffffff0c;border-radius:13px;background:#16171c}
+.settings-page [hidden]{display:none!important}
+.settings-page .ios-settings-section-title{margin:7px 2px 8px;color:#9599a3;font-size:8px;font-weight:800;letter-spacing:.9px}
+.settings-page .ios-settings-navigation{overflow:hidden;margin:2px 0 12px;border:1px solid #ffffff0c;border-radius:14px;background:#191a20}
+.settings-page .ios-settings-nav-row{width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;border:0;border-bottom:1px solid #ffffff0d;background:transparent;color:#f4f4f5;text-align:left;cursor:pointer}
+.settings-page .ios-settings-nav-row:last-child{border-bottom:0}
+.settings-page .ios-settings-icon{width:25px;height:25px;flex:none;display:grid;place-items:center;border-radius:7px;background:#3878e7;color:#fff;font-size:13px;font-weight:700}
+.settings-page .icon-display{background:#6c6f79}.settings-page .icon-overlay{background:#2789d4}.settings-page .icon-privacy{background:#38a85b}.settings-page .icon-shortcuts{background:#8554c7}
+.settings-page .ios-settings-nav-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.settings-page .ios-settings-nav-copy strong{font-size:9px;font-weight:650}.settings-page .ios-settings-nav-copy small{color:#999ca5;font-size:7px}
+.settings-page .ios-settings-nav-row>b{color:#80838c;font-size:17px;font-weight:400}
+.settings-page .ios-settings-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px;padding:0 0 10px;border-bottom:1px solid #ffffff13}
+.settings-page .ios-settings-detail-head strong{font-size:12px}.settings-page .ios-settings-page .setting-row:first-of-type{border-top-left-radius:10px;border-top-right-radius:10px}.settings-page .ios-settings-page .setting-row:last-child{border-bottom-left-radius:10px;border-bottom-right-radius:10px}
+.settings-page .ios-settings-page .pa-settings-category{margin:8px 0}.settings-page .ios-settings-page .pa-settings-category+.pa-settings-category{margin-top:8px}
+.settings-page .ios-settings-page .wallpaper-setting{margin-top:8px;padding:12px;border:1px solid #ffffff0c;border-radius:12px;background:#16171c}

@@ -516,3 +516,61 @@
 .device-screen .view[data-view="chirper"] .pa-gallery-choice img { width:100%; height:100%; object-fit:cover; }
 .device-screen .view[data-view="chirper"] .pa-gallery-picker>small { grid-column:1/-1; color:#a9abb2; font-size:8px; }
 @media(prefers-reduced-motion:reduce){.device-screen .view[data-view="camera"] .pa-camera-flash.fire{animation:none;opacity:0}}
+
+/* Gmail handoff and ERA-to-ERA private messages. */
+.device-screen .app-icon.messages-icon,.device-screen .messages-dock .dock-icon{position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#52dd77,#12a840);color:transparent;border-radius:12px;box-shadow:inset 0 1px 1px #ffffff45}
+.device-screen .app-icon.messages-icon::before,.device-screen .messages-dock .dock-icon::before{content:"";width:21px;height:16px;border-radius:9px;background:#fff;position:absolute;top:10px;left:9px}
+.device-screen .app-icon.messages-icon::after,.device-screen .messages-dock .dock-icon::after{content:"";position:absolute;top:22px;left:10px;width:0;height:0;border-top:6px solid #fff;border-right:6px solid transparent}
+.device-screen .gmail-icon,.device-screen .gmail-dock .dock-icon{display:grid;place-items:center;border:1px solid #e8e8e8;background:#fff;color:#df493a;font-weight:900;font-family:Arial,sans-serif;font-size:26px;box-shadow:inset 0 0 0 1px #df493a20}
+.device-screen .gmail-dock .dock-icon{font-size:23px}
+.device-screen .pa-gmail-view{background:#0c0d11}
+.device-screen .pa-gmail-view .app-top{border-bottom:1px solid #ffffff0d}
+.device-screen .gmail-mark-small{color:#ea4335;font:bold 22px Arial,sans-serif}
+.device-screen .pa-gmail-inbox,.device-screen .pa-gmail-compose{height:calc(100% - 42px);padding:22px 18px;overflow:auto}
+.device-screen .pa-gmail-heading{text-align:center;padding:18px 7px 28px}
+.device-screen .gmail-mark-large{width:62px;height:62px;margin:0 auto 14px;border-radius:20px;background:#fff;color:#e5493e;display:grid;place-items:center;font:bold 34px Arial,sans-serif;box-shadow:0 7px 24px #0006}
+.device-screen .pa-gmail-heading .eyebrow{color:#ea665f}
+.device-screen .pa-gmail-heading h1{margin:0 0 9px;font-size:25px}
+.device-screen .pa-gmail-heading .app-copy{max-width:250px;margin:auto}
+.device-screen .pa-gmail-action{width:100%;display:flex;align-items:center;gap:11px;margin:0 0 10px;padding:12px;border:1px solid #ffffff12;border-radius:13px;background:#191a20;color:#f6f6f7;text-align:left}
+.device-screen .gmail-action-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:#272931;color:#f3f3f5;font-size:17px}
+.device-screen .pa-gmail-action>span:nth-child(2){flex:1}.device-screen .pa-gmail-action strong,.device-screen .pa-gmail-action small{display:block}.device-screen .pa-gmail-action strong{font-size:10px}.device-screen .pa-gmail-action small{margin-top:4px;color:#9b9ea7;font-size:8px}.device-screen .pa-gmail-action>b{color:#81848d;font-size:20px}
+.device-screen .pa-gmail-view .pa-primary{justify-content:center;background:#dc4437;color:#fff}
+.device-screen .pa-gmail-note{margin:14px 4px;color:#9699a2;font-size:9px;line-height:1.5;text-align:center}
+.device-screen .pa-gmail-compose{display:flex;flex-direction:column;gap:7px}
+.device-screen .pa-gmail-compose .pa-sheet-head{margin:-7px 0 14px}
+.device-screen .pa-gmail-compose label{margin:5px 0 0;color:#a6a8b0;font-size:9px}
+.device-screen .pa-gmail-compose input,.device-screen .pa-gmail-compose textarea{width:100%;padding:10px;border:1px solid #34363e;border-radius:10px;background:#15161b;color:#f5f5f6;font-family:inherit;font-size:11px;outline:none}
+.device-screen .pa-gmail-compose textarea{min-height:150px;resize:vertical;line-height:1.5}
+.device-screen .pa-gmail-compose input:focus,.device-screen .pa-gmail-compose textarea:focus{border-color:#dc4437}
+.device-screen .pa-gmail-compose .pa-primary{margin-top:auto;min-height:40px}
+.device-screen .messages-page{display:flex;flex-direction:column;gap:8px}
+.device-screen .messages-heading{display:flex;align-items:center;justify-content:space-between}
+.device-screen .messages-heading h1{margin-bottom:7px}
+.device-screen .dm-state{padding:4px 7px;border:1px solid #ffffff16;border-radius:8px;color:#8dd8a2;font-size:7px;font-weight:800;letter-spacing:.4px}
+.device-screen .dm-account-notice{display:flex;flex-direction:column;gap:6px;margin:3px 0;padding:12px;border:1px solid #ffffff12;border-radius:14px;background:#17181d}
+.device-screen .dm-account-notice strong{font-size:10px}.device-screen .dm-account-notice span{color:#9da0a9;font-size:9px;line-height:1.45}
+.device-screen .dm-account-notice button{align-self:flex-start;padding:4px 0;border:0;background:none;color:#62bafa;font:700 9px inherit}
+.device-screen .messages-list{display:flex;flex-direction:column;gap:0}
+.device-screen .dm-conversation-row{width:100%;display:flex;align-items:center;gap:10px;padding:10px 0;border:0;border-bottom:1px solid #ffffff12;background:transparent;color:#f5f5f6;text-align:left}
+.device-screen .dm-avatar{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#238cca,#4952c6);color:#fff;font-size:13px;font-weight:800}
+.device-screen .dm-conversation-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.device-screen .dm-conversation-copy strong{font-size:10px}.device-screen .dm-conversation-copy small,.device-screen .dm-conversation-row time{color:#9699a2;font-size:8px}
+.device-screen .dm-conversation-copy>span{overflow:hidden;color:#b4b6be;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.device-screen .dm-thread-page{display:flex;flex-direction:column;gap:8px;padding:9px 13px 12px}
+.device-screen .dm-thread-header{min-height:34px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff14}
+.device-screen .dm-thread-header>div{display:flex;flex-direction:column;gap:2px}.device-screen .dm-thread-header strong{font-size:10px}.device-screen .dm-thread-header small{color:#9b9ea7;font-size:8px}
+.device-screen .dm-thread-list{flex:1;min-height:70px;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:8px 1px}
+.device-screen .dm-thread-empty{margin:auto;color:#9699a2;font-size:9px;text-align:center;line-height:1.5}
+.device-screen .dm-message{max-width:82%;padding:8px 10px;border-radius:14px;overflow-wrap:anywhere}
+.device-screen .dm-message p{margin:0;font-size:10px;line-height:1.45;white-space:pre-wrap}.device-screen .dm-message time{display:block;margin-top:4px;font-size:7px;opacity:.72}
+.device-screen .dm-message.is-own{align-self:flex-end;background:#1688e5;color:white;border-bottom-right-radius:5px}.device-screen .dm-message.is-other{align-self:flex-start;background:#292b31;color:#f1f1f3;border-bottom-left-radius:5px}
+.device-screen .dm-reply-form{display:flex;align-items:flex-end;gap:7px;padding:7px 0 0;border-top:1px solid #ffffff12}
+.device-screen .dm-reply-form textarea{flex:1;min-height:35px;max-height:90px;resize:none;padding:9px 11px;border:1px solid #363840;border-radius:15px;background:#18191e;color:#f5f5f6;font-family:inherit;font-size:10px}
+.device-screen .dm-reply-form .send-button{flex:none;width:31px;height:31px;margin:0}
+.device-screen .composer-recipient{position:relative}
+.device-screen .dm-user-results{position:absolute;z-index:12;top:30px;left:0;right:0;max-height:145px;overflow:auto;border:1px solid #ffffff1a;border-radius:12px;background:#1c1e24;box-shadow:0 12px 25px #0008}
+.device-screen .dm-user-option{width:100%;display:flex;align-items:center;gap:8px;padding:8px;border:0;border-bottom:1px solid #ffffff12;background:transparent;color:white;text-align:left}
+.device-screen .dm-user-option .dm-avatar{width:28px;height:28px;font-size:10px}.device-screen .dm-user-option>span:last-child{display:flex;flex-direction:column;gap:3px}.device-screen .dm-user-option strong{font-size:9px}.device-screen .dm-user-option small,.device-screen .dm-search-empty{color:#9b9ea7;font-size:8px}.device-screen .dm-search-empty{padding:10px}
+.device-screen .dm-recipient-selected{margin:-2px 0 5px;color:#9ad8ff;font-size:9px}
+.device-screen .messages-page .empty-native{margin:5px 0;padding:18px 10px}

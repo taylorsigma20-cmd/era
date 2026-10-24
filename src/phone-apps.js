@@ -10,6 +10,7 @@
     marketplace: `<section class="view app-view era-extra-view" data-view="marketplace"><header class="app-top"><button class="back" data-phoneapp-back aria-label="Back">‹</button><strong>Marketplace</strong><button id="market-sell-top" class="more" aria-label="Create local listing">＋</button></header><div class="pa-market-page"><div class="pa-market-heading"><p class="eyebrow">ERA EXCHANGE</p><h1>Today's picks</h1><p>Local roleplay listings on this device.</p></div><div class="pa-market-actions"><button id="market-sell" class="pa-primary">＋ Sell</button><button id="market-community" class="pa-secondary">View Community</button></div><div class="pa-segment"><button class="selected" data-market-tab="local">My local listings</button><button data-market-tab="community">Community</button></div><div id="market-grid" class="pa-market-grid"></div><div id="market-empty" class="pa-empty"><span>▧</span><strong>No local listings</strong><small>Create a fictional in-game item listing to see it here.</small><button id="market-empty-sell" class="pa-primary">Create listing</button></div><div class="pa-social-empty" id="market-community-empty" hidden><span>⌁</span><strong>Community unavailable</strong><small>No marketplace service is connected. No community listings are displayed.</small></div><p class="pa-local-note">Local listings stay on this computer · not shared</p></div><div class="pa-listing-sheet" id="market-listing-sheet" hidden><div class="pa-sheet-scrim" data-market-close></div><form id="market-listing-form" class="pa-sheet-card pa-listing-form"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-market-close>Cancel</button><strong>New Listing</strong><button type="submit" class="pa-text-button">Save</button></div><p>Fictional in-game items only. This stays on this computer.</p><label for="market-title">Item title</label><input id="market-title" maxlength="60" placeholder="e.g. Custom in-game vehicle" required><label for="market-description">Description</label><textarea id="market-description" maxlength="240" placeholder="Describe a safe fictional game item"></textarea><div class="pa-form-row"><label for="market-price">Price <span>(in-game credits)</span></label><input id="market-price" type="number" min="0" max="999999999" placeholder="0"></div><div class="pa-form-row"><label for="market-seller">Seller name</label><input id="market-seller" maxlength="40" placeholder="Local profile"></div><div class="pa-form-buttons"><button type="button" id="market-save-draft" class="pa-secondary">Save draft</button><button type="submit" class="pa-primary">Save listing locally</button></div><small id="market-form-status" class="pa-form-status" role="status"></small></form></div></section>`,
     darkweb: `<section class="view app-view era-extra-view pa-darkweb" data-view="darkweb"><header class="app-top"><button class="back" data-phoneapp-back aria-label="Back">‹</button><strong>Dark Web</strong><span class="pa-dark-lock">◈</span></header><div class="pa-market-page"><div class="pa-dark-warning"><span>FICTION ONLY</span><strong>Roleplay interface</strong><small>Entirely fictional in-game listings. No real-world goods, transactions, or community connection.</small></div><div class="pa-market-heading"><p class="eyebrow">OFFLINE SIMULATION</p><h1>Today's picks</h1><p>Local, fictional roleplay items only.</p></div><div class="pa-market-actions"><button id="darkweb-sell" class="pa-primary">＋ Sell</button><button id="darkweb-community" class="pa-secondary">View Community</button></div><div class="pa-segment"><button class="selected" data-dark-tab="local">My local listings</button><button data-dark-tab="community">Community</button></div><div id="darkweb-grid" class="pa-market-grid"></div><div id="darkweb-empty" class="pa-empty"><span>◈</span><strong>No local listings</strong><small>Save a safe fictional in-game item listing here.</small><button id="darkweb-empty-sell" class="pa-primary">Create listing</button></div><div class="pa-social-empty" id="darkweb-community-empty" hidden><span>⌁</span><strong>Community unavailable</strong><small>No community service is connected. This fictional view shows no online listings.</small></div><p class="pa-local-note">Fiction only · local to this computer · not shared</p></div><div class="pa-listing-sheet" id="darkweb-listing-sheet" hidden><div class="pa-sheet-scrim" data-dark-close></div><form id="darkweb-listing-form" class="pa-sheet-card pa-listing-form"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-dark-close>Cancel</button><strong>New Fictional Listing</strong><button type="submit" class="pa-text-button">Save</button></div><p>Roleplay only: safe fictional in-game items. Nothing is sold or shared.</p><label for="darkweb-title">Item title</label><input id="darkweb-title" maxlength="60" placeholder="e.g. Fictional custom vehicle" required><label for="darkweb-description">Description</label><textarea id="darkweb-description" maxlength="240" placeholder="Describe a safe fictional game item"></textarea><div class="pa-form-row"><label for="darkweb-price">Price <span>(in-game credits)</span></label><input id="darkweb-price" type="number" min="0" max="999999999" placeholder="0"></div><div class="pa-form-row"><label for="darkweb-seller">Seller name</label><input id="darkweb-seller" maxlength="40" placeholder="Local profile"></div><div class="pa-form-buttons"><button type="button" id="darkweb-save-draft" class="pa-secondary">Save draft</button><button type="submit" class="pa-primary">Save listing locally</button></div><small id="darkweb-form-status" class="pa-form-status" role="status"></small></form></div></section>`
   };
+  appMarkup.gmail = `<section class="view app-view era-extra-view pa-gmail-view" data-view="gmail"><header class="app-top"><button class="back" data-phoneapp-back aria-label="Back">‹</button><strong>Gmail</strong><span class="gmail-mark-small">M</span></header><div class="pa-gmail-inbox" id="gmailInboxPage"><div class="pa-gmail-heading"><div class="gmail-mark-large">M</div><p class="eyebrow">GOOGLE GMAIL</p><h1>Email</h1><p class="app-copy">Open your Gmail inbox or write a message. Gmail will open in your web browser so you can review and send it with your Google account.</p></div><button id="gmail-open-inbox" class="pa-gmail-action"><span class="gmail-action-icon">▤</span><span><strong>Open Gmail Inbox</strong><small>Continue securely at mail.google.com</small></span><b>›</b></button><button id="gmail-compose-open" class="pa-primary">＋ Compose email</button><div class="pa-gmail-note">ERA does not read or store your Gmail messages.</div></div><form id="gmail-compose-form" class="pa-gmail-compose" hidden><div class="pa-sheet-head"><button type="button" id="gmail-compose-cancel" class="pa-text-button">Cancel</button><strong>New Message</strong><button type="submit" class="pa-text-button">Continue</button></div><label for="gmail-to">To</label><input id="gmail-to" type="email" maxlength="254" autocomplete="email" placeholder="name@example.com"><label for="gmail-subject">Subject</label><input id="gmail-subject" maxlength="180" placeholder="Subject"><label for="gmail-body">Message</label><textarea id="gmail-body" maxlength="5000" placeholder="Write your email…"></textarea><p class="pa-gmail-note" id="gmail-compose-status">Gmail opens in your browser for you to review and send.</p><button type="submit" class="pa-primary">Continue in Gmail ↗</button></form></section>`;
   const modal = document.getElementById('profileSetupModal');
   for (const [key, html] of Object.entries(appMarkup)) {
     if (key === 'marketplace' || key === 'darkweb') continue;
@@ -45,7 +46,7 @@
     safeAll[phoneUserKey()] = { ...phoneDisplayPreferences(), ...patch };
     return writeLocal('primecad-phone-display-v2', safeAll);
   }
-  const availablePhoneViews = new Set(['home', 'settings', 'photos', 'camera', 'chirper']);
+  const availablePhoneViews = new Set(['home', 'settings', 'photos', 'camera', 'chirper', 'gmail', 'messages', 'notes', 'clock', 'phone', 'erabank', 'emergency', 'postimees', 'threads', 'marketplace', 'darkweb']);
   function routeTo(name) {
     if (!availablePhoneViews.has(name)) name = 'home';
     document.querySelectorAll('.device-screen .view').forEach(view => view.classList.toggle('active', view.dataset.view === name));
@@ -65,8 +66,22 @@
     const view = availablePhoneViews.has(desired) && screen.querySelector(`.view[data-view="${CSS.escape(desired)}"]`) ? desired : 'home';
     routeTo(view);
   });
-  document.querySelectorAll('[data-open="photos"],[data-open="camera"],[data-open="chirper"],[data-open="marketplace"],[data-open="darkweb"]').forEach(button => {
+  document.querySelectorAll('[data-open="photos"],[data-open="camera"],[data-open="chirper"],[data-open="marketplace"],[data-open="darkweb"],[data-open="gmail"]').forEach(button => {
     button.addEventListener('click', () => { routeTo(button.dataset.open); if (button.dataset.open === 'photos') renderPhotos(); });
+  });
+  const gmailForm = $('gmail-compose-form');
+  $('gmail-compose-open')?.addEventListener('click', () => { $('gmailInboxPage').hidden = true; gmailForm.hidden = false; $('gmail-to').focus(); });
+  $('gmail-compose-cancel')?.addEventListener('click', () => { gmailForm.hidden = true; $('gmailInboxPage').hidden = false; });
+  $('gmail-open-inbox')?.addEventListener('click', async () => {
+    try { await window.primecad.gmail.openInbox(); toast('Gmail opened in your web browser.'); }
+    catch (error) { toast(error.message || 'Gmail could not be opened.'); }
+  });
+  gmailForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const payload = { to: $('gmail-to').value.trim(), subject: $('gmail-subject').value.trim(), body: $('gmail-body').value };
+    $('gmail-compose-status').textContent = 'Opening Gmail…';
+    try { await window.primecad.gmail.compose(payload); $('gmail-compose-status').textContent = 'Gmail opened. Review your email and press Send there.'; toast('Review and send your email in Gmail.'); }
+    catch (error) { $('gmail-compose-status').textContent = error.message || 'Gmail could not be opened.'; }
   });
   document.querySelectorAll('[data-phoneapp-back]').forEach(button => button.addEventListener('click', () => routeTo('home')));
   const homeIndicator = $('homeIndicator');
@@ -316,6 +331,7 @@
     chirperAccounts[activePhoneUserKey] = updatedAccount;
     if (!writeLocal('era-chirper-accounts-v1', chirperAccounts)) { if (previousAccount) chirperAccounts[activePhoneUserKey] = previousAccount; else delete chirperAccounts[activePhoneUserKey]; $('chirper-account-error').textContent = 'Could not save this profile on this computer.'; return; }
     chirperAccount = updatedAccount; $('chirper-account-cancel').hidden = true; accountGate.hidden = true; renderChirper();
+    window.dispatchEvent(new CustomEvent('era:community-profile-ready'));
   });
   $('chirper-account-cancel')?.addEventListener('click', () => { accountGate.hidden = true; $('chirper-account-error').textContent = ''; });
   const accountTools = document.createElement('div'); accountTools.className = 'pa-account-tools'; accountTools.id = 'chirper-account-tools';
@@ -369,6 +385,7 @@
         chirperAccount = mapCloudProfile(remoteProfile); communityProfileReady = true;
         chirperAccounts[activePhoneUserKey] = chirperAccount; writeLocal('era-chirper-accounts-v1', chirperAccounts);
         if (activePhoneUserKey === 'this-device') writeLocal('era-chirper-account-v1', chirperAccount);
+        window.dispatchEvent(new CustomEvent('era:community-profile-ready'));
       }
       communityState = 'online';
       communityPosts = (await window.primecad.community.listPosts()).map(mapCloudPost);
@@ -684,6 +701,14 @@
     extras.innerHTML = `<div class="pa-settings-category"><p class="eyebrow">GENERAL</p><label class="pa-settings-select"><span><strong>Language</strong><small>Choose the phone language</small></span><select id="pa-language" aria-label="Phone language"><option value="en">English</option><option value="et">Eesti</option></select></label><div class="pa-settings-control"><div><strong>Overlay opacity</strong><small>Adjust the phone overlay visibility</small></div><label class="pa-opacity-control"><input id="pa-overlay-opacity" type="range" min="55" max="100" step="5" value="100"><span id="pa-overlay-opacity-value">100%</span></label></div></div><div class="pa-settings-category"><p class="eyebrow">OVERLAY</p><div class="pa-settings-info"><strong>Phone visibility</strong><small>The overlay follows Roblox foreground visibility settings shown above.</small></div></div><div class="pa-settings-category"><p class="eyebrow">KEYBOARD SHORTCUT</p><div class="pa-settings-shortcuts"><div><kbd>F1</kbd><span>Show / hide phone</span></div><small>F1 visibility follows the Roblox foreground setting above. ERA cannot change the app's Roblox-only visibility rule here.</small><div><kbd>F2</kbd><span>Open staff dashboard</span></div><div><kbd>F3</kbd><span>Open CAD overlay (authorized access)</span></div></div></div><div class="pa-settings-category"><p class="eyebrow">THEME</p><label class="pa-settings-select"><span><strong>Phone appearance</strong><small>Choose a local interface theme</small></span><select id="pa-phone-theme" aria-label="Phone appearance"><option value="dark">Dark</option><option value="light">Light</option></select></label></div><div class="pa-settings-category"><p class="eyebrow">AUTO-OPEN</p><label class="pa-settings-select"><span><strong>F1 default screen</strong><small>Choose which screen opens when you press F1.</small></span><select id="pa-f1-default" aria-label="F1 default screen"><option value="home">Home</option><option value="last">Last screen</option></select></label><p class="pa-settings-honest">Saved on this computer. ERA still opens only after you press F1.</p></div>`;
     settingsPage.append(extras);
   }
+  if (settingsPage && !$('ios-settings-search')) {
+    const search = document.createElement('label'); search.className = 'ios-settings-search'; search.innerHTML = '<span aria-hidden="true">⌕</span><input id="ios-settings-search" type="search" placeholder="Search" aria-label="Search Settings">';
+    settingsPage.querySelector('h1')?.insertAdjacentElement('afterend', search);
+    search.querySelector('input').addEventListener('input', event => {
+      const query = event.target.value.trim().toLowerCase();
+      settingsPage.querySelectorAll('[data-ios-settings-nav]').forEach(row => { row.hidden = Boolean(query) && !row.textContent.toLowerCase().includes(query); });
+    });
+  }
   const phoneShell = document.querySelector('.phone-shell');
   let settingsPrefs = phoneDisplayPreferences();
   if (phoneShell) {
@@ -740,4 +765,78 @@
     if ($('pa-phone-theme')) $('pa-phone-theme').value = settingsPrefs.theme === 'light' ? 'light' : 'dark';
     if ($('pa-f1-default')) $('pa-f1-default').value = settingsPrefs.f1Default === 'last' ? 'last' : 'home';
   });
+  if (settingsPage && !$('ios-settings-navigation')) {
+    const heading = settingsPage.querySelector('h1');
+    const accountCard = settingsPage.querySelector('.profile-settings-card');
+    const search = settingsPage.querySelector('.ios-settings-search');
+    const extras = $('phoneappsSettingsExtras');
+    const grouped = { general: [], display: [], overlay: [], privacy: [], shortcuts: [] };
+    for (const child of [...settingsPage.children]) {
+      if ([heading, accountCard, search, extras, settingsPage.querySelector('.eyebrow')].includes(child)) continue;
+      if (child.classList.contains('wallpaper-setting')) grouped.display.push(child);
+      else if (child.classList.contains('shortcut-card')) grouped.shortcuts.push(child);
+      else if (child.classList.contains('settings-hint') || child.classList.contains('phone-number-row') || /Notes and contacts/i.test(child.textContent)) grouped.privacy.push(child);
+      else if (child.classList.contains('setting-row')) grouped.overlay.push(child);
+    }
+    if (extras) {
+      for (const section of [...extras.querySelectorAll('.pa-settings-category')]) {
+        const label = section.querySelector('.eyebrow')?.textContent.toLowerCase() || '';
+        const target = label.includes('general') ? grouped.general : label.includes('theme') ? grouped.display : label.includes('keyboard') ? grouped.shortcuts : label.includes('privacy') ? grouped.privacy : grouped.overlay;
+        target.push(section);
+      }
+      extras.remove();
+    }
+    const index = document.createElement('div'); index.id = 'ios-settings-navigation'; index.className = 'ios-settings-navigation';
+    const categories = [
+      ['general', 'General', 'Language, profile and about this phone', '⚙'],
+      ['display', 'Display & Brightness', 'Wallpaper, theme and overlay opacity', '◐'],
+      ['overlay', 'ERA Overlay', 'Roblox visibility and keyboard behavior', '▣'],
+      ['privacy', 'Privacy & Security', 'Local data and community connection', '◈'],
+      ['shortcuts', 'Keyboard Shortcuts', 'F1, F2 and role-gated F3', '⌘']
+    ];
+    for (const [key, title, subtitle, icon] of categories) {
+      const row = document.createElement('button'); row.type = 'button'; row.className = 'ios-settings-nav-row'; row.dataset.iosSettingsNav = '';
+      const badge = document.createElement('span'); badge.className = `ios-settings-icon icon-${key}`; badge.textContent = icon;
+      const copy = document.createElement('span'); copy.className = 'ios-settings-nav-copy';
+      const name = document.createElement('strong'); name.textContent = title;
+      const description = document.createElement('small'); description.textContent = subtitle;
+      copy.append(name, description);
+      const chevron = document.createElement('b'); chevron.textContent = '›';
+      row.append(badge, copy, chevron); index.append(row);
+      row.addEventListener('click', () => openSettingsDetail(key, title));
+    }
+    const detail = document.createElement('div'); detail.id = 'ios-settings-detail'; detail.className = 'ios-settings-detail'; detail.hidden = true;
+    function openSettingsDetail(key, title) {
+      const page = detail.querySelector(`[data-ios-settings-page="${key}"]`);
+      if (!page) return;
+      index.hidden = true; if (accountCard) accountCard.hidden = true; if (search) search.hidden = true; if (heading) heading.hidden = true; if (titleText) titleText.hidden = true;
+      const eyebrow = settingsPage.querySelector('.eyebrow'); if (eyebrow) eyebrow.hidden = true;
+      detail.hidden = false; detail.querySelectorAll('[data-ios-settings-page]').forEach(item => { item.hidden = item !== page; });
+      page.querySelector('.ios-settings-detail-title').textContent = title;
+      settingsPage.scrollTop = 0;
+    }
+    for (const [key, title] of categories) {
+      const page = document.createElement('section'); page.className = 'ios-settings-page'; page.dataset.iosSettingsPage = key;
+      const bar = document.createElement('div'); bar.className = 'ios-settings-detail-head';
+      const back = document.createElement('button'); back.type = 'button'; back.className = 'text-button'; back.textContent = '‹ Settings';
+      back.addEventListener('click', () => { detail.hidden = true; index.hidden = false; if (accountCard) accountCard.hidden = false; if (search) search.hidden = false; if (heading) heading.hidden = false; if (titleText) titleText.hidden = false; const eyebrow = settingsPage.querySelector('.eyebrow'); if (eyebrow) eyebrow.hidden = false; settingsPage.scrollTop = 0; });
+      const titleNode = document.createElement('strong'); titleNode.className = 'ios-settings-detail-title'; titleNode.textContent = title;
+      bar.append(back, titleNode); page.append(bar);
+      for (const node of grouped[key]) page.append(node);
+      if (key === 'general') {
+        const about = document.createElement('div'); about.className = 'setting-row'; about.innerHTML = '<div><strong>About ERA Phone</strong><small>iPhone-inspired interface for ER:LC</small></div><span class="fixed-tag">ERA</span>'; page.append(about);
+      }
+      if (key === 'privacy') {
+        const privacy = document.createElement('div'); privacy.className = 'setting-row'; privacy.innerHTML = '<div><strong>Community messages</strong><small>Only conversation participants can read ERA messages. Gmail opens separately in your browser.</small></div><span class="fixed-tag">PRIVATE</span>'; page.append(privacy);
+      }
+      detail.append(page);
+    }
+    const titleText = document.createElement('p'); titleText.className = 'ios-settings-section-title'; titleText.textContent = 'IPHONE SETTINGS';
+    heading?.insertAdjacentElement('afterend', titleText);
+    if (accountCard && search) settingsPage.insertBefore(accountCard, search);
+    const anchor = search || accountCard || titleText;
+    anchor.insertAdjacentElement('afterend', index);
+    index.insertAdjacentElement('afterend', detail);
+    const eyebrow = settingsPage.querySelector('.eyebrow'); if (eyebrow) eyebrow.textContent = 'SETTINGS';
+  }
 })();
