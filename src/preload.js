@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'phone-profile:updated', 'player-overlay:show', 'player-overlay:access-denied', 'open-player-list', 'update:state', 'phone-shown', 'phone-hidden']);
+const allowedEvents = new Set(['toggle-phone', 'hide-phone', 'open-overlays', 'open-mdt', 'server-profile-updated', 'phone-profile:updated', 'player-overlay:show', 'player-overlay:access-denied', 'open-player-list', 'update:state', 'phone-shown', 'phone-hidden', 'community:changed']);
 
 contextBridge.exposeInMainWorld('primecad', {
   hide: () => ipcRenderer.send('phone:hide'),
@@ -20,6 +20,18 @@ contextBridge.exposeInMainWorld('primecad', {
     get: () => ipcRenderer.invoke('phone-profile:get'),
     save: payload => ipcRenderer.invoke('phone-profile:save', payload),
     chooseWallpaper: () => ipcRenderer.invoke('phone-profile:choose-wallpaper')
+  },
+  community: {
+    ensure: () => ipcRenderer.invoke('community:ensure'),
+    saveProfile: payload => ipcRenderer.invoke('community:profile:save', payload),
+    searchProfiles: query => ipcRenderer.invoke('community:profiles:search', String(query || '').slice(0, 32)),
+    listPosts: () => ipcRenderer.invoke('community:posts:list'),
+    createPost: payload => ipcRenderer.invoke('community:posts:create', payload),
+    deletePost: postId => ipcRenderer.invoke('community:posts:delete', String(postId || '').slice(0, 40)),
+    toggleReaction: payload => ipcRenderer.invoke('community:posts:toggle-reaction', payload),
+    listComments: postId => ipcRenderer.invoke('community:comments:list', String(postId || '').slice(0, 40)),
+    createComment: payload => ipcRenderer.invoke('community:comments:create', payload),
+    startRealtime: () => ipcRenderer.invoke('community:realtime:start')
   },
   news: {
     headlines: () => ipcRenderer.invoke('news:headlines'),

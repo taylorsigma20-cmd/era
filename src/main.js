@@ -8,6 +8,7 @@ const { ActiveWindow } = require('@paymoapp/active-window');
 const { createPlayerSnapshot } = require('./player-data');
 const { updateRobloxSession } = require('./focus-guard');
 const { parsePostimeesFeed } = require('./postimees-feed');
+const { createCommunityBackend } = require('./community-backend');
 
 app.setName('ERA');
 // Preserve the pre-ERA default user-data folder so existing installs keep their server profiles and phone data.
@@ -27,6 +28,17 @@ let updateState = { status: 'idle' };
 let robloxSessionActive = false;
 let activeWindowWatch = null;
 const staffSnapshotCache = new Map();
+let communityBackend;
+
+function communityService() {
+  if (!communityBackend) communityBackend = createCommunityBackend(app);
+  return communityBackend;
+}
+
+function assertPhoneWindowSender(event) {
+  assertTrustedSender(event);
+  if (event.sender !== phoneWindow?.webContents) throw new Error('The community service is available only in the ERA phone.');
+}
 
 function phoneProfileFile() {
   return path.join(app.getPath('userData'), 'phone-profile.json');
@@ -789,6 +801,51 @@ ipcMain.on('player-overlay:hide', (event) => {
 ipcMain.on('player-overlay:toggle', (event) => {
   assertTrustedSender(event);
   togglePlayerOverlay();
+});
+
+ipcMain.handle('community:ensure', async (event) => {
+  assertPhoneWindowSender(event);
+  return communityService().ensure();
+});
+ipcMain.handle('community:profile:save', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  return communityService().saveProfile(input);
+});
+ipcMain.handle('community:profiles:search', async (event, query = '') => {
+  assertPhoneWindowSender(event);
+  return communityService().searchProfiles(query);
+});
+ipcMain.handle('community:posts:list', async (event) => {
+  assertPhoneWindowSender(event);
+  return communityService().listPosts();
+});
+ipcMain.handle('community:posts:create', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  return communityService().createPost(input);
+});
+ipcMain.handle('community:posts:delete', async (event, postId) => {
+  assertPhoneWindowSender(event);
+  return communityService().deletePost(postId);
+});
+ipcMain.handle('community:posts:toggle-reaction', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  return communityService().toggleReaction(input);
+});
+ipcMain.handle('community:comments:list', async (event, postId) => {
+  assertPhoneWindowSender(event);
+  return communityService().listComments(postId);
+});
+ipcMain.handle('community:comments:create', async (event, input = {}) => {
+  assertPhoneWindowSender(event);
+  return communityService().createComment(input);
+});
+ipcMain.handle('community:realtime:start', async (event) => {
+  assertPhoneWindowSender(event);
+  await communityService().ensure();
+  communityService().startRealtime(payload => {
+    if (phoneWindow && !phoneWindow.isDestroyed()) phoneWindow.webContents.send('community:changed', payload);
+  });
+  return true;
 });
 
 ipcMain.handle('phone-profile:get', async (event) => {

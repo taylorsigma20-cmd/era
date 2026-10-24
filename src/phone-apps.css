@@ -273,6 +273,59 @@
 @keyframes pa-chirp-in { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .device-screen .view[data-view="chirper"] *, .device-screen .view[data-view="chirper"] *::before, .device-screen .view[data-view="chirper"] *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
 
+/* Twitter-era branding and blue interaction accents. */
+.device-screen .view[data-view="chirper"] .pa-chirper-top strong::before { display:none; }
+.device-screen .view[data-view="chirper"] .pa-local-badge { border-color:#1d9bf055; color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-chirper-tabs button.selected::after { background:#1d9bf0; }
+.device-screen .view[data-view="chirper"] .pa-chirp-avatar { background:#1d9bf0; color:#fff; }
+.device-screen .view[data-view="chirper"] .pa-compose-fab { background:#1d9bf0; color:#fff; box-shadow:0 5px 14px #1d9bf044; }
+.device-screen .view[data-view="chirper"] .pa-account-mark { background:#1d9bf0; box-shadow:0 6px 18px #1d9bf044; }
+.device-screen .view[data-view="chirper"] .pa-account-mark .twitter-bird { width:22px; height:22px; }
+.device-screen .view[data-view="chirper"] .pa-account-kicker { color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-account-submit { background:#1d9bf0; box-shadow:0 7px 18px #1d9bf033; }
+.device-screen .view[data-view="chirper"] .pa-account-submit:hover { box-shadow:0 9px 23px #1d9bf055; }
+.device-screen .view[data-view="chirper"] .pa-account-card input:focus,
+.device-screen .view[data-view="chirper"] .pa-handle-input:focus-within,
+.device-screen .view[data-view="chirper"] .pa-business-fields select:focus,
+.device-screen .view[data-view="chirper"] .pa-business-fields textarea:focus { border-color:#1d9bf0a6; box-shadow:0 0 0 3px #1d9bf01c; }
+.device-screen .view[data-view="chirper"] .pa-handle-input>span,
+.device-screen .view[data-view="chirper"] .pa-account-type-badge { color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-manage-account:hover { border-color:#1d9bf080; background:#1d9bf01b; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav { color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav span { background:#1d9bf0; box-shadow:0 3px 9px #1d9bf044; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:center; gap:5px; margin-top:9px; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button { display:flex; align-items:center; justify-content:center; min-width:0; min-height:30px; padding:3px 4px; border:1px solid transparent; border-radius:9px; color:#aeb3bc; font-size:10px; line-height:1; transition:background .15s,border-color .15s,color .15s; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button:hover,
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button:focus-visible { border-color:#ffffff16; background:#ffffff0b; color:#69b9f6; outline:none; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions .pa-reply-action:hover { color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button.active { color:#69b9f6; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button.liked { color:#f477a8; }
+.device-screen .view[data-view="chirper"] .pa-chirp-actions button[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-comments-sheet { position:absolute; z-index:12; inset:43px 0 14px; background:#0009; }
+.device-screen .view[data-view="chirper"] .pa-comments-sheet[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-comments-sheet .pa-comments-card { display:flex; flex-direction:column; gap:0; max-height:86%; padding:10px 13px calc(14px + env(safe-area-inset-bottom)); border-radius:18px 18px 0 0; }
+.device-screen .view[data-view="chirper"] .pa-comments-sheet .pa-sheet-grabber { width:32px; height:4px; margin:0 auto 10px; border-radius:3px; background:#6f7077; }
+.device-screen .view[data-view="chirper"] .pa-comments-card .pa-sheet-head { flex:0 0 auto; margin-bottom:4px; }
+.device-screen .view[data-view="chirper"] .pa-comments-local { flex:0 0 auto; margin:0 0 8px; color:#8c929d; font-size:8px; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-comments-count { min-width:18px; color:#69b9f6; font-size:10px; text-align:right; }
+.device-screen .view[data-view="chirper"] .pa-comments-list { flex:1 1 auto; min-height:74px; overflow:auto; overscroll-behavior:contain; border-top:1px solid #ffffff10; border-bottom:1px solid #ffffff10; scrollbar-width:thin; }
+.device-screen .view[data-view="chirper"] .pa-comments-empty { padding:20px 12px; color:#9fa4ad; font-size:10px; line-height:1.5; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-comment-row { display:flex; gap:8px; padding:10px 2px; border-bottom:1px solid #ffffff0d; }
+.device-screen .view[data-view="chirper"] .pa-comment-avatar { flex:0 0 27px; display:grid; place-items:center; width:27px; height:27px; border-radius:50%; background:#1d9bf0; color:#fff; font-size:10px; font-weight:800; }
+.device-screen .view[data-view="chirper"] .pa-comment-body { min-width:0; flex:1; }
+.device-screen .view[data-view="chirper"] .pa-comment-byline { display:flex; flex-wrap:wrap; gap:4px; align-items:baseline; color:#a3aab4; font-size:8px; }
+.device-screen .view[data-view="chirper"] .pa-comment-byline strong { color:#f1f3f5; font-size:9px; }
+.device-screen .view[data-view="chirper"] .pa-comment-body p { margin:4px 0 0; color:#e4e7eb; font-size:10px; line-height:1.4; overflow-wrap:anywhere; white-space:pre-wrap; }
+.device-screen .view[data-view="chirper"] .pa-comment-form { flex:0 0 auto; display:flex; align-items:flex-end; gap:8px; padding-top:10px; }
+.device-screen .view[data-view="chirper"] .pa-comment-form textarea { flex:1; min-width:0; min-height:38px; max-height:78px; resize:vertical; padding:9px 10px; border:1px solid #ffffff1c; border-radius:13px; outline:none; background:#13151a; color:#f2f4f7; font:inherit; font-size:10px; user-select:text; }
+.device-screen .view[data-view="chirper"] .pa-comment-form textarea:focus { border-color:#1d9bf0; }
+.device-screen .view[data-view="chirper"] .pa-comment-submit { flex:0 0 auto; min-height:32px; padding:0 12px; border:0; border-radius:16px; background:#1d9bf0; color:#fff; font-size:9px; font-weight:800; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav { height:58px; padding:4px 2px; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav button { gap:2px; font-size:7px; line-height:1.1; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav button span { font-size:17px; line-height:1; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav { gap:3px; font-size:8px; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav span { width:25px; height:25px; border-radius:50%; }
+
 .device-screen .view[data-view="marketplace"] .pa-market-page,
 .device-screen .view[data-view="darkweb"] .pa-market-page { flex:1; padding:14px 12px 24px; }
 .device-screen .view[data-view="marketplace"] .pa-market-heading,

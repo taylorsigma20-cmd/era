@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'none'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: blob: https://mhuviubrwwxfdtdyekby.supabase.co; media-src 'self' blob:; connect-src 'none'" />
   <title>ERA Phone</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="phone-apps.css" />
@@ -15,17 +15,16 @@
       <div class="status-row"><span id="statusTime">--:--</span><span class="status-icons"><i class="signal-icon"></i><i class="wifi-icon"></i><i class="battery-icon"></i></span></div>
 
       <section class="view home-view active" data-view="home" aria-label="Home screen">
-        <div class="home-toolbar"><span class="home-community-brand"><span class="home-community-mark">✦</span><span>OMB Community<small>LIBERTY COUNTY</small></span></span><button class="gear-button" data-open="settings" aria-label="Settings">⚙</button></div>
-        <button class="home-community-card" data-open="chirper" type="button"><span class="community-card-kicker"><i></i> COMMUNITY FEED <span>LOCAL PREVIEW</span></span><strong>What’s happening in<br>Liberty County?</strong><small>Updates from local creators and businesses</small><span class="community-card-action">Open Chirper <b>›</b></span></button>
+        <div class="home-toolbar"><span class="home-community-brand"><img class="home-community-mark" src="assets/era-logo.png" alt="" /><span>ERA<small>ER:LC PHONE</small></span></span><button class="gear-button" data-open="settings" aria-label="Settings">⚙</button></div>
         <div class="home-grid">
           <button class="app-launch" data-open="photos"><span class="app-icon photos-icon">▧</span><span class="app-label">Photos</span></button>
           <button class="app-launch" data-open="camera"><span class="app-icon camera-icon">◉</span><span class="app-label">Camera</span></button>
           <button class="app-launch" data-open="settings"><span class="app-icon settings-icon">⚙</span><span class="app-label">Settings</span></button>
-          <button class="app-launch" data-open="chirper"><span class="app-icon chirper-icon">C</span><span class="app-label">Chirper</span></button>
+          <button class="app-launch" data-open="chirper"><span class="app-icon chirper-icon" aria-hidden="true"><svg viewBox="0 0 24 24" class="twitter-bird"><path d="M23.953 4.57a10 10 0 0 1-2.825.775 4.932 4.932 0 0 0 2.163-2.723 9.99 9.99 0 0 1-3.127 1.195 4.916 4.916 0 0 0-8.384 4.482A13.944 13.944 0 0 1 1.64 3.162a4.916 4.916 0 0 0 1.523 6.557 4.903 4.903 0 0 1-2.229-.616v.062a4.918 4.918 0 0 0 3.946 4.817 4.935 4.935 0 0 1-2.224.084 4.926 4.926 0 0 0 4.6 3.419A9.87 9.87 0 0 1 0 19.54a13.93 13.93 0 0 0 7.548 2.213c9.057 0 14.01-7.503 14.01-14.01 0-.213-.005-.425-.014-.636a10.012 10.012 0 0 0 2.46-2.548z"/></svg></span><span class="app-label">Twitter</span></button>
         </div>
         <div class="home-watermark" aria-hidden="true"><img src="assets/era-logo.png" alt="" /></div>
         <nav class="dock" aria-label="Dock">
-          <button class="dock-app" data-open="chirper" aria-label="Chirper"><span class="dock-icon chirper-dock">✦</span></button>
+          <button class="dock-app" data-open="chirper" aria-label="Twitter"><span class="dock-icon chirper-dock"><svg viewBox="0 0 24 24" class="twitter-bird"><path d="M23.953 4.57a10 10 0 0 1-2.825.775 4.932 4.932 0 0 0 2.163-2.723 9.99 9.99 0 0 1-3.127 1.195 4.916 4.916 0 0 0-8.384 4.482A13.944 13.944 0 0 1 1.64 3.162a4.916 4.916 0 0 0 1.523 6.557 4.903 4.903 0 0 1-2.229-.616v.062a4.918 4.918 0 0 0 3.946 4.817 4.935 4.935 0 0 1-2.224.084 4.926 4.926 0 0 0 4.6 3.419A9.87 9.87 0 0 1 0 19.54a13.93 13.93 0 0 0 7.548 2.213c9.057 0 14.01-7.503 14.01-14.01 0-.213-.005-.425-.014-.636a10.012 10.012 0 0 0 2.46-2.548z"/></svg></span></button>
         </nav>
       </section>
 

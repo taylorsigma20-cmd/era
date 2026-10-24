@@ -6,7 +6,7 @@
   const appMarkup = {
     camera: `<section class="view app-view era-extra-view" data-view="camera"><header class="app-top"><button class="back" data-back data-phoneapp-back aria-label="Back">‹</button><strong>Roblox⌄</strong><span class="more muted-mark">◉</span></header><div class="pa-scroll pa-camera-page"><div class="pa-camera-brand">ERA CAMERA <span>ROBLOX SOURCE</span></div><div class="pa-camera-frame" id="camera-frame"><video id="camera-video" data-zoom="1" autoplay muted playsinline></video><canvas id="camera-canvas" hidden></canvas><img id="camera-still" alt="Captured photo preview" hidden><div class="pa-camera-placeholder" id="camera-placeholder"><span>◉</span><strong>Ready when you are</strong><small>Press Start to choose a Roblox window to capture.</small></div><div class="pa-camera-inline" id="camera-message" role="status" aria-live="polite">Camera is off. No capture is happening.</div></div><div class="pa-camera-modes"><button class="selected" data-camera-mode="photo">PHOTO</button><button data-camera-mode="square">SQUARE</button></div><div class="pa-zoom-row" aria-label="Zoom"><button class="selected" data-camera-zoom="1">1x</button><button data-camera-zoom="2">2x</button><button data-camera-zoom="3">3x</button></div><div class="pa-camera-controls"><button id="camera-start" class="pa-cam-start">Start</button><button id="camera-shutter" class="pa-shutter" aria-label="Take photo" disabled><span></span></button><button id="camera-save" class="pa-cam-save" disabled>Save</button></div><button id="camera-discard" class="pa-quiet-action" hidden>Retake</button><div class="pa-camera-caption">Screen capture starts only after you press Start. Captured images are saved on this computer.</div><button id="camera-open-photos" class="pa-gallery-shortcut"><span>▧</span> Open Photos <span class="pa-arrow">›</span></button></div></section>`,
     photos: `<section class="view app-view era-extra-view" data-view="photos"><header class="app-top"><button class="back" data-back data-phoneapp-back aria-label="Back">‹</button><strong>Photos</strong><button id="photos-select" class="more" aria-label="Refresh photos">↻</button></header><div class="pa-photo-page" id="photos-list-page"><div class="pa-photo-heading"><div><p class="eyebrow">ON THIS COMPUTER</p><h1>Library</h1></div><span id="photos-count" class="pa-count">0</span></div><div class="pa-segment"><button class="selected" data-photo-tab="library">Library</button><button data-photo-tab="favorites">Favorites</button></div><div class="pa-photo-grid" id="photos-grid"></div><div class="pa-empty" id="photos-empty"><span>▧</span><strong>No Photos Yet</strong><small>Photos you capture on this device will appear here.</small><button id="photos-open-camera" class="pa-primary">Open Camera</button></div><p class="pa-local-note">Saved locally on this computer · not shared</p></div><div class="pa-photo-detail" id="photos-detail" hidden><div class="pa-detail-toolbar"><button id="photos-detail-back" class="pa-text-button">‹ Library</button><span id="photos-detail-date"></span><button id="photos-detail-delete" class="pa-text-button pa-danger-text">Delete</button></div><div class="pa-detail-image-wrap"><img id="photos-detail-image" data-brightness="100" alt="Selected photo"></div><div class="pa-detail-meta"><input id="photos-title" aria-label="Photo title" maxlength="80" placeholder="Add a title"><button id="photos-favorite" class="pa-favorite" aria-label="Toggle favorite">♡</button></div><div class="pa-detail-actions"><button id="photos-edit-open" class="pa-secondary">Edit</button><button id="photos-save-title" class="pa-primary">Done</button></div><p class="pa-local-note">Saved locally on this computer · not shared</p></div><div class="pa-edit-sheet" id="photos-edit-sheet" hidden><div class="pa-sheet-scrim" data-photo-edit-close></div><div class="pa-sheet-card"><div class="pa-sheet-grabber"></div><div class="pa-sheet-head"><button class="pa-text-button" data-photo-edit-close>Cancel</button><strong>Edit Photo</strong><button id="photos-edit-done" class="pa-text-button">Done</button></div><label for="photos-brightness">Brightness <span id="photos-brightness-value">100%</span></label><input id="photos-brightness" type="range" min="50" max="150" value="100"><div class="pa-edit-actions"><button id="photos-edit-reset" class="pa-secondary">Reset</button><small>Edits are stored on this device.</small></div></div></div></section>`,
-    chirper: `<section class="view app-view era-extra-view" data-view="chirper"><header class="app-top pa-chirper-top"><button class="back" data-back data-phoneapp-back aria-label="Back">‹</button><strong>Chirper</strong><span class="pa-local-badge">LOCAL</span></header><div class="pa-chirper-tabs"><button class="selected" data-chirper-feed="foryou">For you</button><button data-chirper-feed="following">Following</button></div><div class="pa-chirper-content"><div class="pa-chirp-list" id="chirper-feed"></div><div class="pa-empty pa-feed-empty" id="chirper-empty"><span>◌</span><strong>No local chirps yet</strong><small>Your saved posts will appear here. Community posts are unavailable offline.</small></div><div class="pa-social-empty" id="chirper-social-empty" hidden><span>⌕</span><strong id="chirper-social-title">Search</strong><small id="chirper-social-copy">Community search is disconnected. No accounts or posts are shown.</small></div><div class="pa-profile-page" id="chirper-profile-page" hidden><div class="pa-profile-hero"><div class="pa-profile-avatar" id="chirper-avatar">L</div><strong id="chirper-profile-name">Local profile</strong><small id="chirper-profile-handle">@local</small><span>Local profile · not verified</span></div><div class="pa-profile-count"><strong id="chirper-profile-count">0</strong><small>Chirps saved on this device</small></div><div class="pa-segment pa-profile-tabs"><button class="selected" data-profile-tab="Chirps">Chirps</button><button data-profile-tab="Replies">Replies</button><button data-profile-tab="Media">Media</button><button data-profile-tab="Likes">Likes</button></div><div id="chirper-profile-posts" class="pa-chirp-list"></div><div class="pa-empty pa-mini-empty" id="chirper-profile-empty"><strong>Nothing here yet</strong><small>Local activity only.</small></div></div></div><button id="chirper-compose-open" class="pa-compose-fab" aria-label="Compose chirp">＋</button><nav class="pa-bottom-nav" aria-label="Chirper navigation"><button class="selected" data-chirper-nav="Home"><span>⌂</span>Home</button><button data-chirper-nav="Search"><span>⌕</span>Search</button><button data-chirper-nav="Notifications"><span>♡</span>Notifications</button><button data-chirper-nav="Profile"><span>◉</span>Profile</button></nav><div class="pa-compose-sheet" id="chirper-compose-sheet" hidden><div class="pa-sheet-scrim" data-chirp-close></div><form id="chirper-compose-form" class="pa-sheet-card pa-compose-card"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-chirp-close>Cancel</button><strong>New Chirp</strong><button type="submit" class="pa-text-button">Save</button></div><textarea id="chirper-compose-text" maxlength="500" placeholder="What's happening?" required></textarea><p>Saved locally on this computer · not shared</p></form></div></section>`,
+    chirper: `<section class="view app-view era-extra-view" data-view="chirper"><header class="app-top pa-chirper-top"><button class="back" data-back data-phoneapp-back aria-label="Back">‹</button><strong>Twitter</strong><span class="pa-local-badge" id="communityStatusBadge">CONNECTING</span></header><div class="pa-chirper-tabs"><button class="selected" data-chirper-feed="foryou">For you</button><button data-chirper-feed="following">Following</button></div><div class="pa-chirper-content"><div class="pa-chirp-list" id="chirper-feed"></div><div class="pa-empty pa-feed-empty" id="chirper-empty"><span>◌</span><strong>No local posts yet</strong><small>Your posts will appear here. Community posts are unavailable offline.</small></div><div class="pa-social-empty" id="chirper-social-empty" hidden><span>⌕</span><strong id="chirper-social-title">Search</strong><small id="chirper-social-copy">Community search is disconnected. No accounts or posts are shown.</small></div><div class="pa-profile-page" id="chirper-profile-page" hidden><div class="pa-profile-hero"><div class="pa-profile-avatar" id="chirper-avatar">L</div><strong id="chirper-profile-name">Local profile</strong><small id="chirper-profile-handle">@local</small><span>Local profile · not verified</span></div><div class="pa-profile-count"><strong id="chirper-profile-count">0</strong><small>Posts saved on this device</small></div><div class="pa-segment pa-profile-tabs"><button class="selected" data-profile-tab="Posts">Posts</button><button data-profile-tab="Replies">Replies</button><button data-profile-tab="Media">Media</button><button data-profile-tab="Likes">Likes</button></div><div id="chirper-profile-posts" class="pa-chirp-list"></div><div class="pa-empty pa-mini-empty" id="chirper-profile-empty"><strong>Nothing here yet</strong><small>Local activity only.</small></div></div></div><button id="chirper-compose-open" class="pa-compose-fab" aria-label="Compose post">＋</button><nav class="pa-bottom-nav" aria-label="Twitter navigation"><button class="selected" data-chirper-nav="Home"><span>⌂</span>Home</button><button data-chirper-nav="Search"><span>⌕</span>Search</button><button data-chirper-nav="Notifications"><span>♡</span>Notifications</button><button data-chirper-nav="Profile"><span>◉</span>Profile</button></nav><div class="pa-compose-sheet" id="chirper-compose-sheet" hidden><div class="pa-sheet-scrim" data-chirp-close></div><form id="chirper-compose-form" class="pa-sheet-card pa-compose-card"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-chirp-close>Cancel</button><strong>New Post</strong><button type="submit" class="pa-text-button">Save</button></div><textarea id="chirper-compose-text" maxlength="500" placeholder="What's happening?" required></textarea><p>Saved locally on this computer · not shared</p></form></div></section>`,
     marketplace: `<section class="view app-view era-extra-view" data-view="marketplace"><header class="app-top"><button class="back" data-phoneapp-back aria-label="Back">‹</button><strong>Marketplace</strong><button id="market-sell-top" class="more" aria-label="Create local listing">＋</button></header><div class="pa-market-page"><div class="pa-market-heading"><p class="eyebrow">ERA EXCHANGE</p><h1>Today's picks</h1><p>Local roleplay listings on this device.</p></div><div class="pa-market-actions"><button id="market-sell" class="pa-primary">＋ Sell</button><button id="market-community" class="pa-secondary">View Community</button></div><div class="pa-segment"><button class="selected" data-market-tab="local">My local listings</button><button data-market-tab="community">Community</button></div><div id="market-grid" class="pa-market-grid"></div><div id="market-empty" class="pa-empty"><span>▧</span><strong>No local listings</strong><small>Create a fictional in-game item listing to see it here.</small><button id="market-empty-sell" class="pa-primary">Create listing</button></div><div class="pa-social-empty" id="market-community-empty" hidden><span>⌁</span><strong>Community unavailable</strong><small>No marketplace service is connected. No community listings are displayed.</small></div><p class="pa-local-note">Local listings stay on this computer · not shared</p></div><div class="pa-listing-sheet" id="market-listing-sheet" hidden><div class="pa-sheet-scrim" data-market-close></div><form id="market-listing-form" class="pa-sheet-card pa-listing-form"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-market-close>Cancel</button><strong>New Listing</strong><button type="submit" class="pa-text-button">Save</button></div><p>Fictional in-game items only. This stays on this computer.</p><label for="market-title">Item title</label><input id="market-title" maxlength="60" placeholder="e.g. Custom in-game vehicle" required><label for="market-description">Description</label><textarea id="market-description" maxlength="240" placeholder="Describe a safe fictional game item"></textarea><div class="pa-form-row"><label for="market-price">Price <span>(in-game credits)</span></label><input id="market-price" type="number" min="0" max="999999999" placeholder="0"></div><div class="pa-form-row"><label for="market-seller">Seller name</label><input id="market-seller" maxlength="40" placeholder="Local profile"></div><div class="pa-form-buttons"><button type="button" id="market-save-draft" class="pa-secondary">Save draft</button><button type="submit" class="pa-primary">Save listing locally</button></div><small id="market-form-status" class="pa-form-status" role="status"></small></form></div></section>`,
     darkweb: `<section class="view app-view era-extra-view pa-darkweb" data-view="darkweb"><header class="app-top"><button class="back" data-phoneapp-back aria-label="Back">‹</button><strong>Dark Web</strong><span class="pa-dark-lock">◈</span></header><div class="pa-market-page"><div class="pa-dark-warning"><span>FICTION ONLY</span><strong>Roleplay interface</strong><small>Entirely fictional in-game listings. No real-world goods, transactions, or community connection.</small></div><div class="pa-market-heading"><p class="eyebrow">OFFLINE SIMULATION</p><h1>Today's picks</h1><p>Local, fictional roleplay items only.</p></div><div class="pa-market-actions"><button id="darkweb-sell" class="pa-primary">＋ Sell</button><button id="darkweb-community" class="pa-secondary">View Community</button></div><div class="pa-segment"><button class="selected" data-dark-tab="local">My local listings</button><button data-dark-tab="community">Community</button></div><div id="darkweb-grid" class="pa-market-grid"></div><div id="darkweb-empty" class="pa-empty"><span>◈</span><strong>No local listings</strong><small>Save a safe fictional in-game item listing here.</small><button id="darkweb-empty-sell" class="pa-primary">Create listing</button></div><div class="pa-social-empty" id="darkweb-community-empty" hidden><span>⌁</span><strong>Community unavailable</strong><small>No community service is connected. This fictional view shows no online listings.</small></div><p class="pa-local-note">Fiction only · local to this computer · not shared</p></div><div class="pa-listing-sheet" id="darkweb-listing-sheet" hidden><div class="pa-sheet-scrim" data-dark-close></div><form id="darkweb-listing-form" class="pa-sheet-card pa-listing-form"><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-dark-close>Cancel</button><strong>New Fictional Listing</strong><button type="submit" class="pa-text-button">Save</button></div><p>Roleplay only: safe fictional in-game items. Nothing is sold or shared.</p><label for="darkweb-title">Item title</label><input id="darkweb-title" maxlength="60" placeholder="e.g. Fictional custom vehicle" required><label for="darkweb-description">Description</label><textarea id="darkweb-description" maxlength="240" placeholder="Describe a safe fictional game item"></textarea><div class="pa-form-row"><label for="darkweb-price">Price <span>(in-game credits)</span></label><input id="darkweb-price" type="number" min="0" max="999999999" placeholder="0"></div><div class="pa-form-row"><label for="darkweb-seller">Seller name</label><input id="darkweb-seller" maxlength="40" placeholder="Local profile"></div><div class="pa-form-buttons"><button type="button" id="darkweb-save-draft" class="pa-secondary">Save draft</button><button type="submit" class="pa-primary">Save listing locally</button></div><small id="darkweb-form-status" class="pa-form-status" role="status"></small></form></div></section>`
   };
@@ -20,13 +20,13 @@
     }
   }
   const chirperHeading = screen.querySelector('.view[data-view="chirper"] .pa-chirper-top strong');
-  if (chirperHeading) chirperHeading.textContent = 'OMB Community';
+  if (chirperHeading) chirperHeading.textContent = 'Twitter';
   const chirperCompose = document.getElementById('chirper-compose-open');
   const chirperNav = screen.querySelector('.view[data-view="chirper"] .pa-bottom-nav');
   if (chirperCompose && chirperNav) {
     chirperCompose.className = 'pa-compose-nav';
     chirperCompose.innerHTML = '<span>＋</span>Create';
-    chirperCompose.setAttribute('aria-label', 'Create a Chirper post');
+    chirperCompose.setAttribute('aria-label', 'Create a Twitter post');
     chirperNav.insertBefore(chirperCompose, chirperNav.children[2] || null);
   }
   const $ = id => document.getElementById(id);
@@ -264,7 +264,7 @@
   let chirpsByPhoneUser = readLocal('primecad-chirper-accounts-posts-v1', {});
   if (!chirpsByPhoneUser || typeof chirpsByPhoneUser !== 'object' || Array.isArray(chirpsByPhoneUser)) chirpsByPhoneUser = {};
   activePhoneUserKey = phoneUserKey();
-  let chirps = Array.isArray(chirpsByPhoneUser[activePhoneUserKey]) ? chirpsByPhoneUser[activePhoneUserKey] : readLocal('primecad-chirper-local-v1', []), feedMode = 'foryou', socialPage = 'Home', profileTab = 'Chirps';
+  let chirps = Array.isArray(chirpsByPhoneUser[activePhoneUserKey]) ? chirpsByPhoneUser[activePhoneUserKey] : readLocal('primecad-chirper-local-v1', []), feedMode = 'foryou', socialPage = 'Home', profileTab = 'Posts';
   let chirperAccount = chirperAccounts[activePhoneUserKey] || (activePhoneUserKey === 'this-device' ? readLocal('era-chirper-account-v1', null) : null);
   if (!Array.isArray(chirps)) chirps = [];
   if (!chirperAccount || typeof chirperAccount !== 'object' || Array.isArray(chirperAccount) || !['personal', 'business'].includes(chirperAccount.type) || typeof chirperAccount.displayName !== 'string' || typeof chirperAccount.handle !== 'string') chirperAccount = null;
@@ -275,11 +275,16 @@
   chirperSearchPage.className = 'pa-search-page'; chirperSearchPage.id = 'chirper-search-page'; chirperSearchPage.hidden = true;
   chirperSearchPage.innerHTML = '<label for="chirper-search-input">Search users</label><input id="chirper-search-input" type="search" autocomplete="off" placeholder="Name or @username"><div id="chirper-search-results" class="pa-search-results"></div><p id="chirper-search-empty" class="pa-search-empty">Search accounts saved on this computer.</p><small class="pa-local-note">Local accounts only · not shared between players</small>';
   chirperView?.querySelector('.pa-chirper-content')?.append(chirperSearchPage);
-  let viewedProfileKey = null;
+  let viewedProfileKey = null, viewedProfileCloudId = null, viewedProfileCloud = null;
+  let communityState = 'connecting', communityError = '', communityUserId = '', communityProfileReady = false, communityPosts = [];
   const accountGate = document.createElement('div');
   accountGate.className = 'pa-account-gate'; accountGate.id = 'chirper-account-gate'; accountGate.hidden = Boolean(chirperAccount);
-  accountGate.innerHTML = `<form class="pa-account-card" id="chirper-account-form"><div class="pa-account-mark">C</div><p class="pa-account-kicker">CHIRPER COMMUNITY</p><h1>Create your account</h1><p class="pa-account-copy">Build your profile and join the local preview. This account is saved only on this device; it is not online or shared with other players.</p><div class="pa-account-type" role="group" aria-label="Account type"><button type="button" class="selected" data-account-type="personal">Personal</button><button type="button" data-account-type="business">Business</button></div><label for="chirper-account-name">Display name</label><input id="chirper-account-name" maxlength="40" autocomplete="nickname" placeholder="Your name" required><label for="chirper-account-handle">Username</label><div class="pa-handle-input"><span>@</span><input id="chirper-account-handle" maxlength="20" autocomplete="off" placeholder="yourname" required></div><small class="pa-field-hint">3–20 letters, numbers, or underscores</small><div class="pa-business-fields" id="chirper-business-fields" hidden><label for="chirper-business-category">Business category</label><select id="chirper-business-category"><option value="Community">Community</option><option value="Public Safety">Public Safety</option><option value="Local Business">Local Business</option><option value="Creator">Creator</option><option value="Other">Other</option></select><label for="chirper-business-bio">Bio</label><textarea id="chirper-business-bio" maxlength="160" placeholder="Tell the community about this organization"></textarea></div><p class="pa-account-error" id="chirper-account-error" role="alert"></p><div class="pa-account-actions"><button id="chirper-account-cancel" type="button" class="pa-account-cancel" hidden>Cancel</button><button class="pa-account-submit" type="submit">Create local account <span>→</span></button></div><p class="pa-account-footnote">LOCAL PREVIEW · NO COMMUNITY SERVICE CONNECTED</p></form>`;
+  accountGate.innerHTML = `<form class="pa-account-card" id="chirper-account-form"><div class="pa-account-mark"><svg viewBox="0 0 24 24" class="twitter-bird"><path d="M23.953 4.57a10 10 0 0 1-2.825.775 4.932 4.932 0 0 0 2.163-2.723 9.99 9.99 0 0 1-3.127 1.195 4.916 4.916 0 0 0-8.384 4.482A13.944 13.944 0 0 1 1.64 3.162a4.916 4.916 0 0 0 1.523 6.557 4.903 4.903 0 0 1-2.229-.616v.062a4.918 4.918 0 0 0 3.946 4.817 4.935 4.935 0 0 1-2.224.084 4.926 4.926 0 0 0 4.6 3.419A9.87 9.87 0 0 1 0 19.54a13.93 13.93 0 0 0 7.548 2.213c9.057 0 14.01-7.503 14.01-14.01 0-.213-.005-.425-.014-.636a10.012 10.012 0 0 0 2.46-2.548z"/></svg></div><p class="pa-account-kicker">TWITTER</p><h1>Create your account</h1><p class="pa-account-copy">Create an ERA community profile. Posts, reactions, and comments are shared with other ERA users.</p><div class="pa-account-type" role="group" aria-label="Account type"><button type="button" class="selected" data-account-type="personal">Personal</button><button type="button" data-account-type="business">Business</button></div><label for="chirper-account-name">Display name</label><input id="chirper-account-name" maxlength="40" autocomplete="nickname" placeholder="Your name" required><label for="chirper-account-handle">Username</label><div class="pa-handle-input"><span>@</span><input id="chirper-account-handle" maxlength="20" autocomplete="off" placeholder="yourname" required></div><small class="pa-field-hint">3–20 letters, numbers, or underscores</small><div class="pa-business-fields" id="chirper-business-fields" hidden><label for="chirper-business-category">Business category</label><select id="chirper-business-category"><option value="Community">Community</option><option value="Public Safety">Public Safety</option><option value="Local Business">Local Business</option><option value="Creator">Creator</option><option value="Other">Other</option></select><label for="chirper-business-bio">Bio</label><textarea id="chirper-business-bio" maxlength="160" placeholder="Tell the community about this organization"></textarea></div><p class="pa-account-error" id="chirper-account-error" role="alert"></p><div class="pa-account-actions"><button id="chirper-account-cancel" type="button" class="pa-account-cancel" hidden>Cancel</button><button class="pa-account-submit" type="submit">Create local account <span>→</span></button></div><p class="pa-account-footnote">ERA COMMUNITY · SHARED WITH OTHER USERS</p></form>`;
   chirperView?.append(accountGate);
+  const commentsSheet = document.createElement('div');
+  commentsSheet.className = 'pa-comments-sheet'; commentsSheet.id = 'twitter-comments-sheet'; commentsSheet.hidden = true;
+  commentsSheet.innerHTML = '<div class="pa-sheet-scrim" data-comments-close></div><section class="pa-sheet-card pa-comments-card" role="dialog" aria-modal="true" aria-labelledby="twitter-comments-title"><div class="pa-sheet-grabber"></div><div class="pa-sheet-head"><button type="button" class="pa-text-button" data-comments-close>Done</button><strong id="twitter-comments-title">Comments</strong><span class="pa-comments-count" id="twitter-comments-count"></span></div><p class="pa-comments-local">Local comments · not shared</p><div class="pa-comments-list" id="twitter-comments-list"></div><form class="pa-comment-form" id="twitter-comment-form"><textarea id="twitter-comment-text" maxlength="280" placeholder="Post your reply" aria-label="Write a comment" required></textarea><button type="submit" class="pa-comment-submit">Reply</button></form></section>';
+  chirperView?.append(commentsSheet);
   let accountTypeDraft = 'personal';
   accountGate.querySelectorAll('[data-account-type]').forEach(button => button.addEventListener('click', () => {
     accountTypeDraft = button.dataset.accountType;
@@ -295,13 +300,19 @@
     if (!$('chirper-account-handle').dataset.edited) $('chirper-account-handle').value = event.target.value.toLowerCase().replace(/[^a-z0-9_]+/g, '').slice(0, 20);
   });
   $('chirper-account-handle')?.addEventListener('input', event => { event.target.dataset.edited = 'true'; });
-  $('chirper-account-form')?.addEventListener('submit', event => {
+  $('chirper-account-form')?.addEventListener('submit', async event => {
     event.preventDefault(); const name = $('chirper-account-name').value.trim(); const handle = $('chirper-account-handle').value.trim().replace(/^@/, '');
     if (!name || !/^[a-zA-Z0-9_]{3,20}$/.test(handle)) { $('chirper-account-error').textContent = 'Add a name and a username with 3–20 letters, numbers, or underscores.'; return; }
     const duplicateHandle = Object.entries(chirperAccounts).some(([key, account]) => key !== activePhoneUserKey && String(account?.handle || '').toLowerCase() === `@${handle}`.toLowerCase());
-    if (duplicateHandle) { $('chirper-account-error').textContent = 'That username is already used by a local account on this computer.'; return; }
+    if (communityState !== 'online' && duplicateHandle) { $('chirper-account-error').textContent = 'That username is already used by a local account on this computer.'; return; }
     const previousAccount = chirperAccount;
-    const updatedAccount = { type: accountTypeDraft, displayName: name, handle: `@${handle}`, category: accountTypeDraft === 'business' ? $('chirper-business-category').value : '', bio: accountTypeDraft === 'business' ? $('chirper-business-bio').value.trim().slice(0, 160) : '', createdAt: previousAccount?.createdAt || Date.now() };
+    let updatedAccount = { type: accountTypeDraft, displayName: name, handle: `@${handle}`, category: accountTypeDraft === 'business' ? $('chirper-business-category').value : '', bio: accountTypeDraft === 'business' ? $('chirper-business-bio').value.trim().slice(0, 160) : '', createdAt: previousAccount?.createdAt || Date.now() };
+    if (communityState === 'online') {
+      try {
+        const saved = await window.primecad.community.saveProfile({ displayName: name, username: handle, accountType: updatedAccount.type, category: updatedAccount.category, bio: updatedAccount.bio });
+        updatedAccount = { ...updatedAccount, cloudId: saved.id }; communityProfileReady = true; communityError = '';
+      } catch (error) { $('chirper-account-error').textContent = error.message || 'Could not save this ERA community profile.'; return; }
+    } else communityProfileReady = false;
     chirperAccounts[activePhoneUserKey] = updatedAccount;
     if (!writeLocal('era-chirper-accounts-v1', chirperAccounts)) { if (previousAccount) chirperAccounts[activePhoneUserKey] = previousAccount; else delete chirperAccounts[activePhoneUserKey]; $('chirper-account-error').textContent = 'Could not save this profile on this computer.'; return; }
     chirperAccount = updatedAccount; $('chirper-account-cancel').hidden = true; accountGate.hidden = true; renderChirper();
@@ -329,24 +340,135 @@
     const handle = `@${(name.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0,18) || 'local')}`;
     return { name, handle, initial: name.slice(0,1).toUpperCase() };
   }
-  function makePostCard(post, readOnly = false) {
+  function mapCloudProfile(profile) {
+    return profile ? { type: profile.account_type, displayName: profile.display_name, handle: `@${profile.username}`, category: profile.business_category || '', bio: profile.bio || '', cloudId: profile.id } : null;
+  }
+  function mapCloudPost(row) {
+    const profile = row.author || row.profiles || {};
+    return { id: row.id, cloudId: row.id, cloud: true, authorId: row.author_id, text: row.body || '', date: Date.parse(row.created_at) || Date.now(), liked: Boolean(row.liked), rechirped: Boolean(row.reposted), likesCount: Number(row.likes_count || 0), repostsCount: Number(row.reposts_count || 0), comments_count: Number(row.comments_count || 0), comments: [], authorName: profile.display_name || 'ERA user', authorHandle: `@${profile.username || 'user'}`, authorType: profile.account_type || 'personal', category: profile.business_category || '', imageData: row.image_url || '' };
+  }
+  function mapCloudComment(row) {
+    const profile = row.profiles || {};
+    return { id: row.id, text: row.body || '', date: Date.parse(row.created_at) || Date.now(), authorName: profile.display_name || 'ERA user', authorHandle: `@${profile.username || 'user'}` };
+  }
+  async function refreshCommunityPosts() {
+    const rows = await window.primecad.community.listPosts();
+    communityPosts = rows.map(mapCloudPost); communityState = 'online'; communityError = ''; renderChirper();
+  }
+  let communityConnectStarted = false;
+  async function connectCommunity() {
+    communityConnectStarted = true;
+    try {
+      const session = await window.primecad.community.ensure(); communityUserId = session.id;
+      let remoteProfile = session.profile;
+      if (!remoteProfile && chirperAccount) {
+        try { remoteProfile = await window.primecad.community.saveProfile({ displayName: chirperAccount.displayName, username: chirperAccount.handle, accountType: chirperAccount.type, category: chirperAccount.category, bio: chirperAccount.bio }); }
+        catch (error) { communityError = error.message || 'Your profile could not be shared.'; communityProfileReady = false; }
+      }
+      if (remoteProfile) {
+        chirperAccount = mapCloudProfile(remoteProfile); communityProfileReady = true;
+        chirperAccounts[activePhoneUserKey] = chirperAccount; writeLocal('era-chirper-accounts-v1', chirperAccounts);
+        if (activePhoneUserKey === 'this-device') writeLocal('era-chirper-account-v1', chirperAccount);
+      }
+      communityState = 'online';
+      communityPosts = (await window.primecad.community.listPosts()).map(mapCloudPost);
+      await window.primecad.community.startRealtime();
+      if (!communityProfileReady && chirperAccount) {
+        accountGate.hidden = false;
+        $('chirper-account-name').value = chirperAccount.displayName;
+        $('chirper-account-handle').value = chirperAccount.handle.replace(/^@/, '');
+        $('chirper-account-handle').dataset.edited = 'true';
+        $('chirper-account-error').textContent = communityError || 'Choose an available community username to continue.';
+      }
+      renderChirper();
+    } catch (error) {
+      communityState = 'offline'; communityError = error.message || 'ERA could not connect to the community service.';
+      communityProfileReady = false; renderChirper();
+    }
+  }
+  let realtimeRefreshTimer;
+  window.primecad?.on('community:changed', event => {
+    if (event?.table === 'connection') { communityState = 'offline'; communityError = 'The live community connection was interrupted.'; renderChirper(); return; }
+    clearTimeout(realtimeRefreshTimer);
+    realtimeRefreshTimer = setTimeout(async () => {
+      try {
+        await refreshCommunityPosts();
+        if (!commentsSheet.hidden && commentsTarget?.cloud) await loadCloudComments(commentsTarget.post);
+      } catch { communityState = 'offline'; renderChirper(); }
+    }, 180);
+  });
+  let commentsTarget = null;
+  function renderPostComments(post) {
+    const list = $('twitter-comments-list'), comments = Array.isArray(post.comments) ? post.comments : [];
+    list.replaceChildren(); $('twitter-comments-count').textContent = String(comments.length);
+    commentsSheet.querySelector('.pa-comments-local').textContent = post.cloud ? 'Comments are shared with ERA users' : 'Local comments · not shared';
+    if (!comments.length) { const empty = document.createElement('p'); empty.className = 'pa-comments-empty'; empty.textContent = post.cloud ? 'No comments yet. Start the conversation.' : 'No comments yet. Start the conversation on this device.'; list.append(empty); return; }
+    comments.forEach(comment => {
+      const row = document.createElement('article'); row.className = 'pa-comment-row';
+      const avatar = document.createElement('span'); avatar.className = 'pa-comment-avatar'; avatar.textContent = String(comment.authorName || '?').slice(0, 1).toUpperCase();
+      const body = document.createElement('div'); body.className = 'pa-comment-body';
+      const byline = document.createElement('div'); byline.className = 'pa-comment-byline';
+      const name = document.createElement('strong'); name.textContent = comment.authorName || 'Local profile';
+      const handle = document.createElement('small'); handle.textContent = comment.authorHandle || '@local';
+      const date = document.createElement('small'); date.textContent = new Date(comment.date).toLocaleDateString(window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US', { month: 'short', day: 'numeric' });
+      const text = document.createElement('p'); text.textContent = comment.text;
+      byline.append(name, handle, date); body.append(byline, text); row.append(avatar, body); list.append(row);
+    });
+  }
+  async function loadCloudComments(post) {
+    const rows = await window.primecad.community.listComments(post.id);
+    post.comments = rows.map(mapCloudComment); post.comments_count = post.comments.length;
+    renderPostComments(post); renderChirper();
+  }
+  async function openPostComments(post, ownerKey = activePhoneUserKey) {
+    commentsTarget = { postId: post.id, ownerKey, cloud: Boolean(post.cloud), post };
+    commentsSheet.hidden = false; $('twitter-comment-text').value = '';
+    if (post.cloud) {
+      $('twitter-comments-list').replaceChildren(); const loading = document.createElement('p'); loading.className = 'pa-comments-empty'; loading.textContent = 'Loading comments…'; $('twitter-comments-list').append(loading);
+      commentsSheet.querySelector('.pa-comments-local').textContent = 'Comments are shared with ERA users';
+      try { await loadCloudComments(post); } catch (error) { toast(error.message || 'Comments could not be loaded.'); }
+    } else renderPostComments(post);
+    $('twitter-comment-text').focus();
+  }
+  document.querySelectorAll('[data-comments-close]').forEach(button => button.addEventListener('click', () => { commentsSheet.hidden = true; commentsTarget = null; renderChirper(); }));
+  $('twitter-comment-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const text = $('twitter-comment-text').value.trim(); if (!text || !commentsTarget || !chirperAccount) return;
+    if (commentsTarget.cloud) {
+      if (!communityProfileReady || communityState !== 'online') { toast('Connect and set up your ERA community profile before commenting.'); return; }
+      const target = commentsTarget;
+      window.primecad.community.createComment({ postId: target.postId, body: text.slice(0, 280) }).then(async () => {
+        $('twitter-comment-text').value = ''; await loadCloudComments(target.post); await refreshCommunityPosts();
+      }).catch(error => toast(error.message || 'Comment could not be shared.'));
+      return;
+    }
+    const ownerPosts = Array.isArray(chirpsByPhoneUser[commentsTarget.ownerKey]) ? chirpsByPhoneUser[commentsTarget.ownerKey] : [];
+    const post = ownerPosts.find(item => item.id === commentsTarget.postId); if (!post) return;
+    if (!Array.isArray(post.comments)) post.comments = [];
+    post.comments.push({ id: makeId(), text: text.slice(0, 280), date: Date.now(), authorName: chirperAccount.displayName, authorHandle: chirperAccount.handle });
+    if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) { post.comments.pop(); toast('Could not save this comment on this computer.'); return; }
+    $('twitter-comment-text').value = ''; renderPostComments(post); renderChirper();
+  });
+  function makePostCard(post, readOnly = false, ownerKey = activePhoneUserKey) {
     const identity = post.authorName ? { name: post.authorName, handle: post.authorHandle, initial: String(post.authorName).slice(0,1).toUpperCase(), business: post.authorType === 'business' } : chirperIdentity(), article = document.createElement('article'); article.className = 'pa-chirp-card';
     const avatar = document.createElement('div'); avatar.className = 'pa-chirp-avatar'; avatar.textContent = identity.initial;
     const body = document.createElement('div'); body.className = 'pa-chirp-body';
     const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); const locale = window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US'; handle.textContent = `${identity.handle} · ${new Date(post.date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`; top.append(display, handle); if (identity.business) { const badge=document.createElement('i'); badge.className='pa-business-verified'; badge.textContent='BUSINESS'; top.append(badge); }
     const text = document.createElement('p'); text.textContent = post.text;
-    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = 'Saved locally · not shared';
+    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = post.cloud ? 'Shared with ERA community' : 'Local draft · not shared';
     const actions = document.createElement('div'); actions.className = 'pa-chirp-actions';
-    const reply = document.createElement('button'); reply.type = 'button'; reply.textContent = '◌ 0'; reply.setAttribute('aria-label','Replies unavailable'); reply.addEventListener('click', () => toast('Replies need a connected community server.'));
-    const rechirp = document.createElement('button'); rechirp.type='button'; rechirp.classList.toggle('active',!!post.rechirped); rechirp.textContent = `↻ ${post.rechirped ? 1 : 0}`; rechirp.setAttribute('aria-label','Toggle local rechirp'); rechirp.addEventListener('click', () => { post.rechirped = !post.rechirped; persistChirps(); renderChirper(); });
-    const like = document.createElement('button'); like.type='button'; like.classList.toggle('liked',!!post.liked); like.textContent = `${post.liked ? '♥' : '♡'} ${post.liked ? 1 : 0}`; like.setAttribute('aria-label','Toggle local like'); like.addEventListener('click', () => { post.liked = !post.liked; persistChirps(); renderChirper(); });
-    const del = document.createElement('button'); del.type='button'; del.textContent='×'; del.setAttribute('aria-label','Delete local chirp'); del.addEventListener('click', () => { chirps = chirps.filter(item => item.id !== post.id); persistChirps(); renderChirper(); });
-    if (readOnly) { reply.disabled = true; rechirp.disabled = true; like.disabled = true; del.hidden = true; }
+    const commentCount = post.cloud ? Number(post.comments_count || 0) : Array.isArray(post.comments) ? post.comments.length : 0;
+    const reply = document.createElement('button'); reply.type = 'button'; reply.className = 'pa-reply-action'; reply.textContent = `▢ ${commentCount}`; reply.setAttribute('aria-label',`Open comments, ${commentCount}`); reply.addEventListener('click', () => openPostComments(post, ownerKey));
+    const rechirp = document.createElement('button'); rechirp.type='button'; rechirp.classList.toggle('active',!!post.rechirped); rechirp.textContent = `↻ ${post.cloud ? Number(post.repostsCount || 0) : post.rechirped ? 1 : 0}`; rechirp.setAttribute('aria-label',post.cloud ? 'Repost' : 'Toggle local repost'); rechirp.addEventListener('click', async () => { if (post.cloud) { try { post.rechirped = await window.primecad.community.toggleReaction({ postId: post.id, reaction: 'repost' }); await refreshCommunityPosts(); } catch (error) { toast(error.message || 'Repost could not be shared.'); } } else { post.rechirped = !post.rechirped; persistChirps(); renderChirper(); } });
+    const like = document.createElement('button'); like.type='button'; like.classList.toggle('liked',!!post.liked); like.textContent = `${post.liked ? '♥' : '♡'} ${post.cloud ? Number(post.likesCount || 0) : post.liked ? 1 : 0}`; like.setAttribute('aria-label',post.cloud ? 'Like post' : 'Toggle local like'); like.addEventListener('click', async () => { if (post.cloud) { try { post.liked = await window.primecad.community.toggleReaction({ postId: post.id, reaction: 'like' }); await refreshCommunityPosts(); } catch (error) { toast(error.message || 'Like could not be shared.'); } } else { post.liked = !post.liked; persistChirps(); renderChirper(); } });
+    const del = document.createElement('button'); del.type='button'; del.textContent='×'; del.setAttribute('aria-label',post.cloud ? 'Delete post' : 'Delete local post'); del.addEventListener('click', async () => { if (post.cloud) { try { await window.primecad.community.deletePost(post.id); await refreshCommunityPosts(); } catch (error) { toast(error.message || 'Post could not be deleted.'); } } else { chirps = chirps.filter(item => item.id !== post.id); persistChirps(); renderChirper(); } });
+    if (readOnly && !post.cloud) { rechirp.disabled = true; like.disabled = true; }
+    if ((post.cloud && post.authorId !== communityUserId) || (!post.cloud && readOnly)) del.hidden = true;
     actions.append(reply, rechirp, like, del); body.append(top,text);
-    if (post.imageData) { const image = document.createElement('img'); image.className = 'pa-chirp-image'; image.src = post.imageData; image.alt = 'Image attached to local chirp'; body.append(image); }
+    if (post.imageData) { const image = document.createElement('img'); image.className = 'pa-chirp-image'; image.src = post.imageData; image.alt = 'Image attached to local post'; body.append(image); }
     body.append(local,actions); article.append(avatar,body); return article;
   }
-  function persistChirps() { chirpsByPhoneUser[activePhoneUserKey] = chirps; if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) { toast('Could not save local chirps on this computer.'); return false; } return true; }
+  function persistChirps() { chirpsByPhoneUser[activePhoneUserKey] = chirps; if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) { toast('Could not save local posts on this computer.'); return false; } return true; }
   function loadPhoneUserAccount() {
     const nextKey = phoneUserKey();
     if (nextKey === activePhoneUserKey) return;
@@ -369,24 +491,32 @@
     $('chirper-account-cancel').hidden = true;
     renderChirper();
   }
-  window.addEventListener('era:phone-profile-loaded', loadPhoneUserAccount);
-  function renderLocalUserSearch() {
+  window.addEventListener('era:phone-profile-loaded', () => { loadPhoneUserAccount(); if (communityConnectStarted) connectCommunity(); });
+  let profileSearchRevision = 0;
+  async function renderLocalUserSearch() {
     const input = $('chirper-search-input'), results = $('chirper-search-results'), empty = $('chirper-search-empty');
     if (!input || !results || !empty) return;
-    const query = input.value.trim().replace(/^@/, '').toLowerCase();
-    const accounts = Object.entries(chirperAccounts).filter(([, account]) => account && typeof account.displayName === 'string' && typeof account.handle === 'string');
-    const matches = query ? accounts.filter(([, account]) => account.displayName.toLowerCase().includes(query) || account.handle.toLowerCase().replace(/^@/, '').includes(query)) : [];
+    const revision = ++profileSearchRevision, query = input.value.trim().replace(/^@/, '').toLowerCase();
+    let matches = [];
+    if (query && communityState === 'online') {
+      try { matches = (await window.primecad.community.searchProfiles(query)).map(account => ({ key: account.id, account: mapCloudProfile(account), cloud: true })); }
+      catch { matches = []; }
+    } else if (query) {
+      const accounts = Object.entries(chirperAccounts).filter(([, account]) => account && typeof account.displayName === 'string' && typeof account.handle === 'string');
+      matches = accounts.filter(([, account]) => account.displayName.toLowerCase().includes(query) || account.handle.toLowerCase().replace(/^@/, '').includes(query)).map(([key, account]) => ({ key, account, cloud: false }));
+    }
+    if (revision !== profileSearchRevision) return;
     results.replaceChildren();
     empty.hidden = matches.length > 0;
-    empty.textContent = query ? 'No local account matches that search.' : 'Search accounts saved on this computer.';
-    for (const [key, account] of matches) {
+    empty.textContent = query ? 'No ERA community account matches that search.' : communityState === 'online' ? 'Search ERA community users.' : 'Connect to search community users.';
+    for (const { key, account, cloud } of matches) {
       const button = document.createElement('button'); button.type = 'button'; button.className = 'pa-search-user';
       const avatar = document.createElement('span'); avatar.className = 'pa-search-avatar'; avatar.textContent = account.displayName.slice(0, 1).toUpperCase();
       const details = document.createElement('span'); details.className = 'pa-search-user-details';
       const name = document.createElement('strong'); name.textContent = account.displayName;
       const handle = document.createElement('small'); handle.textContent = `${account.handle}${account.type === 'business' ? ` · ${account.category || 'Business'}` : ''}`;
       details.append(name, handle); button.append(avatar, details);
-      button.addEventListener('click', () => { viewedProfileKey = key; profileTab = 'Chirps'; socialPage = 'Profile'; document.querySelectorAll('[data-chirper-nav]').forEach(nav => nav.classList.toggle('selected', nav.dataset.chirperNav === 'Profile')); renderChirper(); });
+      button.addEventListener('click', () => { viewedProfileKey = cloud ? null : key; viewedProfileCloudId = cloud ? key : null; viewedProfileCloud = cloud ? account : null; profileTab = 'Posts'; socialPage = 'Profile'; document.querySelectorAll('[data-chirper-nav]').forEach(nav => nav.classList.toggle('selected', nav.dataset.chirperNav === 'Profile')); renderChirper(); });
       results.append(button);
     }
   }
@@ -400,35 +530,43 @@
   }
   function renderChirper() {
     if (!$('chirper-feed')) return;
-    const feed = $('chirper-feed'); feed.replaceChildren(); const order = [...chirps].sort((a,b) => b.date-a.date);
+    const feed = $('chirper-feed'), isCommunityOnline = communityState === 'online'; feed.replaceChildren();
+    const order = [...(isCommunityOnline ? [...communityPosts, ...chirps] : chirps)].sort((a,b) => b.date-a.date);
     const visiblePosts = feedMode === 'foryou' ? order : [];
-    feed.dataset.feedLabel = 'LOCAL POSTS · NOT SHARED';
+    feed.dataset.feedLabel = isCommunityOnline ? 'ERA COMMUNITY · SHARED' : 'LOCAL DRAFTS · NOT SHARED';
+    $('communityStatusBadge').textContent = communityState === 'online' ? 'ONLINE' : communityState === 'connecting' ? 'CONNECTING' : 'OFFLINE';
+    $('communityStatusBadge').title = communityState === 'online' ? 'Posts and comments are shared with ERA users.' : communityError || 'Posts and comments are local until the community service connects.';
+    accountGate.querySelector('.pa-account-copy').textContent = isCommunityOnline ? 'Create an ERA community profile. Posts, likes, reposts, and comments are shared with other ERA users.' : 'Community is offline. This profile and any drafts stay on this computer until the connection is ready.';
+    accountGate.querySelector('.pa-account-footnote').textContent = isCommunityOnline ? 'ERA COMMUNITY · SHARED WITH OTHER USERS' : 'OFFLINE · LOCAL ONLY';
     $('chirper-empty').hidden = socialPage !== 'Home' || visiblePosts.length > 0;
-    $('chirper-empty').querySelector('strong').textContent = feedMode === 'following' ? 'No followed accounts' : 'No local chirps yet';
-    $('chirper-empty').querySelector('small').textContent = feedMode === 'following' ? 'Following needs a connected community service. No people or posts are fabricated.' : 'Your saved posts will appear here. Community posts are unavailable offline.';
+    $('chirper-empty').querySelector('strong').textContent = feedMode === 'following' ? 'No followed accounts' : isCommunityOnline ? 'No community posts yet' : 'No local posts yet';
+    $('chirper-empty').querySelector('small').textContent = feedMode === 'following' ? 'Following needs a connected community service.' : isCommunityOnline ? 'Posts shared by ERA users will appear here.' : 'Your local drafts stay on this computer until the community service connects.';
     $('chirper-social-empty').hidden = socialPage !== 'Notifications';
     $('chirper-social-title').textContent = 'No notifications';
     $('chirper-social-copy').textContent = 'Notifications require a connected community service. Nothing has been received.';
     chirperSearchPage.hidden = socialPage !== 'Search';
     if (socialPage === 'Search') renderLocalUserSearch();
     $('chirper-profile-page').hidden = socialPage !== 'Profile';
-    accountGate.hidden = Boolean(chirperAccount);
+    accountGate.hidden = Boolean(chirperAccount) && (!isCommunityOnline || communityProfileReady);
     if (chirperAccount) {
-      $('chirper-profile-type').textContent = chirperAccount.type === 'business' ? `${chirperAccount.category || 'BUSINESS'} · LOCAL` : 'PERSONAL · LOCAL';
+      $('chirper-profile-type').textContent = chirperAccount.type === 'business' ? `${chirperAccount.category || 'BUSINESS'} · ${isCommunityOnline && communityProfileReady ? 'ONLINE' : 'LOCAL'}` : `PERSONAL · ${isCommunityOnline && communityProfileReady ? 'ONLINE' : 'LOCAL'}`;
       $('chirper-profile-bio').textContent = chirperAccount.bio || '';
       $('chirper-business-toggle').textContent = chirperAccount.type === 'business' ? 'Edit business profile' : 'Create business profile';
       $('chirper-business-toggle').disabled = false;
     }
     feed.hidden = socialPage !== 'Home'; $('chirper-compose-open').hidden = false;
-    if (socialPage === 'Home') { visiblePosts.forEach(item => feed.append(makePostCard(item))); }
+    if (socialPage === 'Home') { visiblePosts.forEach(item => feed.append(makePostCard(item, false, activePhoneUserKey))); }
     if (socialPage === 'Profile') {
-      const profileKey = viewedProfileKey || activePhoneUserKey, profileAccount = chirperAccounts[profileKey] || chirperAccount;
-      const profileChirps = profileKey === activePhoneUserKey ? chirps : (Array.isArray(chirpsByPhoneUser[profileKey]) ? chirpsByPhoneUser[profileKey] : []);
-      const profileOrder = [...profileChirps].sort((a,b) => b.date-a.date), identity=chirperIdentity(profileAccount);
-      $('chirper-avatar').textContent=identity.initial; $('chirper-profile-name').textContent=identity.name; $('chirper-profile-handle').textContent=identity.handle; $('chirper-profile-count').textContent=String(profileChirps.length);
-      accountTools.hidden = profileKey !== activePhoneUserKey;
+      const isCloudProfile = isCommunityOnline;
+      const profileKey = viewedProfileKey || activePhoneUserKey;
+      const profileCloudId = viewedProfileCloudId || communityUserId;
+      const profileAccount = isCloudProfile ? (viewedProfileCloud || (profileCloudId === communityUserId ? chirperAccount : null)) : chirperAccounts[profileKey] || chirperAccount;
+      const profilePosts = isCloudProfile ? [...communityPosts.filter(item => item.authorId === profileCloudId), ...(profileCloudId === communityUserId ? chirps : [])] : profileKey === activePhoneUserKey ? chirps : (Array.isArray(chirpsByPhoneUser[profileKey]) ? chirpsByPhoneUser[profileKey] : []);
+      const profileOrder = [...profilePosts].sort((a,b) => b.date-a.date), identity=chirperIdentity(profileAccount);
+      $('chirper-avatar').textContent=identity.initial; $('chirper-profile-name').textContent=identity.name; $('chirper-profile-handle').textContent=identity.handle; $('chirper-profile-count').textContent=String(profilePosts.length);
+      accountTools.hidden = isCloudProfile ? profileCloudId !== communityUserId : profileKey !== activePhoneUserKey;
       const out=$('chirper-profile-posts'); out.replaceChildren(); let subset = profileOrder.filter(item => profileTab === 'Likes' ? item.liked : profileTab === 'Replies' ? false : profileTab === 'Media' ? Boolean(item.imageData) : true);
-      subset.forEach(item => out.append(makePostCard(item.authorName ? item : { ...item, authorName: profileAccount?.displayName || 'Local profile', authorHandle: profileAccount?.handle || '@local', authorType: profileAccount?.type }, profileKey !== activePhoneUserKey))); $('chirper-profile-empty').hidden = subset.length > 0;
+      subset.forEach(item => out.append(makePostCard(item.authorName ? item : { ...item, authorName: profileAccount?.displayName || 'Local profile', authorHandle: profileAccount?.handle || '@local', authorType: profileAccount?.type }, accountTools.hidden, isCloudProfile ? profileCloudId : profileKey))); $('chirper-profile-empty').hidden = subset.length > 0;
       $('chirper-profile-empty').querySelector('strong').textContent = profileTab === 'Likes' ? 'No local likes yet' : `No ${profileTab.toLowerCase()} yet`;
     }
     document.querySelectorAll('[data-chirper-feed]').forEach(b => b.classList.toggle('selected', b.dataset.chirperFeed === feedMode));
@@ -437,7 +575,7 @@
   window.addEventListener('era:language-changed', renderChirper);
   $('chirper-search-input')?.addEventListener('input', renderLocalUserSearch);
   document.querySelectorAll('[data-chirper-feed]').forEach(button => button.addEventListener('click', () => { feedMode = button.dataset.chirperFeed; renderChirper(); }));
-  document.querySelectorAll('[data-chirper-nav]').forEach(button => button.addEventListener('click', () => { socialPage = button.dataset.chirperNav; viewedProfileKey = null; document.querySelectorAll('[data-chirper-nav]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
+  document.querySelectorAll('[data-chirper-nav]').forEach(button => button.addEventListener('click', () => { socialPage = button.dataset.chirperNav; viewedProfileKey = null; viewedProfileCloudId = null; viewedProfileCloud = null; document.querySelectorAll('[data-chirper-nav]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
   document.querySelectorAll('[data-profile-tab]').forEach(button => button.addEventListener('click', () => { profileTab = button.dataset.profileTab; document.querySelectorAll('[data-profile-tab]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
   let selectedChirperImage = '', galleryUrls = [];
   const composerForm = $('chirper-compose-form'), composeText = $('chirper-compose-text');
@@ -466,15 +604,28 @@
   function resetComposer() { clearGalleryUrls(); selectedChirperImage = ''; composePreview.removeAttribute('src'); composePreview.hidden = true; galleryPicker.hidden = true; galleryPicker.replaceChildren(); composeText.value = ''; }
   $('chirper-compose-open')?.addEventListener('click', () => { $('chirper-compose-sheet').hidden = false; $('chirper-compose-text').focus(); });
   document.querySelectorAll('[data-chirp-close]').forEach(button => button.addEventListener('click', () => { $('chirper-compose-sheet').hidden = true; resetComposer(); }));
-  composerForm?.addEventListener('submit', event => {
+  composerForm?.addEventListener('submit', async event => {
     event.preventDefault(); if (!chirperAccount) return;
     const text = composeText.value.trim(); if (!text && !selectedChirperImage) return;
+    if (communityState === 'online') {
+      if (!communityProfileReady) { toast('Set up your ERA community profile before posting.'); return; }
+      try {
+        await window.primecad.community.createPost({ body: text.slice(0, 500), imageData: selectedChirperImage });
+        $('chirper-compose-sheet').hidden = true; resetComposer(); socialPage='Home'; viewedProfileKey=null; viewedProfileCloudId=null; viewedProfileCloud=null;
+        document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home'));
+        await refreshCommunityPosts();
+      } catch (error) { toast(error.message || 'Post could not be shared with ERA users.'); }
+      return;
+    }
     const post = { id: makeId(), text: text.slice(0,500), date: Date.now(), liked: false, rechirped: false, authorName: chirperAccount.displayName, authorHandle: chirperAccount.handle, authorType: chirperAccount.type, imageData: selectedChirperImage };
     chirps.unshift(post);
     if (!persistChirps()) { chirps.shift(); return; }
     $('chirper-compose-sheet').hidden = true; resetComposer(); socialPage='Home'; viewedProfileKey=null; document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home')); renderChirper();
+    toast('Saved as a local draft; community sharing is offline.');
   });
   renderChirper();
+  window.addEventListener('era:phone-view-changed', event => { if (event.detail === 'chirper' && !communityConnectStarted) connectCommunity(); });
+  document.querySelectorAll('[data-open="chirper"]').forEach(button => button.addEventListener('click', () => { if (!communityConnectStarted) connectCommunity(); }));
 
   const forbiddenListing = /\b(?:cocaine|heroin|meth(?:amphetamine)?|fentanyl|opioid|narcotic|firearm|gun|rifle|pistol|ammunition|explosive|bomb|weapon|human trafficking|stolen identity)\b/i;
   function listingStoreKey(dark) { return dark ? 'primecad-darkweb-local-v1' : 'primecad-market-local-v1'; }
