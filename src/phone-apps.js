@@ -213,30 +213,39 @@
 
   let chirps = readLocal('primecad-chirper-local-v1', []), feedMode = 'foryou', socialPage = 'Home', profileTab = 'Chirps';
   if (!Array.isArray(chirps)) chirps = [];
+  const chirperSamplePosts = [
+    { id: 'sample-road-update', sample: true, author: 'County Dispatch', handle: '@countyupdates', avatar: 'C', timeLabel: '2m', text: 'Cedar Avenue is open again after a short road closure. Please continue to drive carefully through the area.' },
+    { id: 'sample-fire-open-house', sample: true, author: 'Liberty Fire & Rescue', handle: '@libertyfire', avatar: 'F', timeLabel: '18m', text: 'Station 4 is hosting a community open house this Saturday. Stop by and meet the crew.' },
+    { id: 'sample-safe-driving', sample: true, author: 'Liberty County News', handle: '@lcnews', avatar: 'N', timeLabel: '43m', text: 'A reminder to keep intersections clear for emergency vehicles. Stay safe out there, Liberty County.' }
+  ];
   function chirperIdentity() {
     const name = String(phoneProfile?.name || '').trim() || 'Local profile';
     const handle = `@${(name.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0,18) || 'local')}`;
     return { name, handle, initial: name.slice(0,1).toUpperCase() };
   }
   function makePostCard(post) {
-    const identity = chirperIdentity(), article = document.createElement('article'); article.className = 'pa-chirp-card';
+    const identity = post.sample ? { name: post.author, handle: post.handle, initial: post.avatar } : chirperIdentity(), article = document.createElement('article'); article.className = `pa-chirp-card${post.sample ? ' is-sample' : ''}`;
     const avatar = document.createElement('div'); avatar.className = 'pa-chirp-avatar'; avatar.textContent = identity.initial;
     const body = document.createElement('div'); body.className = 'pa-chirp-body';
-    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); handle.textContent = `${identity.handle} · ${new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; top.append(display, handle);
+    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); handle.textContent = post.sample ? `${identity.handle} · ${post.timeLabel}` : `${identity.handle} · ${new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; top.append(display, handle);
     const text = document.createElement('p'); text.textContent = post.text;
-    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = 'Saved locally · not shared';
+    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = post.sample ? 'SAMPLE POST · No community service connected' : 'Saved locally · not shared';
     const actions = document.createElement('div'); actions.className = 'pa-chirp-actions';
     const reply = document.createElement('button'); reply.type = 'button'; reply.textContent = '◌ 0'; reply.setAttribute('aria-label','Replies unavailable'); reply.addEventListener('click', () => toast('Replies need a connected community server.'));
     const rechirp = document.createElement('button'); rechirp.type='button'; rechirp.classList.toggle('active',!!post.rechirped); rechirp.textContent = `↻ ${post.rechirped ? 1 : 0}`; rechirp.setAttribute('aria-label','Toggle local rechirp'); rechirp.addEventListener('click', () => { post.rechirped = !post.rechirped; persistChirps(); renderChirper(); });
     const like = document.createElement('button'); like.type='button'; like.classList.toggle('liked',!!post.liked); like.textContent = `${post.liked ? '♥' : '♡'} ${post.liked ? 1 : 0}`; like.setAttribute('aria-label','Toggle local like'); like.addEventListener('click', () => { post.liked = !post.liked; persistChirps(); renderChirper(); });
     const del = document.createElement('button'); del.type='button'; del.textContent='×'; del.setAttribute('aria-label','Delete local chirp'); del.addEventListener('click', () => { chirps = chirps.filter(item => item.id !== post.id); persistChirps(); renderChirper(); });
+    if (post.sample) {
+      reply.disabled = true; rechirp.disabled = true; like.disabled = true; del.hidden = true;
+    }
     actions.append(reply, rechirp, like, del); body.append(top,text,local,actions); article.append(avatar,body); return article;
   }
   function persistChirps() { if (!writeLocal('primecad-chirper-local-v1', chirps)) toast('Could not save local chirps on this computer.'); }
   function renderChirper() {
     if (!$('chirper-feed')) return;
     const feed = $('chirper-feed'); feed.replaceChildren(); const order = [...chirps].sort((a,b) => b.date-a.date);
-    const visiblePosts = feedMode === 'foryou' ? order : [];
+    const visiblePosts = feedMode === 'foryou' ? (order.length ? order : chirperSamplePosts) : [];
+    feed.dataset.feedLabel = order.length ? 'LOCAL POSTS · NOT SHARED' : 'LOCAL SAMPLE FEED · COMMUNITY NOT CONNECTED';
     $('chirper-empty').hidden = socialPage !== 'Home' || visiblePosts.length > 0;
     $('chirper-empty').querySelector('strong').textContent = feedMode === 'following' ? 'No followed accounts' : 'No local chirps yet';
     $('chirper-empty').querySelector('small').textContent = feedMode === 'following' ? 'Following needs a connected community service. No people or posts are fabricated.' : 'Your saved posts will appear here. Community posts are unavailable offline.';
