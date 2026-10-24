@@ -409,3 +409,57 @@
 .device-screen .view[data-view="settings"] .pa-settings-honest { margin:7px 0 0; color:#989ba4; font-size:8px; line-height:1.4; }
 .device-screen .view[data-view="settings"].active .app-content.settings-page { height:calc(100% - 42px); padding:24px 19px 20px; overflow:auto; scrollbar-width:none; }
 .device-screen .view[data-view="settings"] .app-content.settings-page::-webkit-scrollbar { display:none; }
+
+/* iPhone-style capture controls and local Chirper discovery. */
+.device-screen .view[data-view="camera"] .pa-scroll { padding:7px 11px 16px; background:#050506; }
+.device-screen .view[data-view="camera"] .pa-camera-tools { display:flex; align-items:center; justify-content:space-between; min-height:34px; padding:0 4px 5px; color:#f5f5f7; }
+.device-screen .view[data-view="camera"] .pa-camera-tools button { display:grid; place-items:center; width:28px; height:28px; border:0; border-radius:50%; background:transparent; color:#e8c96b; font-size:17px; }
+.device-screen .view[data-view="camera"] .pa-camera-tools button.selected { background:#e8c96b20; color:#ffdb68; }
+.device-screen .view[data-view="camera"] .pa-camera-live { display:flex; align-items:center; gap:4px; color:#f1f1f3; font-size:8px; font-weight:800; letter-spacing:.08em; }
+.device-screen .view[data-view="camera"] .pa-camera-live i { width:6px; height:6px; border-radius:50%; background:#df4e48; box-shadow:0 0 6px #df4e48a0; }
+.device-screen .view[data-view="camera"] .pa-camera-frame { height:clamp(235px,42vh,330px); border:0; border-radius:5px; background:#08090c; box-shadow:0 0 0 1px #ffffff19; }
+.device-screen .view[data-view="camera"] .pa-camera-frame video { object-fit:cover; }
+.device-screen .view[data-view="camera"] .pa-camera-grid-lines { position:absolute; z-index:2; inset:0; pointer-events:none; background:linear-gradient(to right,transparent 33.15%,#ffffff4a 33.33%,transparent 33.5%,transparent 66.45%,#ffffff4a 66.66%,transparent 66.85%),linear-gradient(to bottom,transparent 33.15%,#ffffff4a 33.33%,transparent 33.5%,transparent 66.45%,#ffffff4a 66.66%,transparent 66.85%); }
+.device-screen .view[data-view="camera"] .pa-camera-grid-lines[hidden] { display:none; }
+.device-screen .view[data-view="camera"] .pa-camera-focus { position:absolute; z-index:4; width:48px; height:48px; border:1px solid #f6d764; opacity:0; transform:translate(-50%,-50%) scale(1.18); pointer-events:none; transition:opacity .18s,transform .18s; }
+.device-screen .view[data-view="camera"] .pa-camera-focus:before,.device-screen .view[data-view="camera"] .pa-camera-focus:after { content:""; position:absolute; background:#f6d764; }
+.device-screen .view[data-view="camera"] .pa-camera-focus:before { top:50%;left:-5px;right:-5px;height:1px; }
+.device-screen .view[data-view="camera"] .pa-camera-focus:after { left:50%;top:-5px;bottom:-5px;width:1px; }
+.device-screen .view[data-view="camera"] .pa-camera-focus.is-visible { opacity:1; transform:translate(-50%,-50%) scale(1); }
+.device-screen .view[data-view="camera"] .pa-camera-flash { position:absolute; z-index:6; inset:0; background:#fff; opacity:0; pointer-events:none; }
+.device-screen .view[data-view="camera"] .pa-camera-flash.fire { animation:pa-camera-flash .16s ease-out; }
+@keyframes pa-camera-flash { 0%{opacity:0} 18%{opacity:.94} 100%{opacity:0} }
+.device-screen .view[data-view="camera"] .pa-camera-modes { gap:18px; margin:9px 0 5px; }
+.device-screen .view[data-view="camera"] .pa-camera-controls { grid-template-columns:1fr 62px 1fr; min-height:64px; }
+.device-screen .view[data-view="camera"] .pa-shutter { width:58px; height:58px; border:3px solid #f8f8fa; background:#ffffff20; box-shadow:0 0 0 3px #0008; transition:transform .12s; }
+.device-screen .view[data-view="camera"] .pa-shutter:active { transform:scale(.92); }
+.device-screen .view[data-view="camera"] .pa-shutter span { width:46px; height:46px; border:1px solid #2b2c30; }
+.device-screen .view[data-view="camera"] .pa-camera-caption { margin:2px 6px 8px; font-size:8px; }
+.device-screen .view[data-view="camera"] .pa-camera-placeholder { z-index:3; background:linear-gradient(#0003,#0005); inset:0; }
+.device-screen .view[data-view="camera"] .pa-camera-placeholder span { width:42px; height:42px; border:1px solid #ffffff55; background:#ffffff1c; }
+.device-screen .view[data-view="camera"] .pa-camera-inline { z-index:5; }
+.device-screen .home-grid .app-launch:nth-child(4) { grid-column:2; }
+.device-screen .dock { justify-content:center; }
+.device-screen .view[data-view="chirper"] .pa-search-page { position:absolute; inset:0; overflow:auto; padding:10px 13px 16px; background:#101115; }
+.device-screen .view[data-view="chirper"] .pa-search-page[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-search-page>label { display:block; margin-bottom:7px; color:#f4f4f6; font-size:12px; font-weight:750; }
+.device-screen .view[data-view="chirper"] .pa-search-page>input { width:100%; height:34px; padding:0 11px; border:1px solid #ffffff18; border-radius:18px; outline:none; background:#202126; color:#fff; font:10px inherit; }
+.device-screen .view[data-view="chirper"] .pa-search-page>input:focus { border-color:#d8bd68; }
+.device-screen .view[data-view="chirper"] .pa-search-results { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+.device-screen .view[data-view="chirper"] .pa-search-user { display:flex; align-items:center; gap:9px; width:100%; padding:8px; border:0; border-radius:9px; background:#ffffff08; color:#fff; text-align:left; }
+.device-screen .view[data-view="chirper"] .pa-search-avatar { display:grid; place-items:center; flex:none; width:34px; height:34px; border-radius:50%; background:linear-gradient(145deg,#ff9a52,#cf4650); font-size:13px; font-weight:800; }
+.device-screen .view[data-view="chirper"] .pa-search-user-details { display:grid; gap:3px; min-width:0; }
+.device-screen .view[data-view="chirper"] .pa-search-user-details strong { font-size:10px; }
+.device-screen .view[data-view="chirper"] .pa-search-user-details small,.device-screen .view[data-view="chirper"] .pa-search-empty { color:#9b9da5; font-size:8px; }
+.device-screen .view[data-view="chirper"] .pa-search-empty { margin:16px 2px; }
+.device-screen .view[data-view="chirper"] .pa-search-page .pa-local-note { margin-top:15px; color:#7e818a; text-align:center; font-size:7px; }
+.device-screen .view[data-view="chirper"] .pa-chirp-image { display:block; width:100%; max-height:220px; margin:8px 0 3px; border-radius:10px; object-fit:cover; background:#25262b; }
+.device-screen .view[data-view="chirper"] .pa-gallery-pick { margin:3px 0 8px; padding:7px 10px; border:1px solid #ffffff1a; border-radius:8px; background:#ffffff08; color:#e8cf78; font:9px inherit; }
+.device-screen .view[data-view="chirper"] .pa-compose-preview { display:block; max-width:100%; max-height:145px; margin:0 0 8px; border-radius:8px; object-fit:contain; }
+.device-screen .view[data-view="chirper"] .pa-compose-preview[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-gallery-picker { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; max-height:112px; overflow:auto; margin:0 0 8px; }
+.device-screen .view[data-view="chirper"] .pa-gallery-picker[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-gallery-choice { aspect-ratio:1; overflow:hidden; padding:0; border:1px solid #ffffff16; border-radius:5px; background:#24262a; }
+.device-screen .view[data-view="chirper"] .pa-gallery-choice img { width:100%; height:100%; object-fit:cover; }
+.device-screen .view[data-view="chirper"] .pa-gallery-picker>small { grid-column:1/-1; color:#a9abb2; font-size:8px; }
+@media(prefers-reduced-motion:reduce){.device-screen .view[data-view="camera"] .pa-camera-flash.fire{animation:none;opacity:0}}

@@ -45,8 +45,9 @@
     safeAll[phoneUserKey()] = { ...phoneDisplayPreferences(), ...patch };
     return writeLocal('primecad-phone-display-v2', safeAll);
   }
+  const availablePhoneViews = new Set(['home', 'settings', 'photos', 'camera', 'chirper']);
   function routeTo(name) {
-    if (['marketplace', 'darkweb', 'postimees', 'threads'].includes(name)) name = 'home';
+    if (!availablePhoneViews.has(name)) name = 'home';
     document.querySelectorAll('.device-screen .view').forEach(view => view.classList.toggle('active', view.dataset.view === name));
     if (name !== 'camera') stopCamera();
     if (document.querySelector(`.device-screen .view[data-view="${CSS.escape(name)}"]`)) savePhoneDisplayPreferences({ lastView: name });
@@ -61,7 +62,7 @@
   window.primecad?.on('phone-shown', () => {
     const preferences = phoneDisplayPreferences();
     const desired = preferences.f1Default === 'last' ? String(preferences.lastView || 'home') : 'home';
-    const view = !['marketplace', 'darkweb', 'postimees', 'threads'].includes(desired) && /^[a-z-]+$/.test(desired) && screen.querySelector(`.view[data-view="${CSS.escape(desired)}"]`) ? desired : 'home';
+    const view = availablePhoneViews.has(desired) && screen.querySelector(`.view[data-view="${CSS.escape(desired)}"]`) ? desired : 'home';
     routeTo(view);
   });
   document.querySelectorAll('[data-open="photos"],[data-open="camera"],[data-open="chirper"],[data-open="marketplace"],[data-open="darkweb"]').forEach(button => {
@@ -77,6 +78,23 @@
   let cameraStream = null, cameraMode = 'photo', cameraZoom = 1, capturedBlob = null, capturedUrl = null;
   const cameraVideo = $('camera-video');
   const cameraMsg = $('camera-message');
+  let cameraGridOn = false, cameraFlashOn = false, cameraFocusTimer = null;
+  const cameraFrame = $('camera-frame');
+  const cameraGrid = document.createElement('div'); cameraGrid.className = 'pa-camera-grid-lines'; cameraGrid.setAttribute('aria-hidden', 'true');
+  const cameraFocus = document.createElement('span'); cameraFocus.className = 'pa-camera-focus'; cameraFocus.setAttribute('aria-hidden', 'true');
+  const cameraFlashOverlay = document.createElement('div'); cameraFlashOverlay.className = 'pa-camera-flash'; cameraFlashOverlay.setAttribute('aria-hidden', 'true');
+  cameraFrame?.append(cameraGrid, cameraFocus, cameraFlashOverlay);
+  if (cameraGrid) cameraGrid.hidden = true;
+  const cameraTools = document.createElement('div'); cameraTools.className = 'pa-camera-tools';
+  cameraTools.innerHTML = '<button type="button" id="camera-flash-toggle" aria-label="Flash off">ϟ</button><span class="pa-camera-live"><i></i> LIVE</span><button type="button" id="camera-grid-toggle" aria-label="Hide framing grid">▦</button>';
+  cameraFrame?.before(cameraTools);
+  $('camera-grid-toggle')?.addEventListener('click', () => { cameraGridOn = !cameraGridOn; cameraGrid.hidden = !cameraGridOn; $('camera-grid-toggle').classList.toggle('selected', cameraGridOn); $('camera-grid-toggle').setAttribute('aria-label', cameraGridOn ? 'Hide framing grid' : 'Show framing grid'); });
+  $('camera-flash-toggle')?.addEventListener('click', () => { cameraFlashOn = !cameraFlashOn; $('camera-flash-toggle').classList.toggle('selected', cameraFlashOn); $('camera-flash-toggle').setAttribute('aria-label', cameraFlashOn ? 'Flash on' : 'Flash off'); cameraStatus(cameraFlashOn ? 'Screen flash effect is on.' : 'Screen flash effect is off.'); });
+  cameraFrame?.addEventListener('click', event => {
+    if (event.target.closest('button') || cameraVideo?.hidden) return;
+    const bounds = cameraFrame.getBoundingClientRect(); cameraFocus.style.left = `${event.clientX - bounds.left}px`; cameraFocus.style.top = `${event.clientY - bounds.top}px`;
+    cameraFocus.classList.remove('is-visible'); clearTimeout(cameraFocusTimer); requestAnimationFrame(() => { cameraFocus.classList.add('is-visible'); cameraFocusTimer = setTimeout(() => cameraFocus.classList.remove('is-visible'), 900); });
+  });
   function cameraStatus(text) { if (cameraMsg) cameraMsg.textContent = text; }
   function stopCamera() {
     if (cameraStream) { cameraStream.getTracks().forEach(track => { try { track.stop(); } catch {} }); cameraStream = null; }
@@ -138,9 +156,12 @@
     if (cameraMode === 'square') { const side = Math.min(cw, ch); cw = ch = side; }
     const sx = Math.round((vw - cw) / 2), sy = Math.round((vh - ch) / 2);
     canvas.width = cw; canvas.height = ch;
+    ctx.filter = cameraFlashOn ? 'brightness(1.12)' : 'none';
     ctx.drawImage(cameraVideo, sx, sy, cw, ch, 0, 0, cw, ch);
+    ctx.filter = 'none';
     canvas.toBlob(blob => {
       if (!blob) { cameraStatus('Could not create a still image. Try capturing again.'); return; }
+        if (cameraFlashOn) { cameraFlashOverlay.classList.remove('fire'); requestAnimationFrame(() => cameraFlashOverlay.classList.add('fire')); }
       revokeCaptured(); capturedBlob = blob; capturedUrl = URL.createObjectURL(blob);
       const still = $('camera-still'); still.src = capturedUrl; still.hidden = false;
       $('camera-video').hidden = true; $('camera-discard').hidden = false;
@@ -250,6 +271,11 @@
   if (chirperAccount && !chirperAccounts[activePhoneUserKey]) { chirperAccounts[activePhoneUserKey] = chirperAccount; writeLocal('era-chirper-accounts-v1', chirperAccounts); }
   if (Array.isArray(chirps) && !Array.isArray(chirpsByPhoneUser[activePhoneUserKey])) { chirpsByPhoneUser[activePhoneUserKey] = chirps; writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser); }
   const chirperView = document.querySelector('.view[data-view="chirper"]');
+  const chirperSearchPage = document.createElement('section');
+  chirperSearchPage.className = 'pa-search-page'; chirperSearchPage.id = 'chirper-search-page'; chirperSearchPage.hidden = true;
+  chirperSearchPage.innerHTML = '<label for="chirper-search-input">Search users</label><input id="chirper-search-input" type="search" autocomplete="off" placeholder="Name or @username"><div id="chirper-search-results" class="pa-search-results"></div><p id="chirper-search-empty" class="pa-search-empty">Search accounts saved on this computer.</p><small class="pa-local-note">Local accounts only · not shared between players</small>';
+  chirperView?.querySelector('.pa-chirper-content')?.append(chirperSearchPage);
+  let viewedProfileKey = null;
   const accountGate = document.createElement('div');
   accountGate.className = 'pa-account-gate'; accountGate.id = 'chirper-account-gate'; accountGate.hidden = Boolean(chirperAccount);
   accountGate.innerHTML = `<form class="pa-account-card" id="chirper-account-form"><div class="pa-account-mark">C</div><p class="pa-account-kicker">CHIRPER COMMUNITY</p><h1>Create your account</h1><p class="pa-account-copy">Build your profile and join the local preview. This account is saved only on this device; it is not online or shared with other players.</p><div class="pa-account-type" role="group" aria-label="Account type"><button type="button" class="selected" data-account-type="personal">Personal</button><button type="button" data-account-type="business">Business</button></div><label for="chirper-account-name">Display name</label><input id="chirper-account-name" maxlength="40" autocomplete="nickname" placeholder="Your name" required><label for="chirper-account-handle">Username</label><div class="pa-handle-input"><span>@</span><input id="chirper-account-handle" maxlength="20" autocomplete="off" placeholder="yourname" required></div><small class="pa-field-hint">3–20 letters, numbers, or underscores</small><div class="pa-business-fields" id="chirper-business-fields" hidden><label for="chirper-business-category">Business category</label><select id="chirper-business-category"><option value="Community">Community</option><option value="Public Safety">Public Safety</option><option value="Local Business">Local Business</option><option value="Creator">Creator</option><option value="Other">Other</option></select><label for="chirper-business-bio">Bio</label><textarea id="chirper-business-bio" maxlength="160" placeholder="Tell the community about this organization"></textarea></div><p class="pa-account-error" id="chirper-account-error" role="alert"></p><div class="pa-account-actions"><button id="chirper-account-cancel" type="button" class="pa-account-cancel" hidden>Cancel</button><button class="pa-account-submit" type="submit">Create local account <span>→</span></button></div><p class="pa-account-footnote">LOCAL PREVIEW · NO COMMUNITY SERVICE CONNECTED</p></form>`;
@@ -272,6 +298,8 @@
   $('chirper-account-form')?.addEventListener('submit', event => {
     event.preventDefault(); const name = $('chirper-account-name').value.trim(); const handle = $('chirper-account-handle').value.trim().replace(/^@/, '');
     if (!name || !/^[a-zA-Z0-9_]{3,20}$/.test(handle)) { $('chirper-account-error').textContent = 'Add a name and a username with 3–20 letters, numbers, or underscores.'; return; }
+    const duplicateHandle = Object.entries(chirperAccounts).some(([key, account]) => key !== activePhoneUserKey && String(account?.handle || '').toLowerCase() === `@${handle}`.toLowerCase());
+    if (duplicateHandle) { $('chirper-account-error').textContent = 'That username is already used by a local account on this computer.'; return; }
     const previousAccount = chirperAccount;
     const updatedAccount = { type: accountTypeDraft, displayName: name, handle: `@${handle}`, category: accountTypeDraft === 'business' ? $('chirper-business-category').value : '', bio: accountTypeDraft === 'business' ? $('chirper-business-bio').value.trim().slice(0, 160) : '', createdAt: previousAccount?.createdAt || Date.now() };
     chirperAccounts[activePhoneUserKey] = updatedAccount;
@@ -295,35 +323,30 @@
     $('chirper-account-form').querySelector('.pa-account-submit').innerHTML = chirperAccount?.type === 'business' ? 'Save business profile <span>→</span>' : 'Create business profile <span>→</span>';
     $('chirper-account-name').focus();
   });
-  const chirperSamplePosts = [
-    { id: 'sample-road-update', sample: true, author: 'County Dispatch', handle: '@countyupdates', avatar: 'C', timeLabel: '2m', text: 'Cedar Avenue is open again after a short road closure. Please continue to drive carefully through the area.' },
-    { id: 'sample-fire-open-house', sample: true, author: 'Liberty Fire & Rescue', handle: '@libertyfire', avatar: 'F', timeLabel: '18m', text: 'Station 4 is hosting a community open house this Saturday. Stop by and meet the crew.' },
-    { id: 'sample-safe-driving', sample: true, author: 'Liberty County News', handle: '@lcnews', avatar: 'N', timeLabel: '43m', text: 'A reminder to keep intersections clear for emergency vehicles. Stay safe out there, Liberty County.' }
-  ];
-  function chirperIdentity() {
-    if (chirperAccount) return { name: chirperAccount.displayName, handle: chirperAccount.handle, initial: chirperAccount.displayName.slice(0,1).toUpperCase(), business: chirperAccount.type === 'business' };
+  function chirperIdentity(account = chirperAccount) {
+    if (account) return { name: account.displayName, handle: account.handle, initial: account.displayName.slice(0,1).toUpperCase(), business: account.type === 'business' };
     const name = String(phoneProfile?.name || '').trim() || 'Local profile';
     const handle = `@${(name.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0,18) || 'local')}`;
     return { name, handle, initial: name.slice(0,1).toUpperCase() };
   }
-  function makePostCard(post) {
-    const identity = post.sample ? { name: post.author, handle: post.handle, initial: post.avatar } : chirperIdentity(), article = document.createElement('article'); article.className = `pa-chirp-card${post.sample ? ' is-sample' : ''}`;
+  function makePostCard(post, readOnly = false) {
+    const identity = post.authorName ? { name: post.authorName, handle: post.authorHandle, initial: String(post.authorName).slice(0,1).toUpperCase(), business: post.authorType === 'business' } : chirperIdentity(), article = document.createElement('article'); article.className = 'pa-chirp-card';
     const avatar = document.createElement('div'); avatar.className = 'pa-chirp-avatar'; avatar.textContent = identity.initial;
     const body = document.createElement('div'); body.className = 'pa-chirp-body';
-    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); const locale = window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US'; handle.textContent = post.sample ? `${identity.handle} · ${post.timeLabel}` : `${identity.handle} · ${new Date(post.date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`; top.append(display, handle); if (identity.business && !post.sample) { const badge=document.createElement('i'); badge.className='pa-business-verified'; badge.textContent='BUSINESS'; top.append(badge); }
+    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); const locale = window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US'; handle.textContent = `${identity.handle} · ${new Date(post.date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`; top.append(display, handle); if (identity.business) { const badge=document.createElement('i'); badge.className='pa-business-verified'; badge.textContent='BUSINESS'; top.append(badge); }
     const text = document.createElement('p'); text.textContent = post.text;
-    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = post.sample ? 'SAMPLE POST · No community service connected' : 'Saved locally · not shared';
+    const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = 'Saved locally · not shared';
     const actions = document.createElement('div'); actions.className = 'pa-chirp-actions';
     const reply = document.createElement('button'); reply.type = 'button'; reply.textContent = '◌ 0'; reply.setAttribute('aria-label','Replies unavailable'); reply.addEventListener('click', () => toast('Replies need a connected community server.'));
     const rechirp = document.createElement('button'); rechirp.type='button'; rechirp.classList.toggle('active',!!post.rechirped); rechirp.textContent = `↻ ${post.rechirped ? 1 : 0}`; rechirp.setAttribute('aria-label','Toggle local rechirp'); rechirp.addEventListener('click', () => { post.rechirped = !post.rechirped; persistChirps(); renderChirper(); });
     const like = document.createElement('button'); like.type='button'; like.classList.toggle('liked',!!post.liked); like.textContent = `${post.liked ? '♥' : '♡'} ${post.liked ? 1 : 0}`; like.setAttribute('aria-label','Toggle local like'); like.addEventListener('click', () => { post.liked = !post.liked; persistChirps(); renderChirper(); });
     const del = document.createElement('button'); del.type='button'; del.textContent='×'; del.setAttribute('aria-label','Delete local chirp'); del.addEventListener('click', () => { chirps = chirps.filter(item => item.id !== post.id); persistChirps(); renderChirper(); });
-    if (post.sample) {
-      reply.disabled = true; rechirp.disabled = true; like.disabled = true; del.hidden = true;
-    }
-    actions.append(reply, rechirp, like, del); body.append(top,text,local,actions); article.append(avatar,body); return article;
+    if (readOnly) { reply.disabled = true; rechirp.disabled = true; like.disabled = true; del.hidden = true; }
+    actions.append(reply, rechirp, like, del); body.append(top,text);
+    if (post.imageData) { const image = document.createElement('img'); image.className = 'pa-chirp-image'; image.src = post.imageData; image.alt = 'Image attached to local chirp'; body.append(image); }
+    body.append(local,actions); article.append(avatar,body); return article;
   }
-  function persistChirps() { chirpsByPhoneUser[activePhoneUserKey] = chirps; if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) toast('Could not save local chirps on this computer.'); }
+  function persistChirps() { chirpsByPhoneUser[activePhoneUserKey] = chirps; if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) { toast('Could not save local chirps on this computer.'); return false; } return true; }
   function loadPhoneUserAccount() {
     const nextKey = phoneUserKey();
     if (nextKey === activePhoneUserKey) return;
@@ -347,17 +370,47 @@
     renderChirper();
   }
   window.addEventListener('era:phone-profile-loaded', loadPhoneUserAccount);
+  function renderLocalUserSearch() {
+    const input = $('chirper-search-input'), results = $('chirper-search-results'), empty = $('chirper-search-empty');
+    if (!input || !results || !empty) return;
+    const query = input.value.trim().replace(/^@/, '').toLowerCase();
+    const accounts = Object.entries(chirperAccounts).filter(([, account]) => account && typeof account.displayName === 'string' && typeof account.handle === 'string');
+    const matches = query ? accounts.filter(([, account]) => account.displayName.toLowerCase().includes(query) || account.handle.toLowerCase().replace(/^@/, '').includes(query)) : [];
+    results.replaceChildren();
+    empty.hidden = matches.length > 0;
+    empty.textContent = query ? 'No local account matches that search.' : 'Search accounts saved on this computer.';
+    for (const [key, account] of matches) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'pa-search-user';
+      const avatar = document.createElement('span'); avatar.className = 'pa-search-avatar'; avatar.textContent = account.displayName.slice(0, 1).toUpperCase();
+      const details = document.createElement('span'); details.className = 'pa-search-user-details';
+      const name = document.createElement('strong'); name.textContent = account.displayName;
+      const handle = document.createElement('small'); handle.textContent = `${account.handle}${account.type === 'business' ? ` · ${account.category || 'Business'}` : ''}`;
+      details.append(name, handle); button.append(avatar, details);
+      button.addEventListener('click', () => { viewedProfileKey = key; profileTab = 'Chirps'; socialPage = 'Profile'; document.querySelectorAll('[data-chirper-nav]').forEach(nav => nav.classList.toggle('selected', nav.dataset.chirperNav === 'Profile')); renderChirper(); });
+      results.append(button);
+    }
+  }
+  async function compressChirperImage(blob) {
+    const bitmap = await createImageBitmap(blob); const scale = Math.min(1, 960 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height); bitmap.close?.();
+    const compressed = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('Could not prepare image.')), 'image/jpeg', .78));
+    if (compressed.size > 500_000) throw new Error('That photo is too large to save with a local post.');
+    return await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error('Could not read image.')); reader.readAsDataURL(compressed); });
+  }
   function renderChirper() {
     if (!$('chirper-feed')) return;
     const feed = $('chirper-feed'); feed.replaceChildren(); const order = [...chirps].sort((a,b) => b.date-a.date);
-    const visiblePosts = feedMode === 'foryou' ? (order.length ? order : chirperSamplePosts) : [];
-    feed.dataset.feedLabel = order.length ? 'LOCAL POSTS · NOT SHARED' : 'LOCAL SAMPLE FEED · COMMUNITY NOT CONNECTED';
+    const visiblePosts = feedMode === 'foryou' ? order : [];
+    feed.dataset.feedLabel = 'LOCAL POSTS · NOT SHARED';
     $('chirper-empty').hidden = socialPage !== 'Home' || visiblePosts.length > 0;
     $('chirper-empty').querySelector('strong').textContent = feedMode === 'following' ? 'No followed accounts' : 'No local chirps yet';
     $('chirper-empty').querySelector('small').textContent = feedMode === 'following' ? 'Following needs a connected community service. No people or posts are fabricated.' : 'Your saved posts will appear here. Community posts are unavailable offline.';
-    $('chirper-social-empty').hidden = !['Search','Notifications'].includes(socialPage);
-    $('chirper-social-title').textContent = socialPage === 'Search' ? 'Search' : 'No notifications';
-    $('chirper-social-copy').textContent = socialPage === 'Search' ? 'Community search is disconnected. No accounts or posts are shown.' : 'Notifications require a connected community service. Nothing has been received.';
+    $('chirper-social-empty').hidden = socialPage !== 'Notifications';
+    $('chirper-social-title').textContent = 'No notifications';
+    $('chirper-social-copy').textContent = 'Notifications require a connected community service. Nothing has been received.';
+    chirperSearchPage.hidden = socialPage !== 'Search';
+    if (socialPage === 'Search') renderLocalUserSearch();
     $('chirper-profile-page').hidden = socialPage !== 'Profile';
     accountGate.hidden = Boolean(chirperAccount);
     if (chirperAccount) {
@@ -369,21 +422,58 @@
     feed.hidden = socialPage !== 'Home'; $('chirper-compose-open').hidden = false;
     if (socialPage === 'Home') { visiblePosts.forEach(item => feed.append(makePostCard(item))); }
     if (socialPage === 'Profile') {
-      const identity=chirperIdentity(); $('chirper-avatar').textContent=identity.initial; $('chirper-profile-name').textContent=identity.name; $('chirper-profile-handle').textContent=identity.handle; $('chirper-profile-count').textContent=String(chirps.length);
-      const out=$('chirper-profile-posts'); out.replaceChildren(); let subset = order.filter(item => profileTab === 'Likes' ? item.liked : profileTab === 'Replies' ? false : profileTab === 'Media' ? false : true);
-      subset.forEach(item => out.append(makePostCard(item))); $('chirper-profile-empty').hidden = subset.length > 0;
+      const profileKey = viewedProfileKey || activePhoneUserKey, profileAccount = chirperAccounts[profileKey] || chirperAccount;
+      const profileChirps = profileKey === activePhoneUserKey ? chirps : (Array.isArray(chirpsByPhoneUser[profileKey]) ? chirpsByPhoneUser[profileKey] : []);
+      const profileOrder = [...profileChirps].sort((a,b) => b.date-a.date), identity=chirperIdentity(profileAccount);
+      $('chirper-avatar').textContent=identity.initial; $('chirper-profile-name').textContent=identity.name; $('chirper-profile-handle').textContent=identity.handle; $('chirper-profile-count').textContent=String(profileChirps.length);
+      accountTools.hidden = profileKey !== activePhoneUserKey;
+      const out=$('chirper-profile-posts'); out.replaceChildren(); let subset = profileOrder.filter(item => profileTab === 'Likes' ? item.liked : profileTab === 'Replies' ? false : profileTab === 'Media' ? Boolean(item.imageData) : true);
+      subset.forEach(item => out.append(makePostCard(item.authorName ? item : { ...item, authorName: profileAccount?.displayName || 'Local profile', authorHandle: profileAccount?.handle || '@local', authorType: profileAccount?.type }, profileKey !== activePhoneUserKey))); $('chirper-profile-empty').hidden = subset.length > 0;
       $('chirper-profile-empty').querySelector('strong').textContent = profileTab === 'Likes' ? 'No local likes yet' : `No ${profileTab.toLowerCase()} yet`;
     }
     document.querySelectorAll('[data-chirper-feed]').forEach(b => b.classList.toggle('selected', b.dataset.chirperFeed === feedMode));
     document.querySelector('.pa-chirper-tabs').hidden = socialPage !== 'Home';
   }
   window.addEventListener('era:language-changed', renderChirper);
+  $('chirper-search-input')?.addEventListener('input', renderLocalUserSearch);
   document.querySelectorAll('[data-chirper-feed]').forEach(button => button.addEventListener('click', () => { feedMode = button.dataset.chirperFeed; renderChirper(); }));
-  document.querySelectorAll('[data-chirper-nav]').forEach(button => button.addEventListener('click', () => { socialPage = button.dataset.chirperNav; document.querySelectorAll('[data-chirper-nav]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
+  document.querySelectorAll('[data-chirper-nav]').forEach(button => button.addEventListener('click', () => { socialPage = button.dataset.chirperNav; viewedProfileKey = null; document.querySelectorAll('[data-chirper-nav]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
   document.querySelectorAll('[data-profile-tab]').forEach(button => button.addEventListener('click', () => { profileTab = button.dataset.profileTab; document.querySelectorAll('[data-profile-tab]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
+  let selectedChirperImage = '', galleryUrls = [];
+  const composerForm = $('chirper-compose-form'), composeText = $('chirper-compose-text');
+  if (composeText) composeText.required = false;
+  const galleryButton = document.createElement('button'); galleryButton.type = 'button'; galleryButton.className = 'pa-gallery-pick'; galleryButton.textContent = '▧  Choose from Photos';
+  const composePreview = document.createElement('img'); composePreview.className = 'pa-compose-preview'; composePreview.alt = 'Selected photo'; composePreview.hidden = true;
+  const galleryPicker = document.createElement('div'); galleryPicker.className = 'pa-gallery-picker'; galleryPicker.id = 'chirper-gallery-picker'; galleryPicker.hidden = true;
+  const composeFoot = composerForm?.querySelector('p'); composerForm?.insertBefore(galleryButton, composeFoot || null); composerForm?.insertBefore(composePreview, composeFoot || null); composerForm?.insertBefore(galleryPicker, composeFoot || null);
+  function clearGalleryUrls() { galleryUrls.forEach(url => URL.revokeObjectURL(url)); galleryUrls = []; }
+  async function showChirperGallery() {
+    galleryPicker.hidden = false; galleryPicker.replaceChildren(); clearGalleryUrls();
+    const savedPhotos = await readPhotos().catch(() => []);
+    if (!savedPhotos.length) { const empty = document.createElement('small'); empty.textContent = 'Your Photos library is empty. Capture a photo first.'; galleryPicker.append(empty); return; }
+    for (const photo of savedPhotos.sort((a,b) => b.date-a.date)) {
+      const url = URL.createObjectURL(photo.blob); galleryUrls.push(url);
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'pa-gallery-choice'; button.setAttribute('aria-label', photo.title || 'Choose photo');
+      const image = document.createElement('img'); image.src = url; image.alt = photo.title || 'Saved photo'; button.append(image);
+      button.addEventListener('click', async () => {
+        try { selectedChirperImage = await compressChirperImage(photo.blob); composePreview.src = selectedChirperImage; composePreview.hidden = false; galleryPicker.hidden = true; }
+        catch (error) { toast(error.message || 'Could not attach this photo.'); }
+      });
+      galleryPicker.append(button);
+    }
+  }
+  galleryButton.addEventListener('click', showChirperGallery);
+  function resetComposer() { clearGalleryUrls(); selectedChirperImage = ''; composePreview.removeAttribute('src'); composePreview.hidden = true; galleryPicker.hidden = true; galleryPicker.replaceChildren(); composeText.value = ''; }
   $('chirper-compose-open')?.addEventListener('click', () => { $('chirper-compose-sheet').hidden = false; $('chirper-compose-text').focus(); });
-  document.querySelectorAll('[data-chirp-close]').forEach(button => button.addEventListener('click', () => { $('chirper-compose-sheet').hidden = true; }));
-   $('chirper-compose-form')?.addEventListener('submit', event => { event.preventDefault(); if (!chirperAccount) return; const text=$('chirper-compose-text').value.trim(); if (!text) return; chirps.unshift({id:makeId(),text:text.slice(0,500),date:Date.now(),liked:false,rechirped:false}); persistChirps(); $('chirper-compose-text').value=''; $('chirper-compose-sheet').hidden=true; socialPage='Home'; document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home')); renderChirper(); });
+  document.querySelectorAll('[data-chirp-close]').forEach(button => button.addEventListener('click', () => { $('chirper-compose-sheet').hidden = true; resetComposer(); }));
+  composerForm?.addEventListener('submit', event => {
+    event.preventDefault(); if (!chirperAccount) return;
+    const text = composeText.value.trim(); if (!text && !selectedChirperImage) return;
+    const post = { id: makeId(), text: text.slice(0,500), date: Date.now(), liked: false, rechirped: false, authorName: chirperAccount.displayName, authorHandle: chirperAccount.handle, authorType: chirperAccount.type, imageData: selectedChirperImage };
+    chirps.unshift(post);
+    if (!persistChirps()) { chirps.shift(); return; }
+    $('chirper-compose-sheet').hidden = true; resetComposer(); socialPage='Home'; viewedProfileKey=null; document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home')); renderChirper();
+  });
   renderChirper();
 
   const forbiddenListing = /\b(?:cocaine|heroin|meth(?:amphetamine)?|fentanyl|opioid|narcotic|firearm|gun|rifle|pistol|ammunition|explosive|bomb|weapon|human trafficking|stolen identity)\b/i;

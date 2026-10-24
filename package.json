@@ -1,6 +1,6 @@
 {
   "name": "primecad-overlay",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "ERA ER:LC server manager and fixed phone overlay",
   "main": "src/main.js",
   "author": "ERA",
