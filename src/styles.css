@@ -63,6 +63,7 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-ser
 .threads-header{position:absolute;top:86px;left:13px;right:13px;height:43px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #292b30}.threads-header .profile-card-avatar{width:27px;height:27px;font-size:11px}.threads-header span{font-size:10px;font-weight:750}.threads-header small{margin-left:auto;color:#93959c;font-size:7px;letter-spacing:.5px}.thread-compose{position:absolute;top:140px;left:13px;right:13px;display:flex;flex-direction:column;gap:7px}.thread-compose textarea{height:86px;resize:none;padding:10px;border:1px solid #34363d;border-radius:11px;background:#101116;color:white;font:10px/1.4 inherit;outline:none;user-select:text}.thread-compose .primary-clock-action{height:31px;align-self:flex-end;padding:0 13px;border:0;border-radius:15px;background:#168ee4;color:white;font:700 9px inherit;cursor:pointer}.threads-disclaimer{position:absolute;top:275px;left:15px;right:15px;color:#8f929a;text-align:center;font-size:7px}.threads-list{position:absolute;top:296px;left:12px;right:12px;bottom:10px;overflow:auto;scrollbar-width:none}.thread-draft-card{padding:10px 2px;border-bottom:1px solid #2c2e34}.thread-draft-card strong,.thread-draft-card small{display:block}.thread-draft-card strong{font-size:9px}.thread-draft-card small{margin-top:3px;color:#8f9299;font-size:7px}.thread-draft-card p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:9px;line-height:1.35}.thread-draft-card .text-button{font-size:8px}
 
 .profile-dialog input{font-family:inherit;font-size:11px}.wallpaper-setting select{font-family:inherit;font-size:9px}.clock-tabs button{font-family:inherit;font-size:8px}.timer-inputs input{font-family:inherit;font-size:13px}.timer-actions button,.thread-compose .primary-clock-action{font-family:inherit}.news-source{display:block;margin:11px 0 6px;padding:0;border:0;background:transparent;color:#8da8bb;font-family:inherit;font-size:8px;text-align:left;cursor:pointer}
+.profile-dialog select{width:100%;height:36px;padding:0 10px;border:1px solid #383a42;border-radius:10px;background:#0c0d11;color:#f6f6f7;font:11px inherit;outline:none}.profile-dialog select:focus{border-color:#159be9}
 
 /* Video-reference home layout and Clock alarms */
 .home-grid{left:16px;right:16px;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:8px;row-gap:9px;grid-auto-rows:70px}
@@ -89,3 +90,29 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-ser
 .app-top{border-bottom-color:rgba(255,255,255,.075)}
 .back,.more{background:#15161a;border:1px solid rgba(255,255,255,.045)}
 .home-indicator::after{width:76px;height:3px;background:rgba(255,255,255,.94);box-shadow:0 1px 3px rgba(0,0,0,.6)}
+
+/* OMB-style community launcher, with the social feed as the phone's primary app. */
+.home-view{background:radial-gradient(ellipse at 50% 32%,#3b2235 0,#211722 39%,#0a0b10 82%,#050506 100%)}
+.home-toolbar{top:42px;left:16px;right:16px}
+.home-community-brand{display:flex;align-items:center;gap:7px;color:#f5f3f7;font-size:11px;font-weight:800;letter-spacing:-.15px}
+.home-community-brand>span:last-child{display:grid;gap:2px}
+.home-community-brand small{color:#aaa3b1;font-size:6px;font-weight:700;letter-spacing:.16em}
+.home-community-mark{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:linear-gradient(145deg,#ff8b4e,#e84949 66%,#a83262);color:white;font-size:15px;box-shadow:0 4px 11px #eb5c5150}
+.home-community-card{position:absolute;z-index:2;top:84px;left:13px;right:13px;display:flex;flex-direction:column;align-items:flex-start;min-height:110px;padding:10px 12px 9px;border:1px solid #d986682b;border-radius:14px;background:radial-gradient(ellipse at 98% 0,#bd665423,transparent 50%),linear-gradient(135deg,#26202a,#17171d 68%,#121319);color:#fff;text-align:left;box-shadow:0 9px 24px #0004,inset 0 1px #ffffff0b;cursor:pointer;animation:community-card-in .32s cubic-bezier(.2,.75,.2,1) both}
+.community-card-kicker{display:flex;align-items:center;gap:5px;color:#d8bd8e;font-size:6px;font-weight:900;letter-spacing:.11em}
+.community-card-kicker i{width:5px;height:5px;border-radius:50%;background:#62d19a;box-shadow:0 0 7px #62d19a9a}
+.community-card-kicker>span{margin-left:auto;color:#9a9ca5;font-size:5px;letter-spacing:.08em}
+.home-community-card>strong{margin-top:7px;font-size:14px;line-height:1.12;letter-spacing:-.35px}
+.home-community-card>small{margin-top:4px;color:#a9a6af;font-size:7px}
+.community-card-action{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:7px;padding-top:6px;border-top:1px solid #ffffff10;color:#f0c18e;font-size:7px;font-weight:800}
+.community-card-action b{font-size:14px;line-height:8px}
+.home-grid{top:207px;left:16px;right:16px;column-gap:8px;row-gap:5px;grid-auto-rows:68px}
+.home-grid .app-launch{animation:home-icon-in .24s cubic-bezier(.2,.7,.2,1) both}
+.home-grid .app-launch:nth-child(2){animation-delay:.025s}.home-grid .app-launch:nth-child(3){animation-delay:.05s}.home-grid .app-launch:nth-child(4){animation-delay:.075s}.home-grid .app-launch:nth-child(5){animation-delay:.1s}.home-grid .app-launch:nth-child(6){animation-delay:.125s}.home-grid .app-launch:nth-child(7){animation-delay:.15s}
+.dock{left:16px;right:16px;bottom:14px;height:55px;padding:6px 7px;border-radius:17px}
+.dock-app{width:42px;height:42px}
+.dock-icon{width:38px;height:38px;border-radius:11px}
+.chirper-dock{background:linear-gradient(145deg,#ff9552,#e54d46 70%,#a73865);font-size:20px}
+@keyframes community-card-in{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes home-icon-in{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.home-community-card,.home-grid .app-launch{animation:none;transition:none}}

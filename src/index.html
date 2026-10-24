@@ -15,7 +15,8 @@
       <div class="status-row"><span id="statusTime">--:--</span><span class="status-icons"><i class="signal-icon"></i><i class="wifi-icon"></i><i class="battery-icon"></i></span></div>
 
       <section class="view home-view active" data-view="home" aria-label="Home screen">
-        <div class="home-toolbar"><span class="mini-brand" aria-label="ERA"><img class="mini-era-logo" src="assets/era-logo.png" alt="ERA" /></span><button class="gear-button" data-open="settings" aria-label="Settings">⚙</button></div>
+        <div class="home-toolbar"><span class="home-community-brand"><span class="home-community-mark">✦</span><span>OMB Community<small>LIBERTY COUNTY</small></span></span><button class="gear-button" data-open="settings" aria-label="Settings">⚙</button></div>
+        <button class="home-community-card" data-open="chirper" type="button"><span class="community-card-kicker"><i></i> COMMUNITY FEED <span>LOCAL PREVIEW</span></span><strong>What’s happening in<br>Liberty County?</strong><small>Updates from local creators and businesses</small><span class="community-card-action">Open Chirper <b>›</b></span></button>
         <div class="home-grid">
           <button class="app-launch" data-open="photos"><span class="app-icon photos-icon">▧</span><span class="app-label">Photos</span></button>
           <button class="app-launch" data-open="camera"><span class="app-icon camera-icon">◉</span><span class="app-label">Camera</span></button>
@@ -23,18 +24,14 @@
           <button class="app-launch" data-open="clock"><span class="app-icon clock-icon">◷</span><span class="app-label">Clock</span></button>
           <button class="app-launch" data-open="settings"><span class="app-icon settings-icon">⚙</span><span class="app-label">Settings</span></button>
           <button class="app-launch" data-open="chirper"><span class="app-icon chirper-icon">C</span><span class="app-label">Chirper</span></button>
-          <button class="app-launch" data-open="marketplace"><span class="app-icon marketplace-icon">▣</span><span class="app-label">Marketplace</span></button>
-          <button class="app-launch" data-open="darkweb"><span class="app-icon darkweb-icon">◈</span><span class="app-label">Dark Web</span></button>
-          <button class="app-launch" data-open="postimees"><span class="app-icon postimees-icon">P</span><span class="app-label">Postimees</span></button>
           <button class="app-launch" data-open="emergency"><span class="app-icon emergency-icon">911</span><span class="app-label">911</span></button>
-          <button class="app-launch" data-open="threads"><span class="app-icon threads-icon">@</span><span class="app-label">Threads</span></button>
         </div>
         <div class="home-watermark" aria-hidden="true"><img src="assets/era-logo.png" alt="" /></div>
         <nav class="dock" aria-label="Dock">
           <button class="dock-app" data-open="phone" aria-label="Phone"><span class="dock-icon phone-dock">☎</span></button>
           <button class="dock-app" data-open="messages" aria-label="Messages"><span class="dock-icon messages-dock">●</span></button>
           <button class="dock-app" data-open="erabank" aria-label="ERABank"><span class="dock-icon erabank-dock">E</span></button>
-          <button class="dock-app" data-open="threads" aria-label="Threads"><span class="dock-icon threads-dock">@</span></button>
+          <button class="dock-app" data-open="chirper" aria-label="Chirper"><span class="dock-icon chirper-dock">✦</span></button>
         </nav>
       </section>
 
@@ -77,10 +74,11 @@
       <section class="view app-view" data-view="postimees"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Postimees</strong><button id="refreshNews" class="more" title="Refresh headlines">↻</button></header><div class="app-content news-page"><p class="eyebrow">EESTI UUDISED</p><h1>Latest headlines</h1><p id="newsStatus" class="app-copy" aria-live="polite">Loading Postimees RSS…</p><div id="newsList" class="news-list"></div><button id="openNewsSource" class="news-source" type="button">Source: Postimees RSS ↗</button></div></section>
 
       <section class="view app-view" data-view="threads"><header class="app-top"><button class="back" data-back aria-label="Back">‹</button><strong>Threads</strong><span class="more muted-mark">@</span></header><div class="threads-header"><div class="profile-card-avatar" id="threadsAvatar">?</div><span id="threadsProfileName">Set up your phone</span><small>LOCAL PROFILE</small></div><div class="thread-compose"><textarea id="threadDraft" maxlength="500" placeholder="What's happening?"></textarea><button id="saveThreadDraft" class="primary-clock-action">Save draft</button></div><div class="threads-disclaimer">Local drafts only · No post is sent to other players</div><div id="threadsList" class="threads-list"></div></section>
-      <div id="profileSetupModal" class="profile-modal" hidden role="dialog" aria-modal="true" aria-labelledby="profileSetupTitle"><form id="profileSetupForm" class="profile-dialog"><div class="profile-modal-logo"><img src="assets/era-logo.png" alt="ERA" /></div><p class="eyebrow">YOUR PERSONAL PHONE</p><h2 id="profileSetupTitle">Set up your phone</h2><p class="app-copy">Your profile and preferences stay on this computer. The Roblox ID is typed locally, not verified by Roblox. Do not rely on this role check to protect API keys.</p><label for="profileNameInput">Display name</label><input id="profileNameInput" maxlength="40" autocomplete="name" placeholder="Your name" required /><label for="profileRobloxIdInput">Roblox user ID</label><input id="profileRobloxIdInput" inputmode="numeric" maxlength="20" placeholder="Optional, digits only" /><div id="profileFormError" class="profile-form-error" role="alert"></div><div class="profile-form-actions"><button type="button" id="skipProfileSetup" class="text-button">Later</button><button type="submit" class="primary-action">Save Profile</button></div></form></div>
+      <div id="profileSetupModal" class="profile-modal" hidden role="dialog" aria-modal="true" aria-labelledby="profileSetupTitle"><form id="profileSetupForm" class="profile-dialog"><div class="profile-modal-logo"><img src="assets/era-logo.png" alt="ERA" /></div><p class="eyebrow">YOUR PERSONAL PHONE</p><h2 id="profileSetupTitle">Set up your phone</h2><p class="app-copy">Your profile and preferences stay on this computer. The Roblox ID is typed locally, not verified by Roblox. Do not rely on this role check to protect API keys.</p><label for="phoneLanguageSelect">Language / Keel</label><select id="phoneLanguageSelect" aria-label="Phone language"><option value="en">English</option><option value="et">Eesti</option></select><label for="profileNameInput">Display name</label><input id="profileNameInput" maxlength="40" autocomplete="name" placeholder="Your name" required /><label for="profileRobloxIdInput">Roblox user ID</label><input id="profileRobloxIdInput" inputmode="numeric" maxlength="20" placeholder="Optional, digits only" /><div id="profileFormError" class="profile-form-error" role="alert"></div><div class="profile-form-actions"><button type="button" id="skipProfileSetup" class="text-button">Later</button><button type="submit" class="primary-action">Save Profile</button></div></form></div>
       <button id="homeIndicator" class="home-indicator" type="button" aria-label="Go to Home Screen" title="Home"></button>
     </div>
   </main>
+  <script src="i18n.js"></script>
   <script src="renderer.js"></script>
   <script src="phone-apps.js"></script>
 </body>

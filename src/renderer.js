@@ -34,7 +34,7 @@ const noteEditor = document.getElementById('noteEditor');
 const noteTitle = document.getElementById('noteTitle');
 const noteBody = document.getElementById('notesText');
 const noteSaved = document.getElementById('noteSaved');
-const fmtNoteDate = value => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const fmtNoteDate = value => new Date(value).toLocaleDateString(window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 function renderNotes() {
   notesList.innerHTML = '';
   const sorted = [...notes].sort((a,b) => b.updatedAt - a.updatedAt);
@@ -53,7 +53,7 @@ function editNote(id = null) {
   const note = notes.find(item => item.id === id);
   noteTitle.value = note?.title || '';
   noteBody.value = note?.body || '';
-  document.getElementById('noteDate').textContent = note ? fmtNoteDate(note.updatedAt) : new Date().toLocaleDateString('en-US', { dateStyle: 'long' });
+  document.getElementById('noteDate').textContent = note ? fmtNoteDate(note.updatedAt) : new Date().toLocaleDateString(window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US', { dateStyle: 'long' });
   noteSaved.textContent = 'Saved on this device';
   notesListPage.hidden = true;
   noteEditor.hidden = false;
@@ -184,10 +184,11 @@ renderDrafts();
 
 function updateClock() {
   const now = new Date();
-  const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const locale = window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US';
+  const time = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
   document.getElementById('statusTime').textContent = time;
   document.getElementById('bigClock').textContent = time;
-  document.getElementById('fullDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('fullDate').textContent = now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const minute = now.getMinutes(), hour = (now.getHours() % 12) * 30 + minute / 2, second = now.getSeconds() * 6;
   document.querySelectorAll('.clock-hand.hour').forEach(hand => hand.style.transform = `translateX(-50%) rotate(${hour}deg)`);
   document.querySelectorAll('.clock-hand.minute').forEach(hand => hand.style.transform = `translateX(-50%) rotate(${minute * 6}deg)`);
@@ -225,6 +226,12 @@ function renderPhoneProfile() {
   document.getElementById('myPhoneNumber').textContent = 'Unavailable offline';
   document.getElementById('phoneNumberDisplay').textContent = 'Unavailable offline';
   const theme = wallpaperPresets.has(phoneProfile.wallpaper) ? phoneProfile.wallpaper : 'midnight';
+  const language = phoneProfile.language === 'et' ? 'et' : 'en';
+  window.eraI18n?.setLanguage(language);
+  const onboardingLanguage = document.getElementById('phoneLanguageSelect');
+  if (onboardingLanguage) onboardingLanguage.value = language;
+  const settingsLanguage = document.getElementById('pa-language');
+  if (settingsLanguage) settingsLanguage.value = language;
   document.querySelector('.home-view').dataset.wallpaper = theme;
   document.getElementById('wallpaperSelect').value = theme;
   if (theme === 'custom' && phoneProfile.customWallpaperDataUrl) {
@@ -236,7 +243,9 @@ function renderPhoneProfile() {
 async function loadPhoneProfile() {
   try {
     phoneProfile = await window.primecad.phoneProfile.get();
+    window.__eraPhoneProfileReady = true;
     renderPhoneProfile();
+    window.dispatchEvent(new CustomEvent('era:phone-profile-loaded', { detail: phoneProfile }));
     if (!phoneProfile.name && !localStorage.getItem('era-profile-setup-later')) openPhoneProfile(true);
   } catch { toast('Phone profile could not be loaded.'); }
 }
@@ -249,6 +258,15 @@ function openPhoneProfile(firstRun = false) {
   setTimeout(() => document.getElementById('profileNameInput').focus(), 0);
 }
 document.getElementById('editPhoneProfile').addEventListener('click', () => openPhoneProfile(false));
+document.getElementById('phoneLanguageSelect').addEventListener('change', async event => {
+  const language = event.currentTarget.value === 'et' ? 'et' : 'en';
+  window.eraI18n?.setLanguage(language);
+  if (!window.primecad?.phoneProfile) return;
+  try {
+    phoneProfile = await window.primecad.phoneProfile.save({ name: phoneProfile.name, robloxUserId: phoneProfile.robloxUserId, wallpaper: phoneProfile.wallpaper, language });
+    renderPhoneProfile();
+  } catch (error) { toast(error.message || 'Language preference could not be saved.'); }
+});
 document.getElementById('skipProfileSetup').addEventListener('click', () => {
   if (profileForm.dataset.firstRun === 'true') localStorage.setItem('era-profile-setup-later', '1');
   profileModal.hidden = true;
@@ -263,14 +281,15 @@ profileForm.addEventListener('submit', async event => {
     return;
   }
   try {
-    phoneProfile = await window.primecad.phoneProfile.save({ name, robloxUserId, wallpaper: phoneProfile.wallpaper });
+    const language = document.getElementById('phoneLanguageSelect').value === 'et' ? 'et' : 'en';
+    phoneProfile = await window.primecad.phoneProfile.save({ name, robloxUserId, wallpaper: phoneProfile.wallpaper, language });
     localStorage.removeItem('era-profile-setup-later');
     renderPhoneProfile();
     profileModal.hidden = true;
     toast('Profile saved on this computer.');
   } catch (error) { document.getElementById('profileFormError').textContent = error.message || 'Profile could not be saved.'; }
 });
-window.primecad.on('phone-profile:updated', profile => { phoneProfile = profile; renderPhoneProfile(); });
+window.primecad.on('phone-profile:updated', profile => { phoneProfile = profile; renderPhoneProfile(); window.dispatchEvent(new CustomEvent('era:phone-profile-loaded', { detail: phoneProfile })); });
 document.getElementById('wallpaperSelect').addEventListener('change', async event => {
   const wallpaper = event.currentTarget.value;
   if (wallpaper === 'custom') {
@@ -311,7 +330,7 @@ async function loadPostimees() {
       title.textContent = item.title;
       const date = document.createElement('small');
       const parsedDate = new Date(item.pubDate);
-      date.textContent = Number.isNaN(parsedDate.valueOf()) ? 'Postimees' : parsedDate.toLocaleString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      date.textContent = Number.isNaN(parsedDate.valueOf()) ? 'Postimees' : parsedDate.toLocaleString(window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
       button.append(title, date);
       button.addEventListener('click', () => window.primecad.news.open(item.link).catch(error => toast(error.message || 'Could not open article.')));
       newsList.append(button);
@@ -319,7 +338,7 @@ async function loadPostimees() {
   } catch (error) { newsStatus.textContent = error.message || 'Postimees headlines could not be loaded.'; }
 }
 document.getElementById('refreshNews').addEventListener('click', loadPostimees);
-document.querySelector('[data-open="postimees"]').addEventListener('click', loadPostimees);
+document.querySelector('[data-open="postimees"]')?.addEventListener('click', loadPostimees);
 document.getElementById('openNewsSource').addEventListener('click', () => window.primecad.news.open('https://www.postimees.ee/'));
 
 // Clock app: live local time, stopwatch with laps, and a countdown timer.

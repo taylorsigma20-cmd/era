@@ -39,10 +39,11 @@ async function readPhoneProfile() {
       name: typeof profile.name === 'string' ? profile.name : '',
       robloxUserId: /^\d{1,20}$/.test(String(profile.robloxUserId || '')) ? String(profile.robloxUserId) : '',
       phoneNumber: typeof profile.phoneNumber === 'string' ? profile.phoneNumber : '',
-      wallpaper: typeof profile.wallpaper === 'string' ? profile.wallpaper : 'midnight'
+      wallpaper: typeof profile.wallpaper === 'string' ? profile.wallpaper : 'midnight',
+      language: profile.language === 'et' ? 'et' : 'en'
     };
   } catch (error) {
-    if (error.code === 'ENOENT') return { name: '', robloxUserId: '', phoneNumber: '', wallpaper: 'midnight' };
+    if (error.code === 'ENOENT') return { name: '', robloxUserId: '', phoneNumber: '', wallpaper: 'midnight', language: 'en' };
     throw new Error('Could not read the local phone profile.');
   }
 }
@@ -805,7 +806,8 @@ ipcMain.handle('phone-profile:save', async (event, input = {}) => {
   const robloxUserId = requestedId;
   const allowedWallpapers = new Set(['midnight', 'aurora', 'ocean', 'sunset', 'custom']);
   const wallpaper = allowedWallpapers.has(input.wallpaper) ? input.wallpaper : current.wallpaper;
-  const profile = { name, robloxUserId, phoneNumber: '', wallpaper };
+  const language = input.language === 'et' || input.language === 'en' ? input.language : current.language;
+  const profile = { name, robloxUserId, phoneNumber: '', wallpaper, language };
   await writePhoneProfile(profile);
   staffSnapshotCache.clear();
   const response = await getPhoneProfileWithWallpaper();

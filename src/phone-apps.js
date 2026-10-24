@@ -12,31 +12,56 @@
   };
   const modal = document.getElementById('profileSetupModal');
   for (const [key, html] of Object.entries(appMarkup)) {
+    if (key === 'marketplace' || key === 'darkweb') continue;
     const route = key === 'marketplace' ? 'marketplace' : key;
     if (!screen.querySelector(`.view[data-view="${route}"]`)) {
       const temp = document.createElement('template'); temp.innerHTML = html.trim();
       screen.insertBefore(temp.content, modal || document.getElementById('homeIndicator') || null);
     }
   }
+  const chirperHeading = screen.querySelector('.view[data-view="chirper"] .pa-chirper-top strong');
+  if (chirperHeading) chirperHeading.textContent = 'OMB Community';
+  const chirperCompose = document.getElementById('chirper-compose-open');
+  const chirperNav = screen.querySelector('.view[data-view="chirper"] .pa-bottom-nav');
+  if (chirperCompose && chirperNav) {
+    chirperCompose.className = 'pa-compose-nav';
+    chirperCompose.innerHTML = '<span>＋</span>Create';
+    chirperCompose.setAttribute('aria-label', 'Create a Chirper post');
+    chirperNav.insertBefore(chirperCompose, chirperNav.children[2] || null);
+  }
   const $ = id => document.getElementById(id);
   const safeText = value => String(value ?? '');
   const makeId = () => (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const displayPreferenceDefaults = { opacity: 100, theme: 'dark', f1Default: 'home' };
+  function phoneDisplayPreferences() {
+    const all = readLocal('primecad-phone-display-v2', {});
+    if (all && typeof all === 'object' && all[phoneUserKey()]) return { ...displayPreferenceDefaults, ...all[phoneUserKey()] };
+    if (phoneUserKey() === 'this-device' || !Object.keys(all || {}).length) return { ...displayPreferenceDefaults, ...readLocal('primecad-phone-display-v1', {}) };
+    return { ...displayPreferenceDefaults };
+  }
+  function savePhoneDisplayPreferences(patch) {
+    const all = readLocal('primecad-phone-display-v2', {});
+    const safeAll = all && typeof all === 'object' && !Array.isArray(all) ? all : {};
+    safeAll[phoneUserKey()] = { ...phoneDisplayPreferences(), ...patch };
+    return writeLocal('primecad-phone-display-v2', safeAll);
+  }
   function routeTo(name) {
+    if (['marketplace', 'darkweb', 'postimees', 'threads'].includes(name)) name = 'home';
     document.querySelectorAll('.device-screen .view').forEach(view => view.classList.toggle('active', view.dataset.view === name));
     if (name !== 'camera') stopCamera();
-    if (document.querySelector(`.device-screen .view[data-view="${CSS.escape(name)}"]`)) writeLocal('primecad-phone-display-v1', { ...readLocal('primecad-phone-display-v1', {}), lastView: name });
+    if (document.querySelector(`.device-screen .view[data-view="${CSS.escape(name)}"]`)) savePhoneDisplayPreferences({ lastView: name });
     window.dispatchEvent(new CustomEvent('era:phone-view-changed', { detail: name }));
   }
   window.addEventListener('era:phone-view-changed', event => {
     const name = String(event.detail || '');
     if (/^[a-z-]+$/.test(name) && screen.querySelector(`.view[data-view="${CSS.escape(name)}"]`)) {
-      writeLocal('primecad-phone-display-v1', { ...readLocal('primecad-phone-display-v1', {}), lastView: name });
+      savePhoneDisplayPreferences({ lastView: name });
     }
   });
   window.primecad?.on('phone-shown', () => {
-    const preferences = readLocal('primecad-phone-display-v1', {});
+    const preferences = phoneDisplayPreferences();
     const desired = preferences.f1Default === 'last' ? String(preferences.lastView || 'home') : 'home';
-    const view = /^[a-z-]+$/.test(desired) && screen.querySelector(`.view[data-view="${CSS.escape(desired)}"]`) ? desired : 'home';
+    const view = !['marketplace', 'darkweb', 'postimees', 'threads'].includes(desired) && /^[a-z-]+$/.test(desired) && screen.querySelector(`.view[data-view="${CSS.escape(desired)}"]`) ? desired : 'home';
     routeTo(view);
   });
   document.querySelectorAll('[data-open="photos"],[data-open="camera"],[data-open="chirper"],[data-open="marketplace"],[data-open="darkweb"]').forEach(button => {
@@ -211,14 +236,72 @@
   }
   refreshPhotos();
 
-  let chirps = readLocal('primecad-chirper-local-v1', []), feedMode = 'foryou', socialPage = 'Home', profileTab = 'Chirps';
+  let activePhoneUserKey = '';
+  function phoneUserKey() { const id = String(phoneProfile?.robloxUserId || '').trim(); return id ? `roblox-${id}` : 'this-device'; }
+  let chirperAccounts = readLocal('era-chirper-accounts-v1', {});
+  if (!chirperAccounts || typeof chirperAccounts !== 'object' || Array.isArray(chirperAccounts)) chirperAccounts = {};
+  let chirpsByPhoneUser = readLocal('primecad-chirper-accounts-posts-v1', {});
+  if (!chirpsByPhoneUser || typeof chirpsByPhoneUser !== 'object' || Array.isArray(chirpsByPhoneUser)) chirpsByPhoneUser = {};
+  activePhoneUserKey = phoneUserKey();
+  let chirps = Array.isArray(chirpsByPhoneUser[activePhoneUserKey]) ? chirpsByPhoneUser[activePhoneUserKey] : readLocal('primecad-chirper-local-v1', []), feedMode = 'foryou', socialPage = 'Home', profileTab = 'Chirps';
+  let chirperAccount = chirperAccounts[activePhoneUserKey] || (activePhoneUserKey === 'this-device' ? readLocal('era-chirper-account-v1', null) : null);
   if (!Array.isArray(chirps)) chirps = [];
+  if (!chirperAccount || typeof chirperAccount !== 'object' || Array.isArray(chirperAccount) || !['personal', 'business'].includes(chirperAccount.type) || typeof chirperAccount.displayName !== 'string' || typeof chirperAccount.handle !== 'string') chirperAccount = null;
+  if (chirperAccount && !chirperAccounts[activePhoneUserKey]) { chirperAccounts[activePhoneUserKey] = chirperAccount; writeLocal('era-chirper-accounts-v1', chirperAccounts); }
+  if (Array.isArray(chirps) && !Array.isArray(chirpsByPhoneUser[activePhoneUserKey])) { chirpsByPhoneUser[activePhoneUserKey] = chirps; writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser); }
+  const chirperView = document.querySelector('.view[data-view="chirper"]');
+  const accountGate = document.createElement('div');
+  accountGate.className = 'pa-account-gate'; accountGate.id = 'chirper-account-gate'; accountGate.hidden = Boolean(chirperAccount);
+  accountGate.innerHTML = `<form class="pa-account-card" id="chirper-account-form"><div class="pa-account-mark">C</div><p class="pa-account-kicker">CHIRPER COMMUNITY</p><h1>Create your account</h1><p class="pa-account-copy">Build your profile and join the local preview. This account is saved only on this device; it is not online or shared with other players.</p><div class="pa-account-type" role="group" aria-label="Account type"><button type="button" class="selected" data-account-type="personal">Personal</button><button type="button" data-account-type="business">Business</button></div><label for="chirper-account-name">Display name</label><input id="chirper-account-name" maxlength="40" autocomplete="nickname" placeholder="Your name" required><label for="chirper-account-handle">Username</label><div class="pa-handle-input"><span>@</span><input id="chirper-account-handle" maxlength="20" autocomplete="off" placeholder="yourname" required></div><small class="pa-field-hint">3–20 letters, numbers, or underscores</small><div class="pa-business-fields" id="chirper-business-fields" hidden><label for="chirper-business-category">Business category</label><select id="chirper-business-category"><option value="Community">Community</option><option value="Public Safety">Public Safety</option><option value="Local Business">Local Business</option><option value="Creator">Creator</option><option value="Other">Other</option></select><label for="chirper-business-bio">Bio</label><textarea id="chirper-business-bio" maxlength="160" placeholder="Tell the community about this organization"></textarea></div><p class="pa-account-error" id="chirper-account-error" role="alert"></p><div class="pa-account-actions"><button id="chirper-account-cancel" type="button" class="pa-account-cancel" hidden>Cancel</button><button class="pa-account-submit" type="submit">Create local account <span>→</span></button></div><p class="pa-account-footnote">LOCAL PREVIEW · NO COMMUNITY SERVICE CONNECTED</p></form>`;
+  chirperView?.append(accountGate);
+  let accountTypeDraft = 'personal';
+  accountGate.querySelectorAll('[data-account-type]').forEach(button => button.addEventListener('click', () => {
+    accountTypeDraft = button.dataset.accountType;
+    accountGate.querySelectorAll('[data-account-type]').forEach(item => item.classList.toggle('selected', item === button));
+    const business = accountTypeDraft === 'business';
+    $('chirper-business-fields').hidden = !business;
+    $('chirper-account-name').labels[0].textContent = business ? 'Business name' : 'Display name';
+    $('chirper-account-handle').placeholder = business ? 'businessname' : 'yourname';
+    $('chirper-account-form').classList.toggle('is-business', business);
+    $('chirper-account-form').querySelector('.pa-account-submit').innerHTML = business ? 'Create business profile <span>→</span>' : 'Create local account <span>→</span>';
+  }));
+  $('chirper-account-name')?.addEventListener('input', event => {
+    if (!$('chirper-account-handle').dataset.edited) $('chirper-account-handle').value = event.target.value.toLowerCase().replace(/[^a-z0-9_]+/g, '').slice(0, 20);
+  });
+  $('chirper-account-handle')?.addEventListener('input', event => { event.target.dataset.edited = 'true'; });
+  $('chirper-account-form')?.addEventListener('submit', event => {
+    event.preventDefault(); const name = $('chirper-account-name').value.trim(); const handle = $('chirper-account-handle').value.trim().replace(/^@/, '');
+    if (!name || !/^[a-zA-Z0-9_]{3,20}$/.test(handle)) { $('chirper-account-error').textContent = 'Add a name and a username with 3–20 letters, numbers, or underscores.'; return; }
+    const previousAccount = chirperAccount;
+    const updatedAccount = { type: accountTypeDraft, displayName: name, handle: `@${handle}`, category: accountTypeDraft === 'business' ? $('chirper-business-category').value : '', bio: accountTypeDraft === 'business' ? $('chirper-business-bio').value.trim().slice(0, 160) : '', createdAt: previousAccount?.createdAt || Date.now() };
+    chirperAccounts[activePhoneUserKey] = updatedAccount;
+    if (!writeLocal('era-chirper-accounts-v1', chirperAccounts)) { if (previousAccount) chirperAccounts[activePhoneUserKey] = previousAccount; else delete chirperAccounts[activePhoneUserKey]; $('chirper-account-error').textContent = 'Could not save this profile on this computer.'; return; }
+    chirperAccount = updatedAccount; $('chirper-account-cancel').hidden = true; accountGate.hidden = true; renderChirper();
+  });
+  $('chirper-account-cancel')?.addEventListener('click', () => { accountGate.hidden = true; $('chirper-account-error').textContent = ''; });
+  const accountTools = document.createElement('div'); accountTools.className = 'pa-account-tools'; accountTools.id = 'chirper-account-tools';
+  accountTools.innerHTML = `<div><span class="pa-account-type-badge" id="chirper-profile-type">PERSONAL · LOCAL</span><p id="chirper-profile-bio"></p></div><button type="button" id="chirper-business-toggle" class="pa-manage-account">Create business profile</button>`;
+  document.getElementById('chirper-profile-page')?.insertBefore(accountTools, document.getElementById('chirper-profile-count')?.parentElement || null);
+  $('chirper-business-toggle')?.addEventListener('click', () => {
+    accountGate.hidden = false;
+    $('chirper-account-cancel').hidden = false;
+    $('chirper-account-error').textContent = '';
+    accountGate.querySelector('[data-account-type="business"]').click();
+    $('chirper-account-name').value = chirperAccount?.displayName || '';
+    $('chirper-account-handle').value = chirperAccount?.handle?.replace(/^@/, '') || '';
+    $('chirper-account-handle').dataset.edited = 'true';
+    $('chirper-business-category').value = chirperAccount?.category || 'Local Business';
+    $('chirper-business-bio').value = chirperAccount?.bio || '';
+    $('chirper-account-form').querySelector('.pa-account-submit').innerHTML = chirperAccount?.type === 'business' ? 'Save business profile <span>→</span>' : 'Create business profile <span>→</span>';
+    $('chirper-account-name').focus();
+  });
   const chirperSamplePosts = [
     { id: 'sample-road-update', sample: true, author: 'County Dispatch', handle: '@countyupdates', avatar: 'C', timeLabel: '2m', text: 'Cedar Avenue is open again after a short road closure. Please continue to drive carefully through the area.' },
     { id: 'sample-fire-open-house', sample: true, author: 'Liberty Fire & Rescue', handle: '@libertyfire', avatar: 'F', timeLabel: '18m', text: 'Station 4 is hosting a community open house this Saturday. Stop by and meet the crew.' },
     { id: 'sample-safe-driving', sample: true, author: 'Liberty County News', handle: '@lcnews', avatar: 'N', timeLabel: '43m', text: 'A reminder to keep intersections clear for emergency vehicles. Stay safe out there, Liberty County.' }
   ];
   function chirperIdentity() {
+    if (chirperAccount) return { name: chirperAccount.displayName, handle: chirperAccount.handle, initial: chirperAccount.displayName.slice(0,1).toUpperCase(), business: chirperAccount.type === 'business' };
     const name = String(phoneProfile?.name || '').trim() || 'Local profile';
     const handle = `@${(name.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0,18) || 'local')}`;
     return { name, handle, initial: name.slice(0,1).toUpperCase() };
@@ -227,7 +310,7 @@
     const identity = post.sample ? { name: post.author, handle: post.handle, initial: post.avatar } : chirperIdentity(), article = document.createElement('article'); article.className = `pa-chirp-card${post.sample ? ' is-sample' : ''}`;
     const avatar = document.createElement('div'); avatar.className = 'pa-chirp-avatar'; avatar.textContent = identity.initial;
     const body = document.createElement('div'); body.className = 'pa-chirp-body';
-    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); handle.textContent = post.sample ? `${identity.handle} · ${post.timeLabel}` : `${identity.handle} · ${new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`; top.append(display, handle);
+    const top = document.createElement('div'); top.className = 'pa-chirp-byline'; const display = document.createElement('strong'); display.textContent = identity.name; const handle = document.createElement('span'); const locale = window.eraI18n?.getLanguage() === 'et' ? 'et-EE' : 'en-US'; handle.textContent = post.sample ? `${identity.handle} · ${post.timeLabel}` : `${identity.handle} · ${new Date(post.date).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`; top.append(display, handle); if (identity.business && !post.sample) { const badge=document.createElement('i'); badge.className='pa-business-verified'; badge.textContent='BUSINESS'; top.append(badge); }
     const text = document.createElement('p'); text.textContent = post.text;
     const local = document.createElement('small'); local.className = 'pa-chirp-local'; local.textContent = post.sample ? 'SAMPLE POST · No community service connected' : 'Saved locally · not shared';
     const actions = document.createElement('div'); actions.className = 'pa-chirp-actions';
@@ -240,7 +323,30 @@
     }
     actions.append(reply, rechirp, like, del); body.append(top,text,local,actions); article.append(avatar,body); return article;
   }
-  function persistChirps() { if (!writeLocal('primecad-chirper-local-v1', chirps)) toast('Could not save local chirps on this computer.'); }
+  function persistChirps() { chirpsByPhoneUser[activePhoneUserKey] = chirps; if (!writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser)) toast('Could not save local chirps on this computer.'); }
+  function loadPhoneUserAccount() {
+    const nextKey = phoneUserKey();
+    if (nextKey === activePhoneUserKey) return;
+    const previousKey = activePhoneUserKey;
+    if (previousKey === 'this-device' && !chirperAccounts[nextKey] && chirperAccount) { chirperAccounts[nextKey] = chirperAccount; writeLocal('era-chirper-accounts-v1', chirperAccounts); }
+    if (previousKey === 'this-device' && !Array.isArray(chirpsByPhoneUser[nextKey]) && Array.isArray(chirps)) { chirpsByPhoneUser[nextKey] = chirps; writeLocal('primecad-chirper-accounts-posts-v1', chirpsByPhoneUser); }
+    activePhoneUserKey = nextKey;
+    chirperAccount = chirperAccounts[activePhoneUserKey] || null;
+    chirps = Array.isArray(chirpsByPhoneUser[activePhoneUserKey]) ? chirpsByPhoneUser[activePhoneUserKey] : [];
+    accountTypeDraft = chirperAccount?.type || 'personal';
+    accountGate.querySelector(`[data-account-type="${accountTypeDraft}"]`)?.click();
+    if (!chirperAccount) {
+      $('chirper-account-name').value = '';
+      $('chirper-account-handle').value = '';
+      delete $('chirper-account-handle').dataset.edited;
+      $('chirper-business-category').value = 'Community';
+      $('chirper-business-bio').value = '';
+    }
+    accountGate.hidden = Boolean(chirperAccount) || !chirperView?.classList.contains('active');
+    $('chirper-account-cancel').hidden = true;
+    renderChirper();
+  }
+  window.addEventListener('era:phone-profile-loaded', loadPhoneUserAccount);
   function renderChirper() {
     if (!$('chirper-feed')) return;
     const feed = $('chirper-feed'); feed.replaceChildren(); const order = [...chirps].sort((a,b) => b.date-a.date);
@@ -253,7 +359,14 @@
     $('chirper-social-title').textContent = socialPage === 'Search' ? 'Search' : 'No notifications';
     $('chirper-social-copy').textContent = socialPage === 'Search' ? 'Community search is disconnected. No accounts or posts are shown.' : 'Notifications require a connected community service. Nothing has been received.';
     $('chirper-profile-page').hidden = socialPage !== 'Profile';
-    feed.hidden = socialPage !== 'Home'; $('chirper-compose-open').hidden = socialPage !== 'Home';
+    accountGate.hidden = Boolean(chirperAccount);
+    if (chirperAccount) {
+      $('chirper-profile-type').textContent = chirperAccount.type === 'business' ? `${chirperAccount.category || 'BUSINESS'} · LOCAL` : 'PERSONAL · LOCAL';
+      $('chirper-profile-bio').textContent = chirperAccount.bio || '';
+      $('chirper-business-toggle').textContent = chirperAccount.type === 'business' ? 'Edit business profile' : 'Create business profile';
+      $('chirper-business-toggle').disabled = false;
+    }
+    feed.hidden = socialPage !== 'Home'; $('chirper-compose-open').hidden = false;
     if (socialPage === 'Home') { visiblePosts.forEach(item => feed.append(makePostCard(item))); }
     if (socialPage === 'Profile') {
       const identity=chirperIdentity(); $('chirper-avatar').textContent=identity.initial; $('chirper-profile-name').textContent=identity.name; $('chirper-profile-handle').textContent=identity.handle; $('chirper-profile-count').textContent=String(chirps.length);
@@ -264,12 +377,13 @@
     document.querySelectorAll('[data-chirper-feed]').forEach(b => b.classList.toggle('selected', b.dataset.chirperFeed === feedMode));
     document.querySelector('.pa-chirper-tabs').hidden = socialPage !== 'Home';
   }
+  window.addEventListener('era:language-changed', renderChirper);
   document.querySelectorAll('[data-chirper-feed]').forEach(button => button.addEventListener('click', () => { feedMode = button.dataset.chirperFeed; renderChirper(); }));
   document.querySelectorAll('[data-chirper-nav]').forEach(button => button.addEventListener('click', () => { socialPage = button.dataset.chirperNav; document.querySelectorAll('[data-chirper-nav]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
   document.querySelectorAll('[data-profile-tab]').forEach(button => button.addEventListener('click', () => { profileTab = button.dataset.profileTab; document.querySelectorAll('[data-profile-tab]').forEach(b => b.classList.toggle('selected', b === button)); renderChirper(); }));
   $('chirper-compose-open')?.addEventListener('click', () => { $('chirper-compose-sheet').hidden = false; $('chirper-compose-text').focus(); });
   document.querySelectorAll('[data-chirp-close]').forEach(button => button.addEventListener('click', () => { $('chirper-compose-sheet').hidden = true; }));
-  $('chirper-compose-form')?.addEventListener('submit', event => { event.preventDefault(); const text=$('chirper-compose-text').value.trim(); if (!text) return; chirps.unshift({id:makeId(),text:text.slice(0,500),date:Date.now(),liked:false,rechirped:false}); persistChirps(); $('chirper-compose-text').value=''; $('chirper-compose-sheet').hidden=true; socialPage='Home'; document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home')); renderChirper(); });
+   $('chirper-compose-form')?.addEventListener('submit', event => { event.preventDefault(); if (!chirperAccount) return; const text=$('chirper-compose-text').value.trim(); if (!text) return; chirps.unshift({id:makeId(),text:text.slice(0,500),date:Date.now(),liked:false,rechirped:false}); persistChirps(); $('chirper-compose-text').value=''; $('chirper-compose-sheet').hidden=true; socialPage='Home'; document.querySelectorAll('[data-chirper-nav]').forEach(b=>b.classList.toggle('selected',b.dataset.chirperNav==='Home')); renderChirper(); });
   renderChirper();
 
   const forbiddenListing = /\b(?:cocaine|heroin|meth(?:amphetamine)?|fentanyl|opioid|narcotic|firearm|gun|rifle|pistol|ammunition|explosive|bomb|weapon|human trafficking|stolen identity)\b/i;
@@ -326,15 +440,25 @@
   const settingsPage = document.querySelector('.settings-page');
   if (settingsPage && !$('phoneappsSettingsExtras')) {
     const extras = document.createElement('section'); extras.id = 'phoneappsSettingsExtras'; extras.className = 'pa-settings-extras';
-    extras.innerHTML = `<div class="pa-settings-category"><p class="eyebrow">GENERAL</p><div class="pa-settings-control"><div><strong>Overlay opacity</strong><small>Adjust the phone overlay visibility</small></div><label class="pa-opacity-control"><input id="pa-overlay-opacity" type="range" min="55" max="100" step="5" value="100"><span id="pa-overlay-opacity-value">100%</span></label></div></div><div class="pa-settings-category"><p class="eyebrow">OVERLAY</p><div class="pa-settings-info"><strong>Phone visibility</strong><small>The overlay follows Roblox foreground visibility settings shown above.</small></div></div><div class="pa-settings-category"><p class="eyebrow">KEYBOARD SHORTCUT</p><div class="pa-settings-shortcuts"><div><kbd>F1</kbd><span>Show / hide phone</span></div><small>F1 visibility follows the Roblox foreground setting above. ERA cannot change the app's Roblox-only visibility rule here.</small><div><kbd>F2</kbd><span>Open staff dashboard</span></div><div><kbd>F3</kbd><span>Open CAD overlay (authorized access)</span></div></div></div><div class="pa-settings-category"><p class="eyebrow">THEME</p><label class="pa-settings-select"><span><strong>Phone appearance</strong><small>Choose a local interface theme</small></span><select id="pa-phone-theme" aria-label="Phone appearance"><option value="dark">Dark</option><option value="light">Light</option></select></label></div><div class="pa-settings-category"><p class="eyebrow">AUTO-OPEN</p><label class="pa-settings-select"><span><strong>F1 default screen</strong><small>Choose which screen opens when you press F1.</small></span><select id="pa-f1-default" aria-label="F1 default screen"><option value="home">Home</option><option value="last">Last screen</option></select></label><p class="pa-settings-honest">Saved on this computer. ERA still opens only after you press F1.</p></div>`;
+    extras.innerHTML = `<div class="pa-settings-category"><p class="eyebrow">GENERAL</p><label class="pa-settings-select"><span><strong>Language</strong><small>Choose the phone language</small></span><select id="pa-language" aria-label="Phone language"><option value="en">English</option><option value="et">Eesti</option></select></label><div class="pa-settings-control"><div><strong>Overlay opacity</strong><small>Adjust the phone overlay visibility</small></div><label class="pa-opacity-control"><input id="pa-overlay-opacity" type="range" min="55" max="100" step="5" value="100"><span id="pa-overlay-opacity-value">100%</span></label></div></div><div class="pa-settings-category"><p class="eyebrow">OVERLAY</p><div class="pa-settings-info"><strong>Phone visibility</strong><small>The overlay follows Roblox foreground visibility settings shown above.</small></div></div><div class="pa-settings-category"><p class="eyebrow">KEYBOARD SHORTCUT</p><div class="pa-settings-shortcuts"><div><kbd>F1</kbd><span>Show / hide phone</span></div><small>F1 visibility follows the Roblox foreground setting above. ERA cannot change the app's Roblox-only visibility rule here.</small><div><kbd>F2</kbd><span>Open staff dashboard</span></div><div><kbd>F3</kbd><span>Open CAD overlay (authorized access)</span></div></div></div><div class="pa-settings-category"><p class="eyebrow">THEME</p><label class="pa-settings-select"><span><strong>Phone appearance</strong><small>Choose a local interface theme</small></span><select id="pa-phone-theme" aria-label="Phone appearance"><option value="dark">Dark</option><option value="light">Light</option></select></label></div><div class="pa-settings-category"><p class="eyebrow">AUTO-OPEN</p><label class="pa-settings-select"><span><strong>F1 default screen</strong><small>Choose which screen opens when you press F1.</small></span><select id="pa-f1-default" aria-label="F1 default screen"><option value="home">Home</option><option value="last">Last screen</option></select></label><p class="pa-settings-honest">Saved on this computer. ERA still opens only after you press F1.</p></div>`;
     settingsPage.append(extras);
   }
   const phoneShell = document.querySelector('.phone-shell');
-  const settingsPrefs = readLocal('primecad-phone-display-v1', { opacity: 100, theme: 'dark', f1Default: 'home' });
+  let settingsPrefs = phoneDisplayPreferences();
   if (phoneShell) {
     const opacity = Math.max(55, Math.min(100, Number(settingsPrefs.opacity) || 100));
     phoneShell.dataset.eraOpacity = String(Math.round(opacity / 5) * 5);
     phoneShell.dataset.eraTheme = settingsPrefs.theme === 'light' ? 'light' : 'dark';
+  }
+  if ($('pa-language')) {
+    $('pa-language').value = window.eraI18n?.getLanguage() || 'en';
+    $('pa-language').addEventListener('change', async event => {
+      const language = event.currentTarget.value === 'et' ? 'et' : 'en';
+      window.eraI18n?.setLanguage(language);
+      try {
+        phoneProfile = await window.primecad.phoneProfile.save({ name: phoneProfile.name, robloxUserId: phoneProfile.robloxUserId, wallpaper: phoneProfile.wallpaper, language });
+      } catch (error) { toast(error.message || 'Language preference could not be saved.'); }
+    });
   }
   if ($('pa-overlay-opacity')) {
     $('pa-overlay-opacity').value = String(Math.max(55, Math.min(100, Number(settingsPrefs.opacity) || 100)));
@@ -343,19 +467,36 @@
       const opacity = Math.max(55, Math.min(100, Number(event.target.value)));
       $('pa-overlay-opacity-value').textContent = `${opacity}%`;
       if (phoneShell) phoneShell.dataset.eraOpacity = String(Math.round(opacity / 5) * 5);
-      writeLocal('primecad-phone-display-v1', { ...readLocal('primecad-phone-display-v1', settingsPrefs), opacity });
+      savePhoneDisplayPreferences({ opacity });
     });
     $('pa-phone-theme').value = settingsPrefs.theme === 'light' ? 'light' : 'dark';
     $('pa-phone-theme').addEventListener('change', event => {
       const theme = event.target.value === 'light' ? 'light' : 'dark';
       if (phoneShell) phoneShell.dataset.eraTheme = theme;
-      writeLocal('primecad-phone-display-v1', { ...readLocal('primecad-phone-display-v1', settingsPrefs), theme });
+      savePhoneDisplayPreferences({ theme });
     });
     $('pa-f1-default').value = settingsPrefs.f1Default === 'last' ? 'last' : 'home';
     $('pa-f1-default').addEventListener('change', event => {
       const f1Default = event.target.value === 'last' ? 'last' : 'home';
-      writeLocal('primecad-phone-display-v1', { ...readLocal('primecad-phone-display-v1', settingsPrefs), f1Default });
+      savePhoneDisplayPreferences({ f1Default });
       toast(`F1 will open ${f1Default === 'home' ? 'Home' : 'the last screen'} next time.`);
     });
   }
+  let migratedInitialPhoneSettings = false;
+  window.addEventListener('era:phone-profile-loaded', () => {
+    if (!migratedInitialPhoneSettings) {
+      const all = readLocal('primecad-phone-display-v2', {});
+      if (!all[phoneUserKey()]) {
+        const previous = all['this-device'] || readLocal('primecad-phone-display-v1', null);
+        if (previous) { all[phoneUserKey()] = previous; delete all['this-device']; writeLocal('primecad-phone-display-v2', all); }
+      }
+      migratedInitialPhoneSettings = true;
+    }
+    settingsPrefs = phoneDisplayPreferences();
+    const opacity = Math.max(55, Math.min(100, Number(settingsPrefs.opacity) || 100));
+    if (phoneShell) { phoneShell.dataset.eraOpacity = String(Math.round(opacity / 5) * 5); phoneShell.dataset.eraTheme = settingsPrefs.theme === 'light' ? 'light' : 'dark'; }
+    if ($('pa-overlay-opacity')) { $('pa-overlay-opacity').value = String(opacity); $('pa-overlay-opacity-value').textContent = `${opacity}%`; }
+    if ($('pa-phone-theme')) $('pa-phone-theme').value = settingsPrefs.theme === 'light' ? 'light' : 'dark';
+    if ($('pa-f1-default')) $('pa-f1-default').value = settingsPrefs.f1Default === 'last' ? 'last' : 'home';
+  });
 })();

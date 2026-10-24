@@ -221,6 +221,58 @@
 .device-screen .view[data-view="chirper"] .pa-profile-page[hidden] { display:none; }
 .device-screen .view[data-view="chirper"] .pa-profile-page .pa-empty { padding-top:18px; }
 
+/* Chirper account setup, local business profiles, and restrained motion. */
+.device-screen .view[data-view="chirper"] .pa-account-gate { position:absolute; z-index:8; inset:43px 0 14px; display:flex; align-items:center; justify-content:center; overflow-y:auto; padding:16px 14px 24px; background:radial-gradient(ellipse at 50% 4%,#283044 0,#14151b 48%,#101116 100%); animation:pa-chirper-enter .24s cubic-bezier(.2,.75,.25,1) both; }
+.device-screen .view[data-view="chirper"] .pa-account-gate[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-account-card { width:100%; max-height:100%; overflow:auto; padding:20px 16px 15px; border:1px solid #ffffff16; border-radius:19px; background:linear-gradient(160deg,#232630ed,#17191fee); box-shadow:0 18px 55px #0008,inset 0 1px #ffffff0c; animation:pa-account-card-in .34s cubic-bezier(.2,.8,.2,1) both; }
+.device-screen .view[data-view="chirper"] .pa-account-mark { display:grid; place-items:center; width:38px; height:38px; margin:0 auto 9px; border-radius:13px; background:linear-gradient(145deg,#ff9b51,#e84d3b); color:#fff; font-size:23px; font-weight:900; box-shadow:0 6px 18px #e84d3b45; }
+.device-screen .view[data-view="chirper"] .pa-account-kicker { margin:0; color:#edc978; font-size:7px; font-weight:900; letter-spacing:.18em; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-account-card h1 { margin:7px 0 4px; color:#f7f7fa; font-size:20px; letter-spacing:-.04em; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-account-copy { margin:0 auto 14px; max-width:290px; color:#aeb1bb; font-size:9px; line-height:1.5; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-account-type { display:flex; gap:3px; margin:0 0 13px; padding:3px; border:1px solid #ffffff0d; border-radius:11px; background:#08090d7a; }
+.device-screen .view[data-view="chirper"] .pa-account-type button { flex:1; min-height:31px; border:0; border-radius:8px; background:transparent; color:#a6a8b0; font-size:9px; font-weight:700; transition:background .18s,color .18s,transform .18s; }
+.device-screen .view[data-view="chirper"] .pa-account-type button.selected { background:linear-gradient(135deg,#393d48,#2c2f38); color:#fff; box-shadow:0 2px 8px #0005; }
+.device-screen .view[data-view="chirper"] .pa-account-card>label,.device-screen .view[data-view="chirper"] .pa-business-fields label { display:block; margin:9px 0 4px; color:#d9dbe1; font-size:8px; font-weight:700; }
+.device-screen .view[data-view="chirper"] .pa-account-card>input,.device-screen .view[data-view="chirper"] .pa-handle-input,.device-screen .view[data-view="chirper"] .pa-business-fields select,.device-screen .view[data-view="chirper"] .pa-business-fields textarea { width:100%; min-height:34px; padding:8px 10px; border:1px solid #ffffff18; border-radius:9px; outline:none; background:#0a0b10a8; color:#f3f4f7; font:inherit; font-size:10px; transition:border-color .18s,box-shadow .18s,background .18s; }
+.device-screen .view[data-view="chirper"] .pa-account-card input:focus,.device-screen .view[data-view="chirper"] .pa-handle-input:focus-within,.device-screen .view[data-view="chirper"] .pa-business-fields select:focus,.device-screen .view[data-view="chirper"] .pa-business-fields textarea:focus { border-color:#f08c65a6; background:#0b0d12; box-shadow:0 0 0 3px #f08c651c; }
+.device-screen .view[data-view="chirper"] .pa-handle-input { display:flex; align-items:center; gap:5px; padding:0 9px; }
+.device-screen .view[data-view="chirper"] .pa-handle-input>span { color:#e8ba73; font-size:10px; }
+.device-screen .view[data-view="chirper"] .pa-handle-input input { width:100%; min-width:0; height:31px; border:0; outline:0; background:transparent; color:#f3f4f7; font:inherit; font-size:10px; }
+.device-screen .view[data-view="chirper"] .pa-field-hint { display:block; margin-top:4px; color:#828692; font-size:7px; }
+.device-screen .view[data-view="chirper"] .pa-business-fields { margin-top:5px; animation:pa-chirper-enter .2s ease both; }
+.device-screen .view[data-view="chirper"] .pa-business-fields[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-business-fields select { appearance:none; }
+.device-screen .view[data-view="chirper"] .pa-business-fields textarea { min-height:54px; resize:vertical; }
+.device-screen .view[data-view="chirper"] .pa-account-error { min-height:12px; margin:6px 0; color:#ff8791; font-size:8px; }
+.device-screen .view[data-view="chirper"] .pa-account-actions { display:flex; align-items:center; gap:7px; }
+.device-screen .view[data-view="chirper"] .pa-account-submit { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:38px; border:0; border-radius:11px; background:linear-gradient(110deg,#ff9650,#e94c3d 56%,#ce3b54); color:#fff; font-size:10px; font-weight:800; box-shadow:0 7px 18px #e84d3b35; transition:transform .18s,filter .18s,box-shadow .18s; }
+.device-screen .view[data-view="chirper"] .pa-account-cancel { flex:0 0 auto; min-height:38px; padding:0 11px; border:1px solid #ffffff19; border-radius:10px; background:#ffffff09; color:#c7c9d0; font-size:9px; }
+.device-screen .view[data-view="chirper"] .pa-account-cancel[hidden] { display:none; }
+.device-screen .view[data-view="chirper"] .pa-account-submit:hover { filter:brightness(1.08); box-shadow:0 9px 23px #e84d3b55; transform:translateY(-1px); }
+.device-screen .view[data-view="chirper"] .pa-account-submit span { font-size:15px; transition:transform .18s; }
+.device-screen .view[data-view="chirper"] .pa-account-submit:hover span { transform:translateX(3px); }
+.device-screen .view[data-view="chirper"] .pa-account-footnote { margin:11px 0 0; color:#767983; font-size:6px; font-weight:800; letter-spacing:.09em; text-align:center; }
+.device-screen .view[data-view="chirper"] .pa-account-tools { display:flex; align-items:center; justify-content:space-between; gap:7px; padding:8px 12px; border-bottom:1px solid #ffffff12; background:linear-gradient(100deg,#191b21,#15161b); }
+.device-screen .view[data-view="chirper"] .pa-account-type-badge { color:#e4c878; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.device-screen .view[data-view="chirper"] .pa-account-tools p { margin:3px 0 0; color:#9b9ea7; font-size:8px; line-height:1.35; }
+.device-screen .view[data-view="chirper"] .pa-manage-account { flex:0 0 auto; padding:6px 8px; border:1px solid #ffffff1a; border-radius:8px; background:#ffffff0a; color:#f1d38a; font-size:7px; font-weight:700; transition:background .18s,border-color .18s,transform .18s; }
+.device-screen .view[data-view="chirper"] .pa-manage-account:hover { transform:translateY(-1px); border-color:#f0a45e80; background:#e88b371b; }
+.device-screen .view[data-view="chirper"] .pa-business-verified { align-self:center; padding:2px 4px; border:1px solid #e6c36b44; border-radius:4px; color:#e6c36b; font-size:6px; font-style:normal; font-weight:900; letter-spacing:.05em; }
+.device-screen .view[data-view="chirper"] .pa-chirp-card { animation:pa-chirp-in .24s cubic-bezier(.2,.7,.3,1) both; }
+.device-screen .view[data-view="chirper"] .pa-chirp-card:nth-child(2) { animation-delay:.035s; }
+.device-screen .view[data-view="chirper"] .pa-chirp-card:nth-child(3) { animation-delay:.07s; }
+.device-screen .view[data-view="chirper"] [data-chirper-nav],.device-screen .view[data-view="chirper"] [data-chirper-feed] { transition:color .16s,background .16s,transform .16s; }
+.device-screen .view[data-view="chirper"] [data-chirper-nav]:active,.device-screen .view[data-view="chirper"] [data-chirper-feed]:active { transform:scale(.94); }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav { height:54px; padding-inline:3px; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav button { min-width:0; font-size:6px; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav button span { font-size:15px; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav { display:flex; flex:1.1; align-items:center; justify-content:center; gap:2px; color:#f1b47b; font-size:6px; font-weight:800; }
+.device-screen .view[data-view="chirper"] .pa-bottom-nav .pa-compose-nav span { display:grid; place-items:center; width:24px; height:24px; border-radius:9px; background:linear-gradient(145deg,#ff9850,#e75047); color:#fff; font-size:17px; box-shadow:0 3px 9px #e7504738; }
+@keyframes pa-chirper-enter { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pa-account-card-in { from { opacity:0; transform:translateY(10px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes pa-chirp-in { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .device-screen .view[data-view="chirper"] *, .device-screen .view[data-view="chirper"] *::before, .device-screen .view[data-view="chirper"] *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
+
 .device-screen .view[data-view="marketplace"] .pa-market-page,
 .device-screen .view[data-view="darkweb"] .pa-market-page { flex:1; padding:14px 12px 24px; }
 .device-screen .view[data-view="marketplace"] .pa-market-heading,
